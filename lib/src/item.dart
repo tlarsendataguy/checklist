@@ -26,6 +26,7 @@ class Item{
 class ChangeAction extends CommandAction{
   final Item item;
   String newAction;
+  String get key => "Item.ChangeAction";
 
   ChangeAction(this.item,this.newAction);
 
@@ -44,6 +45,7 @@ class ChangeAction extends CommandAction{
 class ChangeToCheck extends CommandAction{
   final Item item;
   String newToCheck;
+  String get key => "Item.ChangeToCheck";
 
   ChangeToCheck(this.item,this.newToCheck);
 

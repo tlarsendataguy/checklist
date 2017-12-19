@@ -37,4 +37,5 @@ main() {
 class CommandActionTester extends CommandAction {
   void action() {}
   void undoAction() {}
+  String get key => "CommandActionTester";
 }

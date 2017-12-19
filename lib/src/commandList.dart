@@ -53,6 +53,7 @@ class InsertItem<E> implements CommandAction {
   final CommandList list;
   final E item;
   final int index;
+  String get key => "CommandList.Insert";
 
   InsertItem(this.list, this.item, this.index);
 
@@ -73,6 +74,7 @@ class RemoveItem<E> implements CommandAction {
   final CommandList list;
   final E item;
   int _index;
+  String get key => "CommandList.Remove";
 
   RemoveItem(this.list, this.item);
 
@@ -107,6 +109,7 @@ class MoveItem implements CommandAction {
   final CommandList list;
   final int oldIndex;
   final int newIndex;
+  String get key => "CommandList.Move";
 
   MoveItem(this.list, this.oldIndex, this.newIndex);
 

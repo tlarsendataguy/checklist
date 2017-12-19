@@ -5,6 +5,7 @@ class Command{
 
   get canUndo => _canUndo;
   get canRedo => _canRedo;
+  get key => actions.key;
 
   Command(this.actions){
     _canUndo = true;
@@ -34,6 +35,7 @@ class Command{
 }
 
 abstract class CommandAction{
+  String get key;
   void action();
   void undoAction();
 }
