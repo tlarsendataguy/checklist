@@ -47,12 +47,20 @@ class Checklist extends CommandList<Item> {
     }
   }
 
+  Command insert(Item item,{int index}){
+    return new Command(new ChecklistInsertItem(this,item,index));
+  }
+
   Command createBranchAt(int index) {
     return new Command(new CreateBranch(this, index));
   }
 
   Command removeBranchAt(int index) {
     return new Command(new RemoveBranch(this, index));
+  }
+
+  Command addTrueBranch(int branchAt,Item item){
+    return new Command(new AddTrueBranch(this,branchAt,item));
   }
 }
 
@@ -108,5 +116,81 @@ class RemoveBranch extends CommandAction {
 
   undoAction() {
     list._branches.putIfAbsent(index, () => _branch);
+  }
+}
+
+class AddTrueBranch extends CommandAction{
+  final Checklist list;
+  final int branchAt;
+  final Item item;
+  String get key => 'Checklist.AddTrueBranch';
+
+  AddTrueBranch(this.list,this.branchAt,this.item);
+
+  action(){
+    var branch = list.branch(branchAt);
+    var insertAt = branch.lenTrue + branchAt + 1;
+    list.insert(item,index: insertAt);
+    branch.incrementTrue();
+  }
+
+  undoAction(){
+    var branch = list.branch(branchAt);
+    list.remove(item);
+    branch.decrementTrue();
+  }
+}
+
+class ChecklistInsertItem extends InsertItem<Item>{
+  final Checklist list;
+  final Item item;
+  final int index;
+  String get key => "Checklist.InsertItem";
+  IncrementBranchesAfterInsert _branchCommand;
+
+  ChecklistInsertItem(this.list,this.item,this.index) : super(list,item,index){
+    _branchCommand = new IncrementBranchesAfterInsert(list, index);
+  }
+
+  action(){
+    super.action();
+    _branchCommand.action();
+  }
+
+  undoAction(){
+    super.undoAction();
+    _branchCommand.undoAction();
+  }
+}
+
+class IncrementBranchesAfterInsert extends CommandAction{
+  final Checklist list;
+  final int index;
+  String get key => "Checklist.IncrementBranchesAfterInsert";
+
+  IncrementBranchesAfterInsert(this.list,this.index);
+
+  action(){
+    var newBranches = new Map<int,Branch>();
+    int newIndex;
+
+    for (var key in list._branches.keys){
+      newIndex = key;
+      if (key >= index) newIndex++;
+      newBranches.putIfAbsent(newIndex, () => list.branch(key));
+    }
+    list._branches = newBranches;
+  }
+
+  undoAction(){
+    var newBranches = new Map<int,Branch>();
+    int newIndex;
+
+    for (var key in list._branches.keys){
+      newIndex = key;
+      if (key > index) newIndex--;
+      newBranches.putIfAbsent(newIndex, () => list.branch(key));
+    }
+    list._branches = newBranches;
   }
 }

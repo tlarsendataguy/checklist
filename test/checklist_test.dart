@@ -139,6 +139,64 @@ main() {
       throwsA(new isInstanceOf<UnsupportedError>()),
     );
   });
+
+  test("Add item into a True branch",(){
+    var list = populatedBranchedList();
+    var branch = list.branch(1);
+    var item = new Item("True 1");
+
+    var command = list.addTrueBranch(1,item);
+    expect(list[2],equals(item));
+    expect(branch.lenTrue,equals(1));
+    expect(branch.lenFalse,equals(0));
+    expect(list.length,equals(4));
+
+    command.undo();
+    expect(list[2].toCheck,equals("Item 3"));
+    expect(branch.lenTrue, equals(0));
+    expect(branch.lenFalse, equals(0));
+    expect(list.length,equals(3));
+
+    command.redo();
+    expect(list[2],equals(item));
+    expect(branch.lenTrue,equals(1));
+    expect(branch.lenFalse,equals(0));
+    expect(list.length,equals(4));
+  });
+
+  test("Adding item before branch updates the branch's index",(){
+    var list = populatedBranchedList();
+
+    var command = list.insert(new Item("I'm new here"),index: 0);
+    expect(list.branch(1),isNull);
+    expect(list.branch(2), isNotNull);
+
+    command.undo();
+    expect(list.branch(1),isNotNull);
+    expect(list.branch(2), isNull);
+
+    command.redo();
+    expect(list.branch(1),isNull);
+    expect(list.branch(2), isNotNull);
+  });
+
+  test("Removing item before branch updates the branch's index",(){});
+
+  test("Adding item in nested branch updates all parent branches",(){});
+
+  test("Removing item in nested branch updates all parent branches",(){});
+
+  test("Deleting an item deletes its branch",(){});
+
+  test("Deleting a branch deletes all items and branches in that branch",(){});
+
+  test("Inserting item in branch updates true/false len",(){});
+
+  test("Removing item from branch updates true/false len",(){});
+
+  test("Inserting item in nested branch updates all parent branches",(){});
+
+  test("Removing item from branch updates all parent branches",(){});
 }
 
 Checklist populatedList() {
