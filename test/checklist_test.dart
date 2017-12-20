@@ -180,23 +180,66 @@ main() {
     expect(list.branch(2), isNotNull);
   });
 
-  test("Removing item before branch updates the branch's index",(){});
+  test("Removing item before branch updates the branch's index",(){
+    var list = populatedBranchedList();
+    var item = list[0];
 
-  test("Adding item in nested branch updates all parent branches",(){});
+    var command = list.remove(item);
+    expect(list.branch(0), isNotNull);
+    expect(list.branch(1), isNull);
 
-  test("Removing item in nested branch updates all parent branches",(){});
+    command.undo();
+    expect(list.branch(0), isNull);
+    expect(list.branch(1), isNotNull);
 
-  test("Deleting an item deletes its branch",(){});
+    command.redo();
+    expect(list.branch(0), isNotNull);
+    expect(list.branch(1), isNull);
+  });
 
-  test("Deleting a branch deletes all items and branches in that branch",(){});
+  test("Add item without specifying an index",(){
+    fail("Not implemented");
+  });
 
-  test("Inserting item in branch updates true/false len",(){});
+  test("Adding item in nested branch updates all parent branches",(){
+    fail("Not implemented");
+  });
 
-  test("Removing item from branch updates true/false len",(){});
+  test("Removing item in nested branch updates all parent branches",(){
+    fail("Not implemented");
+  });
 
-  test("Inserting item in nested branch updates all parent branches",(){});
+  test("Deleting an item deletes its branch",(){
+    fail("Not implemented");
+  });
 
-  test("Removing item from branch updates all parent branches",(){});
+  test("Deleting a branch deletes all items and branches in that branch",(){
+    fail("Not implemented");
+  });
+
+  test("Inserting item in branch updates true/false len",(){
+    fail("Not implemented");
+  });
+
+  test("Removing item from branch updates true/false len",(){
+    fail("Not implemented");
+  });
+
+  test("Inserting item in nested branch updates all parent branches",(){
+    fail("Not implemented");
+  });
+
+  test("Removing item from branch updates all parent branches",(){
+    fail("Not implemented");
+  });
+
+  test("Moving a branch moves all of its children",(){
+    fail("Not implemented");
+  });
+
+  test("Moving a branch moves all of its nested branches",(){
+    fail("Not implemented");
+  });
 }
 
 Checklist populatedList() {

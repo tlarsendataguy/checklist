@@ -125,6 +125,21 @@ main(){
     var list = populatedList();
     expect(() => list.moveItem(1, 5), throwsA(new isInstanceOf<RangeError>()));
   });
+
+  test("Get the index of an element",(){
+    var list = populatedList();
+    var item = list[1];
+
+    var index = list.indexOf(item);
+    expect(index, equals(1));
+  });
+
+  test("Getting the index of a non-existent element returns -1",(){
+    var list = populatedList();
+    var item = "la la la";
+    var index = list.indexOf(item);
+    expect(index,equals(-1));
+  });
 }
 
 CommandListTester populatedList() {

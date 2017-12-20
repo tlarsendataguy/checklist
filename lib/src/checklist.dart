@@ -51,6 +51,10 @@ class Checklist extends CommandList<Item> {
     return new Command(new ChecklistInsertItem(this,item,index));
   }
 
+  Command remove(Item item){
+    return new Command(new ChecklistRemoveItem(this,item));
+  }
+
   Command createBranchAt(int index) {
     return new Command(new CreateBranch(this, index));
   }
@@ -163,6 +167,27 @@ class ChecklistInsertItem extends InsertItem<Item>{
   }
 }
 
+class ChecklistRemoveItem extends RemoveItem<Item>{
+  final Checklist list;
+  final Item item;
+  String get key => "Checklist.RemoveItem";
+  DecrementBranchesAfterDelete _branchCommand;
+
+  ChecklistRemoveItem(this.list,this.item) : super(list,item);
+
+  action(){
+    var index = list.indexOf(item);
+    _branchCommand = new DecrementBranchesAfterDelete(list, index);
+    super.action();
+    _branchCommand.action();
+  }
+
+  undoAction(){
+    super.undoAction();
+    _branchCommand.undoAction();
+  }
+}
+
 class IncrementBranchesAfterInsert extends CommandAction{
   final Checklist list;
   final int index;
@@ -193,4 +218,36 @@ class IncrementBranchesAfterInsert extends CommandAction{
     }
     list._branches = newBranches;
   }
+}
+
+class DecrementBranchesAfterDelete extends CommandAction{
+  final Checklist list;
+  final int index;
+  String get key => "Checklist.DecrementBranchesAfterDelete";
+
+  DecrementBranchesAfterDelete(this.list,this.index);
+
+  action(){
+    var newBranches = new Map<int,Branch>();
+    int newIndex;
+
+    for (var key in list._branches.keys){
+      newIndex = key;
+      if (key > index) newIndex--;
+      newBranches.putIfAbsent(newIndex, () => list.branch(key));
+    }
+    list._branches = newBranches;
+  }
+
+  undoAction(){
+      var newBranches = new Map<int,Branch>();
+      int newIndex;
+
+      for (var key in list._branches.keys){
+        newIndex = key;
+        if (key >= index) newIndex++;
+        newBranches.putIfAbsent(newIndex, () => list.branch(key));
+      }
+      list._branches = newBranches;
+    }
 }

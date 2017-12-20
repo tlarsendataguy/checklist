@@ -13,6 +13,15 @@ abstract class CommandList<E> extends IterableBase<E> {
 
   Iterator<E> get iterator => new CommandListIterator(_items);
 
+  int indexOf(E element){
+    int index = 0;
+    for (var item in this){
+      if (item == element) return index;
+      index++;
+    }
+    return -1;
+  }
+
   Command insert(E item, {int index}) {
     return new Command(new InsertItem(this, item, index));
   }
