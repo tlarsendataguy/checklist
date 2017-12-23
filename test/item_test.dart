@@ -63,4 +63,20 @@ main() {
     command.redo();
     expect(item.toCheck, equals("Cruise speed"));
   });
+
+  test("An item that has at least 1 item in the True branch is a branch",(){
+    var item = new Item("Test");
+    expect(item.isBranch,isFalse);
+
+    item.trueBranch.insert(new Item("True 1"));
+    expect(item.isBranch, isTrue);
+  });
+
+  test("An item that has at least 1 item in the False branch is a branch",(){
+    var item = new Item("Test");
+    expect(item.isBranch, isFalse);
+
+    item.falseBranch.insert(new Item("False 1"));
+    expect(item.isBranch, isTrue);
+  });
 }

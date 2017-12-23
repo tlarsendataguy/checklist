@@ -1,20 +1,18 @@
-import 'package:checklist/src/branch.dart';
 import 'package:test/test.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
-import 'package:checklist/src/command.dart';
 
 main() {
   test("Current item of a new list is the first item", () {
     var list = populatedList();
-    expect(list.currentIndex, equals(0));
+    expect(list.currentItem, equals(list[0]));
   });
 
   test("Move to the next item", () {
     var list = populatedList();
 
     var item = list.nextItem();
-    expect(list.currentIndex, equals(1));
+    expect(list.currentItem, equals(list[1]));
     expect(item, equals(list[1]));
   });
 
@@ -24,11 +22,11 @@ main() {
     list.nextItem();
 
     var item = list.nextItem();
-    expect(list.currentIndex, equals(3));
+    expect(list.currentItem, isNull);
     expect(item, equals(null));
 
     item = list.nextItem();
-    expect(list.currentIndex, equals(3));
+    expect(list.currentItem, isNull);
     expect(item, equals(null));
   });
 
@@ -37,7 +35,7 @@ main() {
     list.nextItem();
 
     var item = list.priorItem();
-    expect(list.currentIndex, equals(0));
+    expect(list.currentItem, equals(list[0]));
     expect(item, equals(list[0]));
   });
 
@@ -45,220 +43,217 @@ main() {
     var list = populatedList();
 
     var item = list.priorItem();
-    expect(list.currentIndex, equals(0));
+    expect(list.currentItem, equals(list[0]));
     expect(item, equals(list[0]));
   });
 
-  test("Set current item explicitly", () {
-    var list = populatedList();
-
-    var item = list.setCurrent(2);
-    expect(list.currentIndex, equals(2));
-    expect(item, equals(list[2]));
-  });
-
-  test("Set current item to the list length", () {
-    var list = populatedList();
-
-    var item = list.setCurrent(3);
-    expect(list.currentIndex, equals(3));
-    expect(item, equals(null));
-  });
-
-  test("Set current item less than 0", () {
-    var list = populatedList();
-    expect(() => list.setCurrent(-1), throwsA(new isInstanceOf<RangeError>()));
-    expect(list.currentIndex, equals(0));
-  });
-
-  test("Set current item greater than length", () {
-    var list = populatedList();
-    expect(() => list.setCurrent(5), throwsA(new isInstanceOf<RangeError>()));
-    expect(list.currentIndex, equals(0));
-  });
-
-  test("Create an empty branch", () {
-    var list = populatedList();
-
-    var command = list.createBranchAt(1);
-    Branch branch = list.branch(1);
-    expect(list.branches, equals(1));
-    expect(branch.lenTrue, equals(0));
-    expect(branch.lenFalse, equals(0));
-
-    command.undo();
-    expect(list.branches, equals(0));
-
-    command.redo();
-    expect(list.branches, equals(1));
-  });
-
-  test("Create branch outside of valid range", () {
-    var list = populatedList();
+  test("Branch items can only move next if true or false is specified", () {
+    var list = populatedBranchedList();
+    list.nextItem();
 
     expect(
-      () => list.createBranchAt(5),
-      throwsA(new isInstanceOf<RangeError>()),
-    );
+        () => list.nextItem(), throwsA(new isInstanceOf<UnsupportedError>()));
   });
 
-  test("Create 2 branches at same location", () {
-    var list = populatedList();
-    list.createBranchAt(1);
-    expect(
-      () => list.createBranchAt(1),
-      throwsA(new isInstanceOf<UnsupportedError>()),
-    );
-  });
-
-  test("Delete an empty branch", () {
+  test(
+      "Specifying true to move next on a branch causes the current item to be the first item in the true branch",
+      () {
     var list = populatedBranchedList();
+    list.nextItem();
 
-    var command = list.removeBranchAt(1);
-    expect(list.branches, equals(0));
+    var shouldBe = list[1].trueBranch[0];
 
-    command.undo();
-    expect(list.branches, equals(1));
-
-    command.redo();
-    expect(list.branches, equals(0));
+    var item = list.nextItem(branch: true);
+    expect(item, equals(shouldBe));
+    expect(list.currentItem, equals(shouldBe));
   });
 
-  test("Remove a branch outside the normal range", () {
+  test(
+      "Moving to the next item on the last item of a branch returns to the parent",
+      () {
     var list = populatedBranchedList();
+    list.nextItem();
 
-    expect(
-        () => list.removeBranchAt(5), throwsA(new isInstanceOf<RangeError>()));
+    var shouldBe = list[2];
+
+    list.nextItem(branch: true);
+    list.nextItem();
+
+    var item = list.nextItem();
+    expect(item, equals(shouldBe));
+    expect(list.currentItem, equals(shouldBe));
   });
 
-  test("Remove a branch that does not exist at the specified location", () {
-    var list = populatedList();
-
-    expect(
-      () => list.removeBranchAt(1),
-      throwsA(new isInstanceOf<UnsupportedError>()),
-    );
-  });
-
-  test("Add item into a True branch",(){
+  test(
+      "Moving to prior item from the first item of a branch returns to the parent",
+      () {
     var list = populatedBranchedList();
-    var branch = list.branch(1);
-    var item = new Item("True 1");
+    var shouldBe = list[1];
 
-    var command = list.addTrueBranch(1,item);
-    expect(list[2],equals(item));
-    expect(branch.lenTrue,equals(1));
-    expect(branch.lenFalse,equals(0));
-    expect(list.length,equals(4));
+    list.nextItem();
+    var item = list.nextItem(branch: true);
 
-    command.undo();
-    expect(list[2].toCheck,equals("Item 3"));
-    expect(branch.lenTrue, equals(0));
-    expect(branch.lenFalse, equals(0));
-    expect(list.length,equals(3));
+    expect(item, equals(list[1].trueBranch[0]));
+    expect(list.currentItem, equals(list[1].trueBranch[0]));
 
-    command.redo();
-    expect(list[2],equals(item));
-    expect(branch.lenTrue,equals(1));
-    expect(branch.lenFalse,equals(0));
-    expect(list.length,equals(4));
+    item = list.priorItem();
+
+    expect(item, equals(shouldBe));
+    expect(list.currentItem, shouldBe);
   });
 
-  test("Adding item before branch updates the branch's index",(){
-    var list = populatedBranchedList();
+  test("Move forward and back through nested branches, true", () {
+    //Item 1 -> Parent Branch -> True Child 1 -> True Child 2 -> Item 2
+    var list = nestedBranchedList();
+    expect(list.currentItem.toCheck, equals("Item 1"));
 
-    var command = list.insert(new Item("I'm new here"),index: 0);
-    expect(list.branch(1),isNull);
-    expect(list.branch(2), isNotNull);
+    var item = list.nextItem();
+    expect(item.toCheck, equals("Parent Branch"));
 
-    command.undo();
-    expect(list.branch(1),isNotNull);
-    expect(list.branch(2), isNull);
+    item = list.nextItem(branch: true);
+    expect(item.toCheck, equals("True Child 1"));
 
-    command.redo();
-    expect(list.branch(1),isNull);
-    expect(list.branch(2), isNotNull);
+    item = list.nextItem();
+    expect(item.toCheck, equals("True Child 2"));
+
+    item = list.nextItem();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = list.nextItem();
+    expect(item, isNull);
   });
 
-  test("Removing item before branch updates the branch's index",(){
-    var list = populatedBranchedList();
-    var item = list[0];
+  test("Move forward and back through nested branches, false then true", () {
+    //Item 1 -> Parent Branch -> Child Branch -> Sub-Child 1 -> False Child 2 -> Item 2
+    var list = nestedBranchedList();
+    expect(list.currentItem.toCheck, equals("Item 1"));
 
-    var command = list.remove(item);
-    expect(list.branch(0), isNotNull);
-    expect(list.branch(1), isNull);
+    var item = list.nextItem();
+    expect(item.toCheck, equals("Parent Branch"));
 
-    command.undo();
-    expect(list.branch(0), isNull);
-    expect(list.branch(1), isNotNull);
+    item = list.nextItem(branch: false);
+    expect(item.toCheck, equals("Child Branch"));
 
-    command.redo();
-    expect(list.branch(0), isNotNull);
-    expect(list.branch(1), isNull);
+    item = list.nextItem(branch: true);
+    expect(item.toCheck, equals("Sub-Child 1"));
+
+    item = list.nextItem(branch: true);
+    expect(item.toCheck, equals("False Child 2"));
+
+    item = list.nextItem();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = list.nextItem();
+    expect(item, isNull);
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("False Child 2"));
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("Sub-Child 1"));
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("Child Branch"));
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("Parent Branch"));
+
+    item = list.priorItem();
+    expect(item.toCheck, equals("Item 1"));
   });
 
-  test("Add item without specifying an index",(){
-    fail("Not implemented");
+  test("Move forward and back through nested branches, false then false", () {
+    //Item 1 -> Parent Branch -> Child Branch -> False Child 2 -> Item 2
+    var list = nestedBranchedList();
+    expect(list.currentItem.toCheck, equals("Item 1"));
+
+    var item = list.nextItem();
+    expect(item.toCheck, equals("Parent Branch"));
+
+    item = list.nextItem(branch: false);
+    expect(item.toCheck, equals("Child Branch"));
+
+    item = list.nextItem(branch: false);
+    expect(item.toCheck, equals("False Child 2"));
+
+    item = list.nextItem();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = list.nextItem();
+    expect(item, isNull);
   });
 
-  test("Adding item in nested branch updates all parent branches",(){
-    fail("Not implemented");
-  });
-
-  test("Removing item in nested branch updates all parent branches",(){
-    fail("Not implemented");
-  });
-
-  test("Deleting an item deletes its branch",(){
-    fail("Not implemented");
-  });
-
-  test("Deleting a branch deletes all items and branches in that branch",(){
-    fail("Not implemented");
-  });
-
-  test("Inserting item in branch updates true/false len",(){
-    fail("Not implemented");
-  });
-
-  test("Removing item from branch updates true/false len",(){
-    fail("Not implemented");
-  });
-
-  test("Inserting item in nested branch updates all parent branches",(){
-    fail("Not implemented");
-  });
-
-  test("Removing item from branch updates all parent branches",(){
-    fail("Not implemented");
-  });
-
-  test("Moving a branch moves all of its children",(){
-    fail("Not implemented");
-  });
-
-  test("Moving a branch moves all of its nested branches",(){
-    fail("Not implemented");
+  test("Invalid history was provided to the play history method",(){
+    throw new UnimplementedError("This test needs to be written");
   });
 }
 
 Checklist populatedList() {
-  return new Checklist.fromSources(
-    [
-      new Item("Item 1"),
-      new Item("Item 2"),
-      new Item("Item 3"),
-    ],
-    new Map<int, Branch>(),
-  );
-}
-
-Checklist populatedBranchedList() {
   return new Checklist.fromSources([
     new Item("Item 1"),
     new Item("Item 2"),
     new Item("Item 3"),
-  ], {
-    1: new Branch(lenTrue: 0, lenFalse: 0),
-  });
+  ]);
+}
+
+Checklist populatedBranchedList() {
+  var branch = new Item("Item 2");
+  branch.trueBranch.insert(new Item("True 1"));
+  branch.trueBranch.insert(new Item("True 2"));
+  branch.falseBranch.insert(new Item("False 1"));
+  branch.falseBranch.insert(new Item("False 2"));
+
+  return new Checklist.fromSources([
+    new Item("Item 1"),
+    branch,
+    new Item("Item 3"),
+  ]);
+}
+
+
+/*
+Structure of the returned nested-branch checklist:
+
+Checklist
+  |
+  -- Item 1
+  |
+  -- Parent Branch
+  |    |
+  |    -- True
+  |    |    |
+  |    |    -- True Child 1
+  |    |    |
+  |    |    -- True child 2
+  |    |
+  |    -- False
+  |         |
+  |         -- Child Branch
+  |         |    |
+  |         |    -- Sub-Child 1
+  |         |
+  |         -- False Child 2
+  |
+  -- Item 2
+ */
+
+Checklist nestedBranchedList() {
+  var branch1 = new Item("Parent Branch");
+  var branch2 = new Item("Child Branch");
+
+  branch1.trueBranch.insert(new Item("True Child 1"));
+  branch1.trueBranch.insert(new Item("True Child 2"));
+  branch1.falseBranch.insert(branch2);
+  branch1.falseBranch.insert(new Item("False Child 2"));
+
+  branch2.trueBranch.insert(new Item("Sub-Child 1"));
+
+  return new Checklist.fromSources([
+    new Item("Item 1"),
+    branch1,
+    new Item("Item 2"),
+  ]);
 }

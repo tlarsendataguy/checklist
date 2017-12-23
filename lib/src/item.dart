@@ -1,11 +1,15 @@
 import "package:checklist/src/command.dart";
+import 'package:checklist/src/commandList.dart';
 
 class Item{
   String _toCheck;
   String _action;
+  var trueBranch = new CommandList<Item>();
+  var falseBranch = new CommandList<Item>();
 
   get toCheck => _toCheck;
   get action => _action;
+  get isBranch => trueBranch.length + falseBranch.length > 0;
 
   Item(String toCheck,{String action}){
     if (toCheck == null) throw new ArgumentError.notNull("toCheck");

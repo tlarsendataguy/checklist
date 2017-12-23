@@ -1,7 +1,7 @@
 import 'dart:collection';
 import 'package:checklist/src/command.dart';
 
-abstract class CommandList<E> extends IterableBase<E> {
+class CommandList<E> extends IterableBase<E> {
   List<E> _items = new List<E>();
 
   CommandList();
