@@ -25,9 +25,8 @@ main() {
     expect(list.currentItem, isNull);
     expect(item, equals(null));
 
-    item = list.nextItem();
-    expect(list.currentItem, isNull);
-    expect(item, equals(null));
+    expect(
+        () => list.nextItem(), throwsA(new isInstanceOf<UnsupportedError>()));
   });
 
   test("Move to the prior item", () {
@@ -137,7 +136,7 @@ main() {
     item = list.nextItem(branch: true);
     expect(item.toCheck, equals("Sub-Child 1"));
 
-    item = list.nextItem(branch: true);
+    item = list.nextItem();
     expect(item.toCheck, equals("False Child 2"));
 
     item = list.nextItem();
@@ -186,13 +185,44 @@ main() {
     expect(item, isNull);
   });
 
-  test("Invalid history was provided to the play history method",(){
-    throw new UnimplementedError("This test needs to be written");
+  test("Specifying true or false on a non-branch is an error", () {
+    var list = populatedBranchedList();
+    expect(() => list.nextItem(branch: true),
+        throwsA(new isInstanceOf<UnsupportedError>()));
+  });
+
+  test("Invalid history was provided to the play history method", () {
+    //History that doesn't specify branch when needed
+    var history1 = [
+      new BranchHistory(0, null),
+      new BranchHistory(1, null),
+      new BranchHistory(2, null),
+    ];
+
+    //History that is longer than the list
+    var history2 = [
+      new BranchHistory(0, null),
+      new BranchHistory(1, null),
+      new BranchHistory(2, null),
+      new BranchHistory(3, null),
+    ];
+
+    var testList1 = populatedBranchedList();
+    testList1.nextItem();
+    expect(() => testList1.playHistory(history1),
+        throwsA(new isInstanceOf<ArgumentError>()));
+    expect(testList1.currentItem, equals(testList1[1]));
+
+    var testList2 = populatedList();
+    testList2.nextItem();
+    expect((() => testList2.playHistory(history2)),
+        throwsA(new isInstanceOf<ArgumentError>()));
+    expect(testList2.currentItem, equals(testList2[1]));
   });
 }
 
 Checklist populatedList() {
-  return new Checklist.fromSources([
+  return new Checklist.fromSource([
     new Item("Item 1"),
     new Item("Item 2"),
     new Item("Item 3"),
@@ -206,13 +236,12 @@ Checklist populatedBranchedList() {
   branch.falseBranch.insert(new Item("False 1"));
   branch.falseBranch.insert(new Item("False 2"));
 
-  return new Checklist.fromSources([
+  return new Checklist.fromSource([
     new Item("Item 1"),
     branch,
     new Item("Item 3"),
   ]);
 }
-
 
 /*
 Structure of the returned nested-branch checklist:
@@ -233,7 +262,9 @@ Checklist
   |         |
   |         -- Child Branch
   |         |    |
-  |         |    -- Sub-Child 1
+  |         |    -- True
+  |         |        |
+  |         |        -- Sub-Child 1
   |         |
   |         -- False Child 2
   |
@@ -251,7 +282,7 @@ Checklist nestedBranchedList() {
 
   branch2.trueBranch.insert(new Item("Sub-Child 1"));
 
-  return new Checklist.fromSources([
+  return new Checklist.fromSource([
     new Item("Item 1"),
     branch1,
     new Item("Item 2"),

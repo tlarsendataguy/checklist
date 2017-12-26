@@ -11,10 +11,16 @@ class Checklist extends CommandList<Item> {
   Iterable<BranchHistory> get priorItems => _priorItems.toList();
 
   Checklist() : super();
-  Checklist.fromSources(Iterable<Item> source) : super.fromIterable(source);
+  Checklist.fromSource(Iterable<Item> source) : super.fromIterable(source);
 
   Item nextItem({bool branch}) {
     var item = _getCurrentItem();
+    if (item != null && !item.isBranch && branch != null)
+      throw new UnsupportedError(
+          "The branch parameter cannot be specified if the current item is not a branch");
+    if (item == null)
+      throw new UnsupportedError(
+          "Cannot move to the next item after the end of the list");
 
     //Make sure the 'branch' parameter was provided if the current item is a branch
     //If the current item is a branch, current item becomes the first item of the specified branch
@@ -38,7 +44,7 @@ class Checklist extends CommandList<Item> {
 
     //If we are at the end of a branch, pop the history until we find an unfinished branch
     //or we reach the base checklist
-    while (_activeBranches.length > 0 && _currentIndex == list.length){
+    while (_activeBranches.length > 0 && _currentIndex == list.length) {
       var branch = _activeBranches.removeLast();
       _currentIndex = branch.index + 1;
       list = _getCurrentList();
@@ -48,7 +54,7 @@ class Checklist extends CommandList<Item> {
   }
 
   Item priorItem() {
-    if (_currentIndex > 0 || _activeBranches.length > 0){
+    if (_currentIndex > 0 || _activeBranches.length > 0) {
       _priorItems.removeLast();
       playHistory(_priorItems);
     }
@@ -56,20 +62,31 @@ class Checklist extends CommandList<Item> {
     return currentItem;
   }
 
-  void playHistory(Iterable<BranchHistory> history){
-    if (history == _priorItems){
+  void playHistory(Iterable<BranchHistory> history) {
+    var reversionPriorItems = new List.from(_priorItems);
+    var reversionCurrentIndex = _currentIndex;
+    var reversionActiveBranches = new List.from(_activeBranches);
+
+    if (history == _priorItems) {
       history = new List.from(_priorItems);
     }
 
-    _currentIndex = 0;
-    _priorItems.clear();
-    _activeBranches.clear();
-    for (var item in history){
-      nextItem(branch: item.branch);
+    try {
+      _currentIndex = 0;
+      _priorItems.clear();
+      _activeBranches.clear();
+      for (var item in history) {
+        nextItem(branch: item.branch);
+      }
+    } catch (ex) {
+      _priorItems = new ListQueue.from(reversionPriorItems);
+      _currentIndex = reversionCurrentIndex;
+      _activeBranches = new ListQueue.from(reversionActiveBranches);
+      throw new ArgumentError("The provided history was not valid");
     }
   }
 
-  CommandList<Item> _getCurrentList(){
+  CommandList<Item> _getCurrentList() {
     CommandList<Item> list = this;
 
     for (var branch in _activeBranches) {
@@ -86,8 +103,8 @@ class Checklist extends CommandList<Item> {
     var list = _getCurrentList();
     if (list.length == _currentIndex)
       return null;
-          else
-    return list[_currentIndex];
+    else
+      return list[_currentIndex];
   }
 }
 
