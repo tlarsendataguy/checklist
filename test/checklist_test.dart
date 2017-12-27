@@ -219,14 +219,61 @@ main() {
         throwsA(new isInstanceOf<ArgumentError>()));
     expect(testList2.currentItem, equals(testList2[1]));
   });
+
+  test("Rename checklist",(){
+    var list = new Checklist("Awesome checklist");
+    expect(list.name, equals("Awesome checklist"));
+
+    var command = list.rename("Cool checklist");
+    expect(list.name, equals("Cool checklist"));
+
+    command.undo();
+    expect(list.name, equals("Awesome checklist"));
+
+    command.redo();
+    expect(list.name, equals("Cool checklist"));
+  });
+
+  test("Add primary next checklist",()
+  {
+    var list1 = new Checklist("Hello");
+    var list2 = new Checklist("World");
+
+    var command = list1.setNextPrimary(list2);
+    expect(list1.nextPrimary, equals(list2));
+
+    command.undo();
+    expect(list1.nextPrimary, isNull);
+
+    command.redo();
+    expect(list1.nextPrimary, equals(list2));
+  });
+
+  test("Add/remove alternative next checklists",(){
+    var list1 = new Checklist("Main");
+    var list2 = new Checklist("Alternative");
+
+    var command = list1.nextAlternatives.insert(list2);
+    expect(list1.nextAlternatives[0], equals(list2));
+    expect(command.key, equals("NextAlternatives.Insert"));
+
+    command.undo();
+    expect(list1.nextAlternatives.length, equals(0));
+
+    command.redo();
+    expect(list1.nextAlternatives[0], equals(list2));
+  });
 }
 
 Checklist populatedList() {
-  return new Checklist.fromSource([
+  return new Checklist.fromSource(
+    "Checklist",
+      [
     new Item("Item 1"),
     new Item("Item 2"),
     new Item("Item 3"),
-  ]);
+  ],
+  );
 }
 
 Checklist populatedBranchedList() {
@@ -236,11 +283,14 @@ Checklist populatedBranchedList() {
   branch.falseBranch.insert(new Item("False 1"));
   branch.falseBranch.insert(new Item("False 2"));
 
-  return new Checklist.fromSource([
+  return new Checklist.fromSource(
+      "Checklist",
+      [
     new Item("Item 1"),
     branch,
     new Item("Item 3"),
-  ]);
+  ],
+  );
 }
 
 /*
@@ -282,9 +332,12 @@ Checklist nestedBranchedList() {
 
   branch2.trueBranch.insert(new Item("Sub-Child 1"));
 
-  return new Checklist.fromSource([
+  return new Checklist.fromSource(
+      "Checklist",
+      [
     new Item("Item 1"),
     branch1,
     new Item("Item 2"),
-  ]);
+  ],
+  );
 }

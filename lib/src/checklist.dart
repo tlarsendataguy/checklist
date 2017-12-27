@@ -1,18 +1,37 @@
 import 'dart:collection';
 
+import 'package:checklist/src/command.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/commandList.dart';
 
 class Checklist extends CommandList<Item> {
+  String _name;
   var _activeBranches = new ListQueue<BranchHistory>();
   var _priorItems = new ListQueue<BranchHistory>();
   int _currentIndex = 0;
+  Checklist _nextPrimary;
+  var nextAlternatives = new CommandList<Checklist>(tag: "NextAlternatives");
+
   Item get currentItem => _getCurrentItem();
   Iterable<BranchHistory> get priorItems => _priorItems.toList();
+  String get name => _name;
+  Checklist get nextPrimary => _nextPrimary;
 
-  Checklist() : super(tag: "Checklist");
-  Checklist.fromSource(Iterable<Item> source)
-      : super.fromIterable(source, tag: "Checklist");
+  Checklist(String name) : super(tag: "Checklist"){
+    _name = name;
+  }
+  Checklist.fromSource(String name,Iterable<Item> source)
+      : super.fromIterable(source, tag: "Checklist"){
+    _name = name;
+  }
+
+  Command rename(String newName){
+    return new Command(new RenameList(this, newName));
+  }
+
+  Command setNextPrimary(Checklist next){
+    return new Command(new SetNextPrimary(this,next));
+  }
 
   Item nextItem({bool branch}) {
     var item = _getCurrentItem();
@@ -115,4 +134,38 @@ class BranchHistory {
   bool get isBranch => branch != null;
 
   BranchHistory(this.index, this.branch);
+}
+
+class RenameList extends CommandAction{
+  final String newName;
+  final String oldName;
+  final Checklist list;
+  String get key => "Checklist.Rename";
+
+  RenameList(this.list,this.newName) : oldName = list.name;
+
+  action(){
+    list._name = newName;
+  }
+
+  undoAction(){
+    list._name = oldName;
+  }
+}
+
+class SetNextPrimary extends CommandAction{
+  final Checklist list;
+  final Checklist newPrimary;
+  final Checklist oldPrimary;
+  String get key => "Checklist.SetNextPrimary";
+
+  SetNextPrimary(this.list,this.newPrimary) : oldPrimary = list.nextPrimary;
+
+  action(){
+    list._nextPrimary = newPrimary;
+  }
+
+  undoAction(){
+    list._nextPrimary = oldPrimary;
+  }
 }
