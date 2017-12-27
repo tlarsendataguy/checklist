@@ -10,8 +10,9 @@ class Checklist extends CommandList<Item> {
   Item get currentItem => _getCurrentItem();
   Iterable<BranchHistory> get priorItems => _priorItems.toList();
 
-  Checklist() : super();
-  Checklist.fromSource(Iterable<Item> source) : super.fromIterable(source);
+  Checklist() : super(tag: "Checklist");
+  Checklist.fromSource(Iterable<Item> source)
+      : super.fromIterable(source, tag: "Checklist");
 
   Item nextItem({bool branch}) {
     var item = _getCurrentItem();

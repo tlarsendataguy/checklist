@@ -3,9 +3,9 @@ class Command{
   bool _canRedo;
   final CommandAction actions;
 
-  get canUndo => _canUndo;
-  get canRedo => _canRedo;
-  get key => actions.key;
+  bool get canUndo => _canUndo;
+  bool get canRedo => _canRedo;
+  String get key => actions.key;
 
   Command(this.actions){
     _canUndo = true;

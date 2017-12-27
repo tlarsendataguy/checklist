@@ -1,6 +1,7 @@
 import 'package:test/test.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/command.dart';
+import 'package:checklist/src/note.dart';
 
 main() {
   test("Item getter works for all properties", () {
@@ -43,6 +44,7 @@ main() {
   test("Changing action undo and redo work correctly",(){
     var item = new Item("Airspeed",action: "150 KIAS");
     var command = item.setAction("100 KIAS");
+    expect(command.key, equals("Item.ChangeAction"));
     command.undo();
     expect(item.action,"150 KIAS");
     command.redo();
@@ -58,10 +60,27 @@ main() {
   test("Changing toCheck undo and redo work correctly",(){
     var item = new Item("Airspeed",action: "150 KIAS");
     var command = item.setToCheck("Cruise speed");
+    expect(command.key, equals("Item.ChangeToCheck"));
     command.undo();
     expect(item.toCheck, equals("Airspeed"));
     command.redo();
     expect(item.toCheck, equals("Cruise speed"));
+  });
+
+  test("Add item to and remove item from true branch",(){
+    var item = new Item("Something");
+    var command = item.trueBranch.insert(new Item("Something else"));
+    expect(command.key,"TrueBranch.Insert");
+    command = item.trueBranch.remove(item.trueBranch[0]);
+    expect(command.key, "TrueBranch.Remove");
+  });
+
+  test("Add item to and remove item from false branch",() {
+    var item = new Item("Something");
+    var command = item.falseBranch.insert(new Item("Something else"));
+    expect(command.key,"FalseBranch.Insert");
+    command = item.falseBranch.remove(item.falseBranch[0]);
+    expect(command.key, "FalseBranch.Remove");
   });
 
   test("An item that has at least 1 item in the True branch is a branch",(){
@@ -78,5 +97,35 @@ main() {
 
     item.falseBranch.insert(new Item("False 1"));
     expect(item.isBranch, isTrue);
+  });
+
+  test("Add a note to the item",(){
+    var item = new Item("I have a note!");
+    var note = new Note(Priority.Note,"I am a note!");
+    var command = item.notes.insert(note);
+    expect(item.notes[0], equals(note));
+    expect(command.key,equals("Notes.Insert"));
+
+    command.undo();
+    expect(item.notes.length, equals(0));
+
+    command.redo();
+    expect(item.notes[0], equals(note));
+  });
+
+  test("Remove a note from an item",(){
+    var item = new Item("I have a note!");
+    var note = new Note(Priority.Note,"I am a note!");
+    item.notes.insert(note);
+
+    var command = item.notes.remove(note);
+    expect(command.key, equals("Notes.Remove"));
+    expect(item.notes.length, equals(0));
+
+    command.undo();
+    expect(item.notes[0], equals(note));
+
+    command.redo();
+    expect(item.notes.length, equals(0));
   });
 }

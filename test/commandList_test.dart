@@ -21,7 +21,7 @@ main(){
   test("Empty checklist iterates correctly", () {
     var list = new CommandListTester();
     int i = 0;
-    for (var item in list) {
+    for (var item in list) { // ignore: unused_local_variable
       i++;
     }
 
