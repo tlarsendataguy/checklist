@@ -1,5 +1,5 @@
-import "package:checklist/src/command.dart";
-import 'package:checklist/src/commandList.dart';
+import "package:ps_command/command.dart";
+import 'package:ps_commandlist/commandlist.dart';
 import 'package:checklist/src/note.dart';
 
 class Item {

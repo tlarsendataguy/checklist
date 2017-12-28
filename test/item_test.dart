@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:checklist/src/item.dart';
-import 'package:checklist/src/command.dart';
+import 'package:ps_command/command.dart';
 import 'package:checklist/src/note.dart';
 
 main() {

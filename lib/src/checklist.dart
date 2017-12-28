@@ -1,8 +1,8 @@
 import 'dart:collection';
 
-import 'package:checklist/src/command.dart';
+import 'package:ps_command/command.dart';
+import 'package:ps_commandlist/commandlist.dart';
 import 'package:checklist/src/item.dart';
-import 'package:checklist/src/commandList.dart';
 
 class Checklist extends CommandList<Item> {
   String _name;
