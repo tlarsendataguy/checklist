@@ -1,11 +1,13 @@
 import 'dart:collection';
 
-import 'package:ps_command/command.dart';
-import 'package:ps_commandlist/commandlist.dart';
+import 'package:command/command.dart';
+import 'package:commandlist/commandlist.dart';
 import 'package:checklist/src/item.dart';
+import 'package:checklist/src/randomid.dart';
 
 class Checklist extends CommandList<Item> {
   String _name;
+  String _id;
   var _activeBranches = new ListQueue<BranchHistory>();
   var _priorItems = new ListQueue<BranchHistory>();
   int _currentIndex = 0;
@@ -16,21 +18,27 @@ class Checklist extends CommandList<Item> {
   Iterable<BranchHistory> get priorItems => _priorItems.toList();
   String get name => _name;
   Checklist get nextPrimary => _nextPrimary;
+  String get id => _id;
 
-  Checklist(String name) : super(tag: "Checklist"){
+  Checklist(String name, {String id})
+      : this.fromSource(name, new List<Item>(), id: id);
+
+  Checklist.fromSource(String name, Iterable<Item> source, {String id})
+      : super.fromIterable(source, tag: "Checklist") {
     _name = name;
-  }
-  Checklist.fromSource(String name,Iterable<Item> source)
-      : super.fromIterable(source, tag: "Checklist"){
-    _name = name;
+
+    if (id == null)
+      _id = RandomId.generate();
+    else
+      _id = id;
   }
 
-  Command rename(String newName){
-    return new Command(new RenameList(this, newName));
+  Command rename(String newName) {
+    return new Command(new RenameList(this, newName))..execute();
   }
 
-  Command setNextPrimary(Checklist next){
-    return new Command(new SetNextPrimary(this,next));
+  Command setNextPrimary(Checklist next) {
+    return new Command(new SetNextPrimary(this, next))..execute();
   }
 
   Item nextItem({bool branch}) {
@@ -136,36 +144,36 @@ class BranchHistory {
   BranchHistory(this.index, this.branch);
 }
 
-class RenameList extends CommandAction{
+class RenameList extends CommandAction {
   final String newName;
   final String oldName;
   final Checklist list;
   String get key => "Checklist.Rename";
 
-  RenameList(this.list,this.newName) : oldName = list.name;
+  RenameList(this.list, this.newName) : oldName = list.name;
 
-  action(){
+  action() {
     list._name = newName;
   }
 
-  undoAction(){
+  undoAction() {
     list._name = oldName;
   }
 }
 
-class SetNextPrimary extends CommandAction{
+class SetNextPrimary extends CommandAction {
   final Checklist list;
   final Checklist newPrimary;
   final Checklist oldPrimary;
   String get key => "Checklist.SetNextPrimary";
 
-  SetNextPrimary(this.list,this.newPrimary) : oldPrimary = list.nextPrimary;
+  SetNextPrimary(this.list, this.newPrimary) : oldPrimary = list.nextPrimary;
 
-  action(){
+  action() {
     list._nextPrimary = newPrimary;
   }
 
-  undoAction(){
+  undoAction() {
     list._nextPrimary = oldPrimary;
   }
 }

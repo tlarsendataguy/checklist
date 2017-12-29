@@ -3,6 +3,19 @@ import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
 
 main() {
+  test("Creating a list without providing an ID generates a random ID", () {
+    var list = new Checklist("Test");
+    expect(list.id, isNotNull);
+    expect(list.id.length, greaterThan(0));
+    print(
+        "Random id from test 'Creating a list without providing an ID generates a random ID': ${list.id}");
+  });
+
+  test("Create a list with an existing id", () {
+    var list = new Checklist("Test", id: "000561804fcc009f61ce0002f95f0000");
+    expect(list.id, equals("000561804fcc009f61ce0002f95f0000"));
+  });
+
   test("Current item of a new list is the first item", () {
     var list = populatedList();
     expect(list.currentItem, equals(list[0]));
@@ -220,7 +233,7 @@ main() {
     expect(testList2.currentItem, equals(testList2[1]));
   });
 
-  test("Rename checklist",(){
+  test("Rename checklist", () {
     var list = new Checklist("Awesome checklist");
     expect(list.name, equals("Awesome checklist"));
 
@@ -230,12 +243,11 @@ main() {
     command.undo();
     expect(list.name, equals("Awesome checklist"));
 
-    command.redo();
+    command.execute();
     expect(list.name, equals("Cool checklist"));
   });
 
-  test("Add primary next checklist",()
-  {
+  test("Add primary next checklist", () {
     var list1 = new Checklist("Hello");
     var list2 = new Checklist("World");
 
@@ -245,11 +257,11 @@ main() {
     command.undo();
     expect(list1.nextPrimary, isNull);
 
-    command.redo();
+    command.execute();
     expect(list1.nextPrimary, equals(list2));
   });
 
-  test("Add/remove alternative next checklists",(){
+  test("Add/remove alternative next checklists", () {
     var list1 = new Checklist("Main");
     var list2 = new Checklist("Alternative");
 
@@ -260,7 +272,7 @@ main() {
     command.undo();
     expect(list1.nextAlternatives.length, equals(0));
 
-    command.redo();
+    command.execute();
     expect(list1.nextAlternatives[0], equals(list2));
   });
 }
@@ -268,11 +280,11 @@ main() {
 Checklist populatedList() {
   return new Checklist.fromSource(
     "Checklist",
-      [
-    new Item("Item 1"),
-    new Item("Item 2"),
-    new Item("Item 3"),
-  ],
+    [
+      new Item("Item 1"),
+      new Item("Item 2"),
+      new Item("Item 3"),
+    ],
   );
 }
 
@@ -284,12 +296,12 @@ Checklist populatedBranchedList() {
   branch.falseBranch.insert(new Item("False 2"));
 
   return new Checklist.fromSource(
-      "Checklist",
-      [
-    new Item("Item 1"),
-    branch,
-    new Item("Item 3"),
-  ],
+    "Checklist",
+    [
+      new Item("Item 1"),
+      branch,
+      new Item("Item 3"),
+    ],
   );
 }
 
@@ -333,11 +345,11 @@ Checklist nestedBranchedList() {
   branch2.trueBranch.insert(new Item("Sub-Child 1"));
 
   return new Checklist.fromSource(
-      "Checklist",
-      [
-    new Item("Item 1"),
-    branch1,
-    new Item("Item 2"),
-  ],
+    "Checklist",
+    [
+      new Item("Item 1"),
+      branch1,
+      new Item("Item 2"),
+    ],
   );
 }

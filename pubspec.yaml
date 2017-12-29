@@ -4,10 +4,9 @@ description: Create and use checklists
 dependencies:
   flutter:
     sdk: flutter
-  ps_command:
-    path: /Users/tlarsen/Documents/Projects/dart_packages/ps_command
-  ps_commandlist:
-    path: /Users/tlarsen/Documents/Projects/dart_packages/ps_commandlist
+  command: any
+  commandlist: any
+  flake_uuid: any
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.

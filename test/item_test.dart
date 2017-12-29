@@ -1,6 +1,6 @@
 import 'package:test/test.dart';
 import 'package:checklist/src/item.dart';
-import 'package:ps_command/command.dart';
+import 'package:command/command.dart';
 import 'package:checklist/src/note.dart';
 
 main() {
@@ -47,7 +47,7 @@ main() {
     expect(command.key, equals("Item.ChangeAction"));
     command.undo();
     expect(item.action,"150 KIAS");
-    command.redo();
+    command.execute();
     expect(item.action,"100 KIAS");
   });
 
@@ -63,7 +63,7 @@ main() {
     expect(command.key, equals("Item.ChangeToCheck"));
     command.undo();
     expect(item.toCheck, equals("Airspeed"));
-    command.redo();
+    command.execute();
     expect(item.toCheck, equals("Cruise speed"));
   });
 
@@ -109,7 +109,7 @@ main() {
     command.undo();
     expect(item.notes.length, equals(0));
 
-    command.redo();
+    command.execute();
     expect(item.notes[0], equals(note));
   });
 
@@ -125,7 +125,7 @@ main() {
     command.undo();
     expect(item.notes[0], equals(note));
 
-    command.redo();
+    command.execute();
     expect(item.notes.length, equals(0));
   });
 }

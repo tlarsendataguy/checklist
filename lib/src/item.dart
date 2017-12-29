@@ -1,5 +1,5 @@
-import "package:ps_command/command.dart";
-import 'package:ps_commandlist/commandlist.dart';
+import "package:command/command.dart";
+import 'package:commandlist/commandlist.dart';
 import 'package:checklist/src/note.dart';
 
 class Item {
@@ -20,11 +20,11 @@ class Item {
   }
 
   Command setAction(String newAction) {
-    return new Command(new ChangeAction(this, newAction));
+    return new Command(new ChangeAction(this, newAction))..execute();
   }
 
   Command setToCheck(String newToCheck) {
-    return new Command(new ChangeToCheck(this, newToCheck));
+    return new Command(new ChangeToCheck(this, newToCheck))..execute();
   }
 }
 
