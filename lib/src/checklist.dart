@@ -26,11 +26,7 @@ class Checklist extends CommandList<Item> {
   Checklist.fromSource(String name, Iterable<Item> source, {String id})
       : super.fromIterable(source, tag: "Checklist") {
     _name = name;
-
-    if (id == null)
-      _id = RandomId.generate();
-    else
-      _id = id;
+    _id = id ?? RandomId.generate();
   }
 
   Command rename(String newName) {
