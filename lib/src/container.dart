@@ -19,15 +19,11 @@ class Container {
   Container(String name,
       {String id,
       Iterable<Checklist> normalLists,
-      Iterable<Checklist> emergencyLists}) {
+      Iterable<Checklist> emergencyLists}) : assert(name != null) {
     _name = name;
     _id = id ?? RandomId.generate();
-    _normalLists = normalLists != null
-        ? new CommandList.fromIterable(normalLists, tag: _normalTag)
-        : new CommandList(tag: _normalTag);
-    _emergencyLists = emergencyLists != null
-        ? new CommandList.fromIterable(emergencyLists, tag: _emergencyTag)
-        : new CommandList(tag: _emergencyTag);
+    _normalLists = new CommandList(source: normalLists, tag: _normalTag);
+    _emergencyLists = new CommandList(source: emergencyLists, tag: _emergencyTag);
   }
 
   Command changeName(String newName){

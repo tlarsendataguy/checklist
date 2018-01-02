@@ -12,21 +12,27 @@ class Checklist extends CommandList<Item> {
   var _priorItems = new ListQueue<BranchHistory>();
   int _currentIndex = 0;
   Checklist _nextPrimary;
-  var nextAlternatives = new CommandList<Checklist>(tag: "NextAlternatives");
+  CommandList<Checklist> _nextAlternatives;
 
   Item get currentItem => _getCurrentItem();
   Iterable<BranchHistory> get priorItems => _priorItems.toList();
+  CommandList<Checklist> get nextAlternatives => _nextAlternatives;
   String get name => _name;
   Checklist get nextPrimary => _nextPrimary;
   String get id => _id;
 
-  Checklist(String name, {String id})
-      : this.fromSource(name, new List<Item>(), id: id);
-
-  Checklist.fromSource(String name, Iterable<Item> source, {String id})
-      : super.fromIterable(source, tag: "Checklist") {
+  Checklist(String name,
+      {Iterable<Item> source,
+      Checklist nextPrimary,
+      Iterable<Checklist> nextAlternatives,
+      String id})
+      : super(source: source, tag: "Checklist") {
+    assert(name != null);
     _name = name;
     _id = id ?? RandomId.generate();
+    _nextPrimary = nextPrimary;
+    _nextAlternatives = new CommandList<Checklist>(
+        source: nextAlternatives, tag: "NextAlternatives");
   }
 
   Command rename(String newName) {
@@ -135,6 +141,7 @@ class Checklist extends CommandList<Item> {
 class BranchHistory {
   final int index;
   final bool branch;
+
   bool get isBranch => branch != null;
 
   BranchHistory(this.index, this.branch);
@@ -144,6 +151,7 @@ class RenameList extends CommandAction {
   final String newName;
   final String oldName;
   final Checklist list;
+
   String get key => "Checklist.Rename";
 
   RenameList(this.list, this.newName) : oldName = list.name;
@@ -161,6 +169,7 @@ class SetNextPrimary extends CommandAction {
   final Checklist list;
   final Checklist newPrimary;
   final Checklist oldPrimary;
+
   String get key => "Checklist.SetNextPrimary";
 
   SetNextPrimary(this.list, this.newPrimary) : oldPrimary = list.nextPrimary;

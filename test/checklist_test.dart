@@ -278,9 +278,9 @@ main() {
 }
 
 Checklist populatedList() {
-  return new Checklist.fromSource(
+  return new Checklist(
     "Checklist",
-    [
+    source: [
       new Item("Item 1"),
       new Item("Item 2"),
       new Item("Item 3"),
@@ -295,9 +295,9 @@ Checklist populatedBranchedList() {
   branch.falseBranch.insert(new Item("False 1"));
   branch.falseBranch.insert(new Item("False 2"));
 
-  return new Checklist.fromSource(
+  return new Checklist(
     "Checklist",
-    [
+    source: [
       new Item("Item 1"),
       branch,
       new Item("Item 3"),
@@ -344,9 +344,9 @@ Checklist nestedBranchedList() {
 
   branch2.trueBranch.insert(new Item("Sub-Child 1"));
 
-  return new Checklist.fromSource(
+  return new Checklist(
     "Checklist",
-    [
+    source: [
       new Item("Item 1"),
       branch1,
       new Item("Item 2"),

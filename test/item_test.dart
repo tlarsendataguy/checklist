@@ -19,7 +19,7 @@ main() {
   test("toCheck cannot be null", () {
     expect(
       () => new Item(null),
-      throwsA(new isInstanceOf<ArgumentError>()),
+      throwsA(new isInstanceOf<AssertionError>()),
     );
   });
 

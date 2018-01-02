@@ -5,18 +5,23 @@ import 'package:checklist/src/note.dart';
 class Item {
   String _toCheck;
   String _action;
-  var trueBranch = new CommandList<Item>(tag: "TrueBranch");
-  var falseBranch = new CommandList<Item>(tag: "FalseBranch");
-  var notes = new CommandList<Note>(tag: "Notes");
+  CommandList<Item> _trueBranch;
+  CommandList<Item> _falseBranch;
+  CommandList<Note> _notes;
 
-  get toCheck => _toCheck;
-  get action => _action;
-  get isBranch => trueBranch.length + falseBranch.length > 0;
+  String get toCheck => _toCheck;
+  String get action => _action;
+  bool get isBranch => trueBranch.length + falseBranch.length > 0;
+  CommandList<Item> get trueBranch => _trueBranch;
+  CommandList<Item> get falseBranch => _falseBranch;
+  CommandList<Note> get notes => _notes;
 
-  Item(String toCheck, {String action}) {
-    if (toCheck == null) throw new ArgumentError.notNull("toCheck");
+  Item(String toCheck, {String action,Iterable<Item> trueBranch,Iterable<Item> falseBranch,Iterable<Note> notes}) : assert(toCheck != null) {
     _toCheck = toCheck;
-    _action = action != null ? action : "";
+    _action = action ?? "";
+    _trueBranch = new CommandList<Item>(source: trueBranch,tag: "TrueBranch");
+    _falseBranch = new CommandList<Item>(source: falseBranch,tag: "FalseBranch");
+    _notes = new CommandList<Note>(source: notes,tag: "Notes");
   }
 
   Command setAction(String newAction) {

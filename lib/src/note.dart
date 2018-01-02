@@ -13,8 +13,8 @@ class Note implements Comparable<Note> {
   Priority get priority => _priority;
   String get text => _text;
 
-  Note(Priority priority, String text) {
-    assert(priority != null && text != null);
+  Note(Priority priority, String text)
+      : assert(priority != null && text != null) {
     _priority = priority;
     _text = text;
   }
