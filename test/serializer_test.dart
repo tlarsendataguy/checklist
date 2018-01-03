@@ -22,23 +22,112 @@ main() {
     expect(container.id, equals("MyContainer123"));
     expect(container.normalLists.length, equals(3));
 
-    for (int i = 0; i < container.normalLists.length; i++){
+    for (int i = 0; i < container.normalLists.length; i++) {
       int j = i + 1;
       expect(container.normalLists[i].name, equals("Normal $j"));
       expect(container.normalLists[i].id, equals("ListId$j"));
     }
 
     expect(container.emergencyLists.length, equals(1));
-    expect(container.emergencyLists[0].name,equals("Emergency 1"));
+    expect(container.emergencyLists[0].name, equals("Emergency 1"));
     expect(container.emergencyLists[0].id, equals("ListId4"));
 
     var list = container.normalLists[0];
     expect(list.length, equals(3));
+    expect(list.nextPrimary, equals(container.normalLists[1]));
+    expect(list.nextAlternatives.length, equals(1));
+    expect(list.nextAlternatives[0], equals(container.normalLists[2]));
+
     var item = list[0];
     expect(item.toCheck, equals("Item 1"));
     expect(item.action, equals("Verified"));
     expect(item.isBranch, equals(true));
     expect(item.trueBranch.length, equals(2));
+    expect(item.falseBranch.length, equals(1));
+    expect(item.notes.length, equals(2));
+
+    var note = item.notes[0];
+    expect(note.priority, equals(Priority.Note));
+    expect(note.text, equals("Note 1"));
+
+    note = item.notes[1];
+    expect(note.priority, equals(Priority.Warning));
+    expect(note.text, equals("Note 2"));
+
+    var subitem = item.trueBranch[0];
+    expect(subitem.toCheck, equals("Item 2"));
+    expect(subitem.action, equals(""));
+    expect(subitem.isBranch, equals(false));
+    expect(subitem.notes[0], equals(item.notes[0]));
+
+    subitem = item.trueBranch[1];
+    expect(subitem.toCheck, equals("Item 3"));
+    expect(subitem.action, equals(""));
+    expect(subitem.isBranch, equals(false));
+
+    subitem = item.falseBranch[0];
+    expect(subitem.toCheck, equals("Item 4"));
+    expect(subitem.action, equals(""));
+    expect(subitem.isBranch, equals(false));
+
+    item = list[1];
+    expect(item.toCheck, equals("Item 5"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    item = list[2];
+    expect(item.toCheck, equals("Item 6"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    note = item.notes[0];
+    expect(note.priority, equals(Priority.Caution));
+    expect(note.text, equals("Note 3"));
+
+    list = container.normalLists[1];
+    expect(list.length, equals(2));
+    expect(list.nextPrimary, isNull);
+    expect(list.nextAlternatives.length, equals(0));
+
+    item = list[0];
+    expect(item.toCheck, equals("Item 7"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    item = list[1];
+    expect(item.toCheck, equals("Item 8"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    list = container.normalLists[2];
+    expect(list.length, equals(2));
+    expect(list.nextPrimary, isNull);
+    expect(list.nextAlternatives.length, equals(0));
+
+    item = list[0];
+    expect(item.toCheck, equals("Item 9"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    item = list[1];
+    expect(item.toCheck, equals("Item 10"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    list = container.emergencyLists[0];
+    expect(list.length, equals(2));
+    expect(list.nextPrimary, isNull);
+    expect(list.nextAlternatives.length, equals(0));
+
+    item = list[0];
+    expect(item.toCheck, equals("Item 11"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
+
+    item = list[1];
+    expect(item.toCheck, equals("Item 12"));
+    expect(item.action, equals(""));
+    expect(item.isBranch, equals(false));
   });
 
   test("Deserialize malformed JSON string", () {
@@ -84,7 +173,7 @@ Container generateContainer() {
         "Item 1",
         action: "Verified",
         trueBranch: [
-          new Item("Item 2"),
+          new Item("Item 2", notes: [new Note(Priority.Note, "Note 1")]),
           new Item("Item 3"),
         ],
         falseBranch: [
@@ -153,7 +242,12 @@ const String serializedString = """{
                 {
                   "toCheck":"Item 2",
                   "action":"",
-                  "notes":[],
+                  "notes":[
+                    {
+                      "priority":"Priority.Note",
+                      "text":"Note 1"
+                    }
+                  ],
                   "trueBranch":[],
                   "falseBranch":[]
                 },

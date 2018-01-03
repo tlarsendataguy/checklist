@@ -10,12 +10,23 @@ class Serializer {
   }
 
   static Container deserialize(String serializedContainer) {
-    return Deserialize.deserialize(serializedContainer);
+    var deserializer = new Deserialize();
+    return deserializer.deserialize(serializedContainer);
   }
 }
 
 class Deserialize {
-  static Container deserialize(String serializedContainer) {
+  var _idToList = new Map<String, Checklist>();
+  var _uniqueNotes = new Map<String, Note>();
+  var _nextPrimaries = new List<ChecklistMap>();
+  var _nextAlternatives = new List<ChecklistMap>();
+
+  Container deserialize(String serializedContainer) {
+    _idToList.clear();
+    _uniqueNotes.clear();
+    _nextPrimaries.clear();
+    _nextAlternatives.clear();
+
     try {
       Map<String, Object> map = JSON.decode(serializedContainer);
       return _deserializeContainer(serializedContainer);
@@ -27,10 +38,19 @@ class Deserialize {
     }
   }
 
-  static Container _deserializeContainer(String serializedContainer){
-    Map<String,Object> map = JSON.decode(serializedContainer);
+  Container _deserializeContainer(String serializedContainer) {
+    Map<String, Object> map = JSON.decode(serializedContainer);
     var normalLists = _deserializeChecklistList(map['normalLists']);
     var emergencyLists = _deserializeChecklistList(map['emergencyLists']);
+
+    for (var map in _nextPrimaries) {
+      map.list.setNextPrimary(_idToList[map.mappedId]);
+    }
+
+    for (var map in _nextAlternatives) {
+      map.list.nextAlternatives.insert(_idToList[map.mappedId]);
+    }
+
     return new Container(
       map['name'],
       id: map['id'],
@@ -39,18 +59,77 @@ class Deserialize {
     );
   }
 
-  static Iterable<Checklist> _deserializeChecklistList(List<Map<String,Object>> lists){
+  Iterable<Checklist> _deserializeChecklistList(
+      List<Map<String, Object>> lists) {
     var deserializedLists = new List<Checklist>();
-    for (var list in lists){
+    for (var list in lists) {
       deserializedLists.add(_deserializeChecklist(list));
     }
     return deserializedLists;
   }
 
-  static Checklist _deserializeChecklist(Map<String,Object> list){
-    return new Checklist(
+  Checklist _deserializeChecklist(Map<String, Object> list) {
+    var newList = new Checklist(
       list['name'],
       id: list['id'],
+      source: _deserializeItemList(list['items']),
+    );
+
+    if (list['nextPrimary'] != null) {
+      _nextPrimaries
+          .add(new ChecklistMap(newList, list['nextPrimary'].toString()));
+    }
+
+    if (list['nextAlternatives'] != null) {
+      for (var alternative in list['nextAlternatives']) {
+        _nextAlternatives.add(new ChecklistMap(newList, alternative));
+      }
+    }
+
+    _idToList.putIfAbsent(newList.id, () => newList);
+    return newList;
+  }
+
+  List<Item> _deserializeItemList(List<Map<String, Object>> items) {
+    var deserializedItems = new List<Item>();
+    for (var item in items) {
+      deserializedItems.add(_deserializeItem(item));
+    }
+    return deserializedItems;
+  }
+
+  Item _deserializeItem(Map<String, Object> item) {
+    var trueItems = new List<Item>();
+    for (Map<String, Object> trueItem in item['trueBranch']) {
+      trueItems.add(_deserializeItem(trueItem));
+    }
+
+    var falseItems = new List<Item>();
+    for (Map<String, Object> falseItem in item['falseBranch']) {
+      falseItems.add(_deserializeItem(falseItem));
+    }
+
+    var notes = new List<Note>();
+    for (Map<String, String> note in item['notes']) {
+      notes.add(_deserializeNote(note));
+    }
+
+    return new Item(
+      item['toCheck'],
+      action: item['action'],
+      notes: notes,
+      trueBranch: trueItems,
+      falseBranch: falseItems,
+    );
+  }
+
+  Note _deserializeNote(Map<String, String> note) {
+    return _uniqueNotes.putIfAbsent(
+      "${note['priority']}.${note['text']}",
+      () => new Note(
+            Priority.values.firstWhere((e) => e.toString() == note['priority']),
+            note['text'],
+          ),
     );
   }
 }
@@ -136,4 +215,10 @@ class MalformedStringException implements Exception {
   String toString() {
     return "Instance of 'MalformedStringException': $message\nStack trace:\n$stacktrace";
   }
+}
+
+class ChecklistMap {
+  final Checklist list;
+  final String mappedId;
+  ChecklistMap(this.list, this.mappedId);
 }
