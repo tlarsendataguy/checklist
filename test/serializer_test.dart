@@ -1,42 +1,42 @@
 import 'package:checklist/src/serializer.dart';
 import 'package:test/test.dart';
-import 'package:checklist/src/container.dart';
+import 'package:checklist/src/book.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/note.dart';
 
 main() {
-  test("Serialize container to JSON string", () {
-    var container = generateContainer();
-    var string = Serializer.serialize(container);
+  test("Serialize book to JSON string", () {
+    var book = generateBook();
+    var string = Serializer.serialize(book);
     var shouldEqual =
         serializedString.replaceAll(new RegExp(r"\n\s+", multiLine: true), "");
     expect(string, equals(shouldEqual));
   });
 
-  test("Deserialize JSON string to container", () {
+  test("Deserialize JSON string to book", () {
     var string =
         serializedString.replaceAll(new RegExp(r"\n\s+", multiLine: true), "");
-    var container = Serializer.deserialize(string);
-    expect(container.name, equals("My fancy new container"));
-    expect(container.id, equals("MyContainer123"));
-    expect(container.normalLists.length, equals(3));
+    var book = Serializer.deserialize(string);
+    expect(book.name, equals("My fancy new book"));
+    expect(book.id, equals("MyContainer123"));
+    expect(book.normalLists.length, equals(3));
 
-    for (int i = 0; i < container.normalLists.length; i++) {
+    for (int i = 0; i < book.normalLists.length; i++) {
       int j = i + 1;
-      expect(container.normalLists[i].name, equals("Normal $j"));
-      expect(container.normalLists[i].id, equals("ListId$j"));
+      expect(book.normalLists[i].name, equals("Normal $j"));
+      expect(book.normalLists[i].id, equals("ListId$j"));
     }
 
-    expect(container.emergencyLists.length, equals(1));
-    expect(container.emergencyLists[0].name, equals("Emergency 1"));
-    expect(container.emergencyLists[0].id, equals("ListId4"));
+    expect(book.emergencyLists.length, equals(1));
+    expect(book.emergencyLists[0].name, equals("Emergency 1"));
+    expect(book.emergencyLists[0].id, equals("ListId4"));
 
-    var list = container.normalLists[0];
+    var list = book.normalLists[0];
     expect(list.length, equals(3));
-    expect(list.nextPrimary, equals(container.normalLists[1]));
+    expect(list.nextPrimary, equals(book.normalLists[1]));
     expect(list.nextAlternatives.length, equals(1));
-    expect(list.nextAlternatives[0], equals(container.normalLists[2]));
+    expect(list.nextAlternatives[0], equals(book.normalLists[2]));
 
     var item = list[0];
     expect(item.toCheck, equals("Item 1"));
@@ -84,7 +84,7 @@ main() {
     expect(note.priority, equals(Priority.Caution));
     expect(note.text, equals("Note 3"));
 
-    list = container.normalLists[1];
+    list = book.normalLists[1];
     expect(list.length, equals(2));
     expect(list.nextPrimary, isNull);
     expect(list.nextAlternatives.length, equals(0));
@@ -99,7 +99,7 @@ main() {
     expect(item.action, equals(""));
     expect(item.isBranch, equals(false));
 
-    list = container.normalLists[2];
+    list = book.normalLists[2];
     expect(list.length, equals(2));
     expect(list.nextPrimary, isNull);
     expect(list.nextAlternatives.length, equals(0));
@@ -114,7 +114,7 @@ main() {
     expect(item.action, equals(""));
     expect(item.isBranch, equals(false));
 
-    list = container.emergencyLists[0];
+    list = book.emergencyLists[0];
     expect(list.length, equals(2));
     expect(list.nextPrimary, isNull);
     expect(list.nextAlternatives.length, equals(0));
@@ -147,7 +147,7 @@ main() {
   });
 }
 
-Container generateContainer() {
+Book generateBook() {
   Checklist list2 = new Checklist(
     "Normal 2",
     id: "ListId2",
@@ -199,8 +199,8 @@ Container generateContainer() {
     new Item("Item 12"),
   ]);
 
-  return new Container(
-    "My fancy new container",
+  return new Book(
+    "My fancy new book",
     normalLists: [
       list1,
       list2,
@@ -214,7 +214,7 @@ Container generateContainer() {
 }
 
 const String serializedString = """{
-      "name":"My fancy new container",
+      "name":"My fancy new book",
       "id":"MyContainer123",
       "normalLists":[
         {

@@ -3,7 +3,7 @@ import 'package:checklist/src/checklist.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:command/command.dart';
 
-class Container {
+class Book {
   static const String _normalTag = "NormalLists";
   static const String _emergencyTag = "EmergencyLists";
   String _name;
@@ -16,7 +16,7 @@ class Container {
   CommandList<Checklist> get normalLists => _normalLists;
   CommandList<Checklist> get emergencyLists => _emergencyLists;
 
-  Container(String name,
+  Book(String name,
       {String id,
       Iterable<Checklist> normalLists,
       Iterable<Checklist> emergencyLists}) : assert(name != null) {
@@ -32,10 +32,10 @@ class Container {
 }
 
 class ChangeName extends CommandAction{
-  final Container container;
+  final Book container;
   final String newName;
   final String oldName;
-  String get key => "Container.ChangeName";
+  String get key => "Book.ChangeName";
 
   ChangeName(this.container,this.newName) : oldName = container.name;
 

@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'package:checklist/src/checklist.dart';
-import 'package:checklist/src/container.dart';
+import 'package:checklist/src/book.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/note.dart';
 
 class Serializer {
-  static String serialize(Container container) {
-    return Serialize.serialize(container);
+  static String serialize(Book book) {
+    return Serialize.serialize(book);
   }
 
-  static Container deserialize(String serializedContainer) {
+  static Book deserialize(String serializedContainer) {
     var deserializer = new Deserialize();
     return deserializer.deserialize(serializedContainer);
   }
@@ -21,25 +21,24 @@ class Deserialize {
   var _nextPrimaries = new List<ChecklistMap>();
   var _nextAlternatives = new List<ChecklistMap>();
 
-  Container deserialize(String serializedContainer) {
+  Book deserialize(String serializedBook) {
     _idToList.clear();
     _uniqueNotes.clear();
     _nextPrimaries.clear();
     _nextAlternatives.clear();
 
     try {
-      Map<String, Object> map = JSON.decode(serializedContainer);
-      return _deserializeContainer(serializedContainer);
+      return _deserializeBook(serializedBook);
     } catch (_, stacktrace) {
       throw new MalformedStringException(
-        "The string does not represent a valid Container object",
+        "The string does not represent a valid Book object",
         stacktrace,
       );
     }
   }
 
-  Container _deserializeContainer(String serializedContainer) {
-    Map<String, Object> map = JSON.decode(serializedContainer);
+  Book _deserializeBook(String serializedBook) {
+    Map<String, Object> map = JSON.decode(serializedBook);
     var normalLists = _deserializeChecklistList(map['normalLists']);
     var emergencyLists = _deserializeChecklistList(map['emergencyLists']);
 
@@ -51,7 +50,7 @@ class Deserialize {
       map.list.nextAlternatives.insert(_idToList[map.mappedId]);
     }
 
-    return new Container(
+    return new Book(
       map['name'],
       id: map['id'],
       normalLists: normalLists,
@@ -135,7 +134,7 @@ class Deserialize {
 }
 
 class Serialize {
-  static String serialize(Container container) {
+  static String serialize(Book container) {
     var containerMap = <String, Object>{
       "name": container.name,
       "id": container.id,
