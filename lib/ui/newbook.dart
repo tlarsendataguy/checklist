@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/ui/editBook.dart';
+import 'package:checklist/src/bookio.dart';
 
 class NewBook extends StatefulWidget {
   NewBook();
@@ -76,11 +77,14 @@ class _NewBookState extends State<NewBook> {
       _creating = true;
       _nameDecoration = new InputDecoration();
     });
+    var io = new BookIo();
     var book = new Book(_name.text);
-    String bookSerialized = Serializer.serialize(book);
+    await io.persistBook(book);
+
     Navigator.of(context).pushReplacement(
         new MaterialPageRoute(
-            builder: (_) => new EditBook(book.id),
+            maintainState: false,
+            builder: (_) => new EditBook("/${book.id}"),
         ),
     );
   }

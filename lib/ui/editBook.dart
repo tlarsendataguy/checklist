@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 
 class EditBook extends StatefulWidget {
-  final String id;
-  EditBook(this.id);
+  final String path;
+
+  EditBook(this.path);
 
   _EditBookState createState() => new _EditBookState();
 }
@@ -20,5 +21,9 @@ class _EditBookState extends State<EditBook> {
         child: new Text("Hello world!"),
       ),
     );
+  }
+
+  String _getId(){
+    return widget.path.split('/')[1];
   }
 }
