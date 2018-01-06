@@ -9,6 +9,8 @@ class EditBook extends StatefulWidget {
 }
 
 class _EditBookState extends State<EditBook> {
+  bool isLoading = true;
+
   _EditBookState();
 
   Widget build(BuildContext context) {
