@@ -4,13 +4,15 @@ import 'dart:io';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/src/item.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:test/test.dart';
 
 const String bookId = "1234567890abcd";
 const String bookPath = "/$bookId";
 const String listId = "1111111111aaaa";
-const String listPath = "$bookPath/$listId";
+const String listPath = "$bookPath/normal/$listId";
+
 main() {
   ParsePath.mock = true;
 
@@ -44,11 +46,58 @@ main() {
     expect(list.id, equals(listId));
   });
 
-  test("Parse checklist that does not exist in the book",() async {
+  test("Parse checklist that does not exist in the book", () async {
     expect(
-          () async => await ParsePath.parseList("$bookPath/2222222222bbbb"),
+      () async => await ParsePath.parseList("$bookPath/2222222222bbbb"),
       throwsA(new isInstanceOf<ArgumentError>()),
     );
+  });
+
+  test("Parse item", () async {
+    Item item = await ParsePath.parseItem("$listPath/0");
+    expect(item.toCheck, equals("What to check"));
+    expect(item.action, equals("Looks ok"));
+  });
+
+  test("Parse nested items", () async {
+    Item item = await ParsePath.parseItem("$listPath/0/true/0");
+    expect(item.toCheck, equals("True!"));
+
+    item = await ParsePath.parseItem("$listPath/0/false/0");
+    expect(item.toCheck, equals("False!"));
+  });
+
+  test("Parse item that is not in the book", () async {
+    expect(
+      () async => await ParsePath.parseItem("$listPath/1"),
+      throwsA(new isInstanceOf<ArgumentError>()),
+    );
+  });
+
+  test("Parse double nested items", () async {
+    Item item = await ParsePath.parseItem("$listPath/0/true/0/true/0");
+    expect(item.toCheck, equals("Nested true!"));
+  });
+
+  test("Parse path to normal lists of book", () async {
+    var book = await ParsePath.parseBook("$bookPath/normal");
+    expect(book.name, equals("My book"));
+    expect(book.id, equals(bookId));
+  });
+
+  test(
+      "Parse book path cannot specify both normal/emergency lists and a list ID",
+      () {
+    expect(
+      () async => await ParsePath.parseBook("$bookPath/normal/$listId"),
+      throwsA(new isInstanceOf<ArgumentError>()),
+    );
+  });
+
+  test("Parse path to true branch of item",() async {
+    Item item = await ParsePath.parseItem("$listPath/0/true");
+    expect(item.toCheck,equals("What to check"));
+    expect(item.action, equals("Looks ok"));
   });
 }
 
@@ -61,6 +110,21 @@ Future createBook() async {
       new Checklist(
         "My checklist",
         id: listId,
+        source: [
+          new Item(
+            "What to check",
+            action: "Looks ok",
+            trueBranch: [
+              new Item(
+                "True!",
+                trueBranch: [new Item("Nested true!")],
+              ),
+            ],
+            falseBranch: [
+              new Item("False!"),
+            ],
+          )
+        ],
       ),
     ],
   );
