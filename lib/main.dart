@@ -1,6 +1,7 @@
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/editbook.dart';
 import 'package:checklist/ui/editbookbranch.dart';
+import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/ui/landing.dart';
 import 'package:checklist/ui/newbook.dart';
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Checklist App',
+      title: Strings.appTitle,
       theme: new ThemeData(
         primarySwatch: Colors.blue,
       ),

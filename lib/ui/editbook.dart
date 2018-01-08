@@ -1,4 +1,8 @@
+import 'dart:async';
+
 import 'package:checklist/src/book.dart';
+import 'package:checklist/src/bookio.dart';
+import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:checklist/src/parsepath.dart';
@@ -12,9 +16,11 @@ class EditBook extends StatefulWidget {
 }
 
 class _EditBookState extends State<EditBook> {
+  BookIo _io = new BookIo();
   bool _isLoading = true;
   Book _book;
   TextEditingController _nameController;
+  InputDecoration _nameDecoration;
 
   _EditBookState();
 
@@ -24,6 +30,7 @@ class _EditBookState extends State<EditBook> {
       setState((){
         _book = parsedBook;
         _isLoading = false;
+        _nameDecoration = _defaultDecoration();
         _nameController = new TextEditingController(text: _book.name);
       });
     });
@@ -32,7 +39,7 @@ class _EditBookState extends State<EditBook> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Edit book"),
+        title: new Text(Strings.editBookTitle),
       ),
       body: _getBody(context),
     );
@@ -48,12 +55,15 @@ class _EditBookState extends State<EditBook> {
         padding: new EdgeInsets.all(12.0),
         child: new ListView(
           children: <Widget>[
-            new Text("Name:"),
-            new TextField(controller: _nameController),
+            new TextField(
+              onSubmitted: _changeName,
+                controller: _nameController,
+              decoration: _nameDecoration,
+            ),
             new Padding(
               padding: new EdgeInsets.all(32.0),
               child: new RaisedButton(
-                child: new Text("Edit normal checklists"),
+                child: new Text(Strings.editNormalLists),
                 onPressed: () =>
                     Navigator.of(context).pushNamed("${widget.path}/normal"),
               ),
@@ -61,7 +71,7 @@ class _EditBookState extends State<EditBook> {
             new Padding(
               padding: new EdgeInsets.fromLTRB(32.0, 0.0, 32.0, 32.0),
               child: new RaisedButton(
-                child: new Text("Edit emergency checklists"),
+                child: new Text(Strings.editEmergencyLists),
                 onPressed:  () =>
                     Navigator.of(context).pushNamed("${widget.path}/emergency"),
               ),
@@ -69,5 +79,29 @@ class _EditBookState extends State<EditBook> {
           ],
         ),
       );
+  }
+
+  InputDecoration _defaultDecoration(){
+    return new InputDecoration(
+      hintText: Strings.nameHint,
+    );
+  }
+
+  Future _changeName(String newName) async {
+    if (newName == ""){
+      setState((){
+        _nameDecoration = new InputDecoration(
+          errorText: Strings.noNameError,
+          hintText: Strings.nameHint,
+        );
+      });
+      return;
+    }
+
+    setState((){
+      _nameDecoration = _defaultDecoration();
+    });
+    _book.changeName(newName);
+    await _io.persistBook(_book);
   }
 }

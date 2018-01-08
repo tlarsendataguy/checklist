@@ -1,3 +1,4 @@
+import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/bookio.dart';
 
@@ -43,7 +44,7 @@ class _LandingState extends State<Landing> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("Checklist App"),
+        title: new Text(Strings.appTitle),
       ),
       body: _buildListview(context),
       floatingActionButton: new FloatingActionButton(

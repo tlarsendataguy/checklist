@@ -15,8 +15,9 @@ class NewBook extends StatefulWidget {
 
 class _NewBookState extends State<NewBook> {
   TextEditingController _name = new TextEditingController();
-  InputDecoration _nameDecoration = new InputDecoration();
+  InputDecoration _nameDecoration = _defaultDecoration();
   bool _creating = false;
+  static const String _nameHint = "Name";
 
   _NewBookState();
 
@@ -30,7 +31,7 @@ class _NewBookState extends State<NewBook> {
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Text("Enter a name for the new book of checklists:"),
+            new Text("Enter a name for the new book of checklists"),
             new TextField(
               controller: _name,
               decoration: _nameDecoration,
@@ -70,17 +71,24 @@ class _NewBookState extends State<NewBook> {
     if (_name.text == "") {
       setState(() => _nameDecoration = new InputDecoration(
             errorText: "The name cannot be blank",
+            hintText: _nameHint,
           ));
       return;
     }
     setState(() {
       _creating = true;
-      _nameDecoration = new InputDecoration();
+      _nameDecoration = _defaultDecoration();
     });
     var io = new BookIo();
     var book = new Book(_name.text);
     await io.persistBook(book);
 
     Navigator.of(context).pushReplacementNamed("/${book.id}");
+  }
+
+  static InputDecoration _defaultDecoration(){
+    return new InputDecoration(
+      hintText: _nameHint,
+    );
   }
 }
