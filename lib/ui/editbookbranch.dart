@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:commandlist/commandlist.dart';
@@ -19,7 +22,9 @@ class _EditBookBranchState extends State<EditBookBranch> {
   InputDecoration _listNameDecoration;
   bool _isLoading = true;
   String _listType;
+  Book _book;
   CommandList<Checklist> _lists;
+  var _widgetLists = new List<Widget>();
 
   initState() {
     super.initState();
@@ -28,12 +33,14 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
     ParsePath.parseBook(widget.path).then((Book parsedBook) {
       setState(() {
+        _book = parsedBook;
         List<String> elements = widget.path.split('/');
         _listType = elements[elements.length - 1];
         if (_listType == 'normal')
           _lists = parsedBook.normalLists;
         else
           _lists = parsedBook.emergencyLists;
+        _populateListView();
         _isLoading = false;
       });
     });
@@ -58,9 +65,7 @@ class _EditBookBranchState extends State<EditBookBranch> {
         children: <Widget>[
           new Expanded(
             child: new ListView(
-              children: <Widget>[
-                new Text("Hello world!"),
-              ],
+              children: _widgetLists,
             ),
           ),
           new Padding(
@@ -69,6 +74,7 @@ class _EditBookBranchState extends State<EditBookBranch> {
               children: <Widget>[
                 new Expanded(
                   child: new TextField(
+                    onSubmitted: _createChecklist,
                     controller: _listNameController,
                     decoration: _listNameDecoration,
                   ),
@@ -86,5 +92,39 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
   InputDecoration _defaultListNameDecoration() {
     return new InputDecoration(hintText: Strings.nameHint);
+  }
+
+  void _createChecklist(String listName) {
+    var list = new Checklist(listName);
+    var io = new BookIo();
+    var command = _lists.insert(list);
+    io.persistBook(_book).then((bool result) {
+      setState(() {
+        if (result) {
+          _populateListView();
+          _listNameDecoration = new InputDecoration(
+            hintText: Strings.nameHint,
+          );
+          _listNameController.text = "";
+        } else {
+          command.undo();
+          _listNameDecoration = new InputDecoration(
+            hintText: Strings.nameHint,
+            errorText: Strings.createListFailed,
+          );
+        }
+      });
+    });
+  }
+
+  void _populateListView() {
+    _widgetLists = new List<Widget>();
+    for (var list in _lists) {
+      _widgetLists.add(_checklistToWidget(list));
+    }
+  }
+
+  Widget _checklistToWidget(Checklist list) {
+    return new Text(list.name);
   }
 }

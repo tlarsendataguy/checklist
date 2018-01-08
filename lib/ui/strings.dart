@@ -11,4 +11,5 @@ class Strings{
   static String toCheckError = "The parameter cannot be blank";
   static String actionHint = "Value to verify";
   static String createList = "Add checklist";
+  static String createListFailed = "List could not be created";
 }
