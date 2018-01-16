@@ -5,6 +5,7 @@ import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/ui/landing.dart';
 import 'package:checklist/ui/newbook.dart';
+import 'package:checklist/ui/editlist.dart';
 
 void main() => runApp(new MyApp());
 
@@ -64,17 +65,21 @@ class MyApp extends StatelessWidget {
       );
     }
 
-/*
-      if (path.length == 3 && _isId(path[2])){
-        return new MaterialPageRoute(
-          settings: settings,
-            maintainState: false,
-            builder: (BuildContext context) => new EditList(settings.name),
-        );
-      }
-*/
+    if (_isList(path)) {
+      return new MaterialPageRoute(
+        settings: settings,
+        maintainState: false,
+        builder: (BuildContext context) => new EditList(settings.name),
+      );
+    }
 
     return null;
+  }
+
+  bool _isList(List<String> path) {
+    return path.length == 4 &&
+        _isBookBranch(path.sublist(0, 3)) &&
+        ParsePath.stringIsId(path[3]);
   }
 
   bool _isBookBranch(List<String> path) {

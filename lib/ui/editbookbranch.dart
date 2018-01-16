@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/ui/draggablelistviewitem.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,7 +25,7 @@ class _EditBookBranchState extends State<EditBookBranch> {
   String _listType;
   Book _book;
   CommandList<Checklist> _lists;
-  var _widgetLists = new List<Widget>();
+  BookIo _io = new BookIo();
 
   initState() {
     super.initState();
@@ -40,7 +41,6 @@ class _EditBookBranchState extends State<EditBookBranch> {
           _lists = parsedBook.normalLists;
         else
           _lists = parsedBook.emergencyLists;
-        _populateListView();
         _isLoading = false;
       });
     });
@@ -64,8 +64,9 @@ class _EditBookBranchState extends State<EditBookBranch> {
       return new Column(
         children: <Widget>[
           new Expanded(
-            child: new ListView(
-              children: _widgetLists,
+            child: new ListView.builder(
+              itemCount: _lists.length,
+              itemBuilder: (_, int index) => _checklistToWidget(index),
             ),
           ),
           new Padding(
@@ -96,12 +97,10 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
   void _createChecklist(String listName) {
     var list = new Checklist(listName);
-    var io = new BookIo();
     var command = _lists.insert(list);
-    io.persistBook(_book).then((bool result) {
+    _io.persistBook(_book).then((bool result) {
       setState(() {
         if (result) {
-          _populateListView();
           _listNameDecoration = new InputDecoration(
             hintText: Strings.nameHint,
           );
@@ -117,14 +116,48 @@ class _EditBookBranchState extends State<EditBookBranch> {
     });
   }
 
-  void _populateListView() {
-    _widgetLists = new List<Widget>();
-    for (var list in _lists) {
-      _widgetLists.add(_checklistToWidget(list));
-    }
-  }
+  Widget _checklistToWidget(int index) {
+    var list = _lists[index];
+    var size = MediaQuery.of(context).size;
+    const height = 30.0;
+    var editPath = widget.path + "/" + list.id;
 
-  Widget _checklistToWidget(Checklist list) {
-    return new Text(list.name);
+    var newWidget = new DraggableListViewItem(
+      index: index,
+      moveItem: (int oldIndex){
+        if (oldIndex < index) index--;
+        var command = _lists.moveItem(oldIndex, index);
+        _io.persistBook(_book).then((success){
+          if (success)
+            setState((){});
+          else
+            command.undo();
+        });
+      },
+      child: new Container(
+            width: size.width,
+            height: height,
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                    child: new Text(list.name),
+                ),
+                new IconButton(
+                    icon: new Icon(Icons.delete),
+                    onPressed: null,
+                ),
+                new IconButton(
+                    icon: new Icon(Icons.edit),
+                  onPressed: (){
+                      print(editPath);
+                      Navigator.of(context).pushNamed(editPath);
+                  },
+                ),
+              ],
+            ),
+          ),
+    );
+
+    return newWidget;
   }
 }

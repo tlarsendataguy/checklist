@@ -20,6 +20,7 @@ class _EditListState extends State<EditList>{
   InputDecoration _toCheckDecoration;
   InputDecoration _actionDecoration;
   bool _isLoading = true;
+  Checklist _list;
 
   initState(){
     super.initState();
@@ -28,8 +29,9 @@ class _EditListState extends State<EditList>{
     _toCheckController = new TextEditingController();
     _actionController = new TextEditingController();
 
-    ParsePath.parseBook(widget.path).then((Book parsedBook){
+    ParsePath.parseList(widget.path).then((Checklist parsedList){
       setState((){
+        _list = parsedList;
         _isLoading = false;
       });
     });
@@ -51,37 +53,14 @@ class _EditListState extends State<EditList>{
         child: new CupertinoActivityIndicator(),
       );
     else
-      return new Column(
-        children: <Widget>[
-          new Expanded(
-            child: new ListView(
+      return new Padding(
+        padding: new EdgeInsets.all(12.0),
+        child:  new ListView(
               children: <Widget>[
-                new Text("Hello world!"),
+                new Text(_list.name),
               ],
             ),
-          ),
-          new Row(
-            children: <Widget>[
-              new Column(
-                children: <Widget>[
-                  new TextField(
-                    controller: _toCheckController,
-                    decoration: _toCheckDecoration,
-                  ),
-                  new TextField(
-                    controller: _actionController,
-                    decoration: _actionDecoration,
-                  )
-                ],
-              ),
-              new RaisedButton(
-
-                onPressed: null,
-              )
-            ],
-          ),
-        ],
-      );
+          );
   }
 
   InputDecoration _defaultToCheckDecoration(){
