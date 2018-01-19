@@ -2,16 +2,22 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 typedef void MoveItemCallback(int oldIndex);
+typedef void StartDragCallback();
+typedef void StopDragCallback();
 
 class DraggableListViewItem extends StatefulWidget {
   final int index;
   final Widget child;
   final MoveItemCallback moveItem;
+  final StartDragCallback startDrag;
+  final StopDragCallback stopDrag;
 
   DraggableListViewItem({
     @required this.index,
     @required this.child,
     @required this.moveItem,
+    this.startDrag,
+    this.stopDrag,
   });
 
   createState() => new DraggableListViewItemState();
@@ -26,39 +32,39 @@ class DraggableListViewItemState extends State<DraggableListViewItem> {
   build(BuildContext context) {
     return new DragTarget<int>(
       onWillAccept: (_) {
-        setState(startTarget);
+        startTarget();
         return true;
       },
       onAccept: (oldIndex) {
-        setState(stopTarget);
-        widget.moveItem(oldIndex);
+        stopTarget();
+        if (widget.moveItem != null) widget.moveItem(oldIndex);
       },
-      onLeave: (_)  => setState(stopTarget),
+      onLeave: (_) => stopTarget(),
       builder: buildRow,
     );
   }
 
-  void resetIsTarget() {
-    setState(() => isTarget = false);
-  }
-
-  Widget buildRow(BuildContext context, List<int> data, List<Object> _){
+  Widget buildRow(BuildContext context, List<int> data, List<Object> _) {
     if (isDragging)
-      return new Text("");
+      return const Text("");
     else
       return new AnimatedPadding(
-        padding:
-        new EdgeInsets.fromLTRB(0.0, isTarget ? 20.0 : 0.0, 0.0, 0.0),
+        padding: new EdgeInsets.fromLTRB(
+            0.0,
+            isTarget ? 50.0 : 0.0,
+            0.0,
+          0.0,
+        ),
         child: new Row(
           children: <Widget>[
             new Draggable<int>(
               data: widget.index,
               maxSimultaneousDrags: 1,
-              childWhenDragging: new Text(""),
+              childWhenDragging: const Text(""),
               onDragStarted: startDragging,
               onDragCompleted: stopDragging,
               onDraggableCanceled: (Velocity velocity, Offset offset) {
-                setState(stopDragging);
+                stopDragging();
               },
               feedback: new Container(
                 width: MediaQuery.of(context).size.width,
@@ -80,8 +86,21 @@ class DraggableListViewItemState extends State<DraggableListViewItem> {
       );
   }
 
-  void startDragging() => isDragging = true;
-  void stopDragging() => isDragging = false;
-  void startTarget() => isTarget = true;
-  void stopTarget() => isTarget = false;
+  void startDragging() {
+    setState(() => isDragging = true);
+    if (widget.startDrag != null) widget.startDrag();
+  }
+
+  void stopDragging() {
+    setState(() => isDragging = false);
+    if (widget.stopDrag != null) widget.stopDrag();
+  }
+
+  void startTarget() {
+    setState(() => isTarget = true);
+  }
+
+  void stopTarget() {
+    setState(() => isTarget = false);
+  }
 }

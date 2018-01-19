@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
-import 'package:checklist/ui/draggablelistviewitem.dart';
+import 'package:checklist/ui/draggablelistview.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
@@ -64,9 +64,9 @@ class _EditBookBranchState extends State<EditBookBranch> {
       return new Column(
         children: <Widget>[
           new Expanded(
-            child: new ListView.builder(
-              itemCount: _lists.length,
-              itemBuilder: (_, int index) => _checklistToWidget(index),
+            child: new DraggableListView(
+              _checklistToWidget,
+              childCount: _lists.length,
             ),
           ),
           new Padding(
@@ -116,48 +116,27 @@ class _EditBookBranchState extends State<EditBookBranch> {
     });
   }
 
-  Widget _checklistToWidget(int index) {
+  Widget _checklistToWidget(BuildContext context, int index) {
     var list = _lists[index];
-    var size = MediaQuery.of(context).size;
-    const height = 30.0;
     var editPath = widget.path + "/" + list.id;
 
-    var newWidget = new DraggableListViewItem(
-      index: index,
-      moveItem: (int oldIndex){
-        if (oldIndex < index) index--;
-        var command = _lists.moveItem(oldIndex, index);
-        _io.persistBook(_book).then((success){
-          if (success)
-            setState((){});
-          else
-            command.undo();
-        });
-      },
-      child: new Container(
-            width: size.width,
-            height: height,
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                    child: new Text(list.name),
-                ),
-                new IconButton(
-                    icon: new Icon(Icons.delete),
-                    onPressed: null,
-                ),
-                new IconButton(
-                    icon: new Icon(Icons.edit),
-                  onPressed: (){
-                      print(editPath);
-                      Navigator.of(context).pushNamed(editPath);
-                  },
-                ),
-              ],
-            ),
-          ),
+    return new Row(
+      children: <Widget>[
+        new Expanded(
+          child: new Text(list.name),
+        ),
+        new IconButton(
+          icon: new Icon(Icons.delete),
+          onPressed: null,
+        ),
+        new IconButton(
+          icon: new Icon(Icons.edit),
+          onPressed: () {
+            print(editPath);
+            Navigator.of(context).pushNamed(editPath);
+          },
+        ),
+      ],
     );
-
-    return newWidget;
   }
 }
