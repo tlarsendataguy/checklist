@@ -125,10 +125,7 @@ class _EditBookBranchState extends State<EditBookBranch> {
         new Expanded(
           child: new Text(list.name),
         ),
-        new IconButton(
-          icon: new Icon(Icons.delete),
-          onPressed: null,
-        ),
+
         new IconButton(
           icon: new Icon(Icons.edit),
           onPressed: () {

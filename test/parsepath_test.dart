@@ -41,7 +41,8 @@ main() {
   });
 
   test("Parse checklist path", () async {
-    Checklist list = await ParsePath.parseList(listPath);
+    ChecklistWithParent parent = await ParsePath.parseList(listPath);
+    Checklist list = parent.list;
     expect(list.name, equals("My checklist"));
     expect(list.id, equals(listId));
   });
@@ -54,16 +55,16 @@ main() {
   });
 
   test("Parse item", () async {
-    Item item = await ParsePath.parseItem("$listPath/0");
+    Item item = (await ParsePath.parseItem("$listPath/0")).item;
     expect(item.toCheck, equals("What to check"));
     expect(item.action, equals("Looks ok"));
   });
 
   test("Parse nested items", () async {
-    Item item = await ParsePath.parseItem("$listPath/0/true/0");
+    Item item = (await ParsePath.parseItem("$listPath/0/true/0")).item;
     expect(item.toCheck, equals("True!"));
 
-    item = await ParsePath.parseItem("$listPath/0/false/0");
+    item = (await ParsePath.parseItem("$listPath/0/false/0")).item;
     expect(item.toCheck, equals("False!"));
   });
 
@@ -75,7 +76,7 @@ main() {
   });
 
   test("Parse double nested items", () async {
-    Item item = await ParsePath.parseItem("$listPath/0/true/0/true/0");
+    Item item = (await ParsePath.parseItem("$listPath/0/true/0/true/0")).item;
     expect(item.toCheck, equals("Nested true!"));
   });
 
@@ -95,7 +96,7 @@ main() {
   });
 
   test("Parse path to true branch of item",() async {
-    Item item = await ParsePath.parseItem("$listPath/0/true");
+    Item item = (await ParsePath.parseItem("$listPath/0/true")).item;
     expect(item.toCheck,equals("What to check"));
     expect(item.action, equals("Looks ok"));
   });

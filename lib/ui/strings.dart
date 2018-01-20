@@ -12,4 +12,8 @@ class Strings{
   static String actionHint = "Value to verify";
   static String createList = "Add checklist";
   static String createListFailed = "List could not be created";
+  static String editItems = "Edit items";
+  static String editNextAlternatives = "Edit next alternatives";
+  static String editNextPrimary = "Select next checklist";
+  static String noSelection = "<No selection>";
 }

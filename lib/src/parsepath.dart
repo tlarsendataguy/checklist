@@ -5,6 +5,7 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
 import 'package:commandlist/commandlist.dart';
+import 'package:meta/meta.dart';
 
 class ParsePath {
   static bool mock = false;
@@ -17,7 +18,7 @@ class ParsePath {
     return await _getIo().readBook(id);
   }
 
-  static Future<Checklist> parseList(String path) async {
+  static Future<ChecklistWithParent> parseList(String path) async {
     if (!_isList(path))
       throw new ArgumentError("path does not represent a Checklist object");
 
@@ -34,20 +35,22 @@ class ParsePath {
       collection = book.emergencyLists;
 
     for (var list in collection) {
-      if (list.id == listId) return list;
+      if (list.id == listId)
+        return new ChecklistWithParent(list: list, parent: book);
     }
 
     throw new ArgumentError(
         "The Book object does not contain the specified checklist ID");
   }
 
-  static Future<Item> parseItem(String path) async {
+  static Future<ItemWithParent> parseItem(String path,{Book outBook}) async {
     if (!_isItem(path))
       throw new ArgumentError("Path does not represent an Item object");
 
     List<String> elements = path.split('/');
     var listPath = elements.sublist(0, 4).join('/');
-    Checklist list = await parseList(listPath);
+    ChecklistWithParent parent = await parseList(listPath);
+    Checklist list = parent.list;
 
     int index = int.parse(elements[4]);
     Item item = list[index];
@@ -67,7 +70,7 @@ class ParsePath {
           item = items[index];
         }
       }
-      return item;
+      return new ItemWithParent(item: item, parent: parent);
     } catch (ex) {
       throw new ArgumentError("The path does not lead to a valid item");
     }
@@ -137,4 +140,18 @@ class ParsePath {
   static BookIo _getIo() {
     return mock ? new BookIo(writer: new MockDiskWriter()) : new BookIo();
   }
+}
+
+class ChecklistWithParent{
+  final Book parent;
+  final Checklist list;
+  ChecklistWithParent({@required this.list, @required this.parent}) :
+    assert(parent != null && list != null);
+}
+
+class ItemWithParent{
+  final ChecklistWithParent parent;
+  final Item item;
+  ItemWithParent({@required this.item, @required this.parent}) :
+      assert(item != null && parent != null);
 }
