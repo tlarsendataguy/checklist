@@ -67,6 +67,13 @@ class _EditBookBranchState extends State<EditBookBranch> {
             child: new DraggableListView(
               _checklistToWidget,
               childCount: _lists.length,
+              onMove: (int oldIndex,int newIndex) async {
+                var command = _lists.moveItem(oldIndex, newIndex);
+                setState((){});
+                if (! await _io.persistBook(_book)){
+                  setState(()=>command.undo());
+                }
+              },
             ),
           ),
           new Padding(
@@ -120,20 +127,42 @@ class _EditBookBranchState extends State<EditBookBranch> {
     var list = _lists[index];
     var editPath = widget.path + "/" + list.id;
 
-    return new Row(
-      children: <Widget>[
-        new Expanded(
+    return new PopupMenuButton<String>(
+      onSelected: (String selection) async {
+        switch (selection){
+          case "Edit":
+            Navigator.of(context).pushNamed(editPath);
+            break;
+          case "Delete":
+            var command = _lists.remove(list);
+            var success = await _io.persistBook(_book);
+            if (!success)
+              command.undo();
+            else
+              setState((){});
+            break;
+          default:
+            break;
+        }
+      },
+        itemBuilder: (BuildContext context) => [
+          const PopupMenuItem(
+      value: "Edit",
+      child: const Icon(Icons.edit),
+    ),
+          const PopupMenuDivider(),
+          const PopupMenuItem(
+            value: "Delete",
+              child: const Icon(Icons.delete),
+          ),
+    ],
+      child: new Container(
+        height: 35.0,
+        child: new Align(
+          alignment: new Alignment(-1.0,0.0),
           child: new Text(list.name),
         ),
-
-        new IconButton(
-          icon: new Icon(Icons.edit),
-          onPressed: () {
-            print(editPath);
-            Navigator.of(context).pushNamed(editPath);
-          },
-        ),
-      ],
+      ),
     );
   }
 }

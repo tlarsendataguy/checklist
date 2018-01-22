@@ -3,15 +3,18 @@ import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
 enum DragHandleLocation { left, right }
+typedef void OnMoveCallback(int oldIndex,int newIndex);
 
 class DraggableListView extends StatefulWidget {
   final IndexedWidgetBuilder builder;
   final int childCount;
   final DragHandleLocation handleLocation;
+  final OnMoveCallback onMove;
 
   DraggableListView(this.builder,
       {@required this.childCount,
-      this.handleLocation = DragHandleLocation.left});
+      this.handleLocation = DragHandleLocation.left,
+      this.onMove});
 
   createState() => new DraggableListViewState();
 }
@@ -45,7 +48,12 @@ class DraggableListViewState extends State<DraggableListView> {
   Widget _buildChild(BuildContext context, int index) {
     //return new Text("Index: $index");
     return new DraggableListViewItem(
-      moveItem: null,
+      moveItem: (int oldIndex){
+        if (widget.onMove != null){
+          if (index > oldIndex) index--;
+          widget.onMove(oldIndex,index);
+        }
+      },
       index: index,
       child: widget.builder(context, index),
       startDrag: _startDrag,
