@@ -1,5 +1,7 @@
 class Strings{
   static String appTitle = "Checklist App";
+  static String newBookTitle = "New book";
+  static String newBookButton = "Create new book";
   static String editBookTitle = "Edit book";
   static String editNormalLists = "Edit normal checklists";
   static String editEmergencyLists = "Edit emergency checklists";
@@ -13,7 +15,10 @@ class Strings{
   static String createList = "Add checklist";
   static String createListFailed = "List could not be created";
   static String editItems = "Edit items";
-  static String editNextAlternatives = "Edit next alternatives";
-  static String editNextPrimary = "Select next checklist";
+  static String editNextAlternatives = "Alternatives";
+  static String editNextPrimary = "Which checklist should be loaded after this checklist is finished?";
   static String noSelection = "<No selection>";
+  static String deleteTitle = "Delete";
+  static String deleteContent = "Are you sure you want to delete the selected item?";
+  static String cancel = "Cancel";
 }

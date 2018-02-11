@@ -5,44 +5,44 @@ import 'package:checklist/src/note.dart';
 
 main() {
   test("Item getter works for all properties", () {
-    var item = new Item("Airspeed", action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed", action: "150 KIAS");
     expect(item.toCheck, equals("Airspeed"));
     expect(item.action, equals("150 KIAS"));
   });
 
   test("When no action is provided, getter returns a zero-length string", () {
-    var item = new Item("Airspeed");
+    var item = new Item(toCheck: "Airspeed");
     expect(item.action, equals(""));
     expect(item.action, isNotNull);
   });
 
   test("toCheck cannot be null", () {
     expect(
-      () => new Item(null),
+      () => new Item(toCheck: null),
       throwsA(new isInstanceOf<AssertionError>()),
     );
   });
 
   test("When action is null, getter returns a zero-length string", () {
-    var item = new Item("Airspeed",action: null);
+    var item = new Item(toCheck: "Airspeed",action: null);
     expect(item.action, "");
   });
 
   test("Change the action", (){
-    var item = new Item("Airspeed",action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed",action: "150 KIAS");
     item.setAction("100 KIAS");
     expect(item.action, "100 KIAS");
     expect(item.toCheck, "Airspeed");
   });
 
   test("Changing an action returns a command object", (){
-    var item = new Item("Airspeed",action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed",action: "150 KIAS");
     var command = item.setAction("100 KIAS");
     expect(command, new isInstanceOf<Command>());
   });
 
   test("Changing action undo and redo work correctly",(){
-    var item = new Item("Airspeed",action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed",action: "150 KIAS");
     var command = item.setAction("100 KIAS");
     expect(command.key, equals("Item.ChangeAction"));
     command.undo();
@@ -52,13 +52,13 @@ main() {
   });
 
   test("Changing toCheck returns a command object", (){
-    var item = new Item("Airspeed",action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed",action: "150 KIAS");
     var command = item.setToCheck("Cruise speed");
     expect(command, new isInstanceOf<Command>());
   });
 
   test("Changing toCheck undo and redo work correctly",(){
-    var item = new Item("Airspeed",action: "150 KIAS");
+    var item = new Item(toCheck: "Airspeed",action: "150 KIAS");
     var command = item.setToCheck("Cruise speed");
     expect(command.key, equals("Item.ChangeToCheck"));
     command.undo();
@@ -68,39 +68,39 @@ main() {
   });
 
   test("Add item to and remove item from true branch",(){
-    var item = new Item("Something");
-    var command = item.trueBranch.insert(new Item("Something else"));
+    var item = new Item(toCheck: "Something");
+    var command = item.trueBranch.insert(new Item(toCheck: "Something else"));
     expect(command.key,"TrueBranch.Insert");
     command = item.trueBranch.remove(item.trueBranch[0]);
     expect(command.key, "TrueBranch.Remove");
   });
 
   test("Add item to and remove item from false branch",() {
-    var item = new Item("Something");
-    var command = item.falseBranch.insert(new Item("Something else"));
+    var item = new Item(toCheck: "Something");
+    var command = item.falseBranch.insert(new Item(toCheck: "Something else"));
     expect(command.key,"FalseBranch.Insert");
     command = item.falseBranch.remove(item.falseBranch[0]);
     expect(command.key, "FalseBranch.Remove");
   });
 
   test("An item that has at least 1 item in the True branch is a branch",(){
-    var item = new Item("Test");
+    var item = new Item(toCheck: "Test");
     expect(item.isBranch,isFalse);
 
-    item.trueBranch.insert(new Item("True 1"));
+    item.trueBranch.insert(new Item(toCheck: "True 1"));
     expect(item.isBranch, isTrue);
   });
 
   test("An item that has at least 1 item in the False branch is a branch",(){
-    var item = new Item("Test");
+    var item = new Item(toCheck: "Test");
     expect(item.isBranch, isFalse);
 
-    item.falseBranch.insert(new Item("False 1"));
+    item.falseBranch.insert(new Item(toCheck: "False 1"));
     expect(item.isBranch, isTrue);
   });
 
   test("Add a note to the item",(){
-    var item = new Item("I have a note!");
+    var item = new Item(toCheck: "I have a note!");
     var note = new Note(Priority.Note,"I am a note!");
     var command = item.notes.insert(note);
     expect(item.notes[0], equals(note));
@@ -114,7 +114,7 @@ main() {
   });
 
   test("Remove a note from an item",(){
-    var item = new Item("I have a note!");
+    var item = new Item(toCheck: "I have a note!");
     var note = new Note(Priority.Note,"I am a note!");
     item.notes.insert(note);
 

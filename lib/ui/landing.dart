@@ -1,6 +1,7 @@
 import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/bookio.dart';
+import 'package:checklist/ui/templates.dart';
 
 class Landing extends StatefulWidget {
   Landing({Key key}) : super(key: key);
@@ -22,18 +23,28 @@ class _LandingState extends State<Landing> {
         setState(() {
           for (var id in io.files.keys) {
             books.add(
-              new Row(
-                children: <Widget>[
-                  new Expanded(
-                  child: new Text(io.files[id]),
-            ),
-                    new IconButton(
-                        icon: new Icon(Icons.edit),
-                        onPressed: (){
+              new Container(
+                height: 48.0,
+                child: new Row(
+                  children: <Widget>[
+                    new Expanded(
+                      child: new Padding(
+                        child: overflowText(io.files[id]),
+                        padding: const EdgeInsets.only(left: defaultPad),
+                      ),
+                    ),
+                    new Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                          defaultPad, 0.0, defaultPad, 0.0),
+                      child: new InkWell(
+                        child: new Icon(Icons.edit),
+                        onTap: () {
                           Navigator.of(context).pushNamed("/$id");
                         },
+                      ),
                     ),
-                ],
+                  ],
+                ),
               ),
             );
           }
@@ -46,7 +57,9 @@ class _LandingState extends State<Landing> {
       appBar: new AppBar(
         title: new Text(Strings.appTitle),
       ),
-      body: _buildListview(context),
+      body: new Padding(
+          padding: const EdgeInsets.only(top: listTopPad),
+          child: _buildListview(context)),
       floatingActionButton: new FloatingActionButton(
         onPressed: () {
           Navigator.of(context).pushNamed("/newBook");

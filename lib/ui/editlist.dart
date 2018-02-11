@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/src/book.dart';
+import 'package:checklist/ui/templates.dart';
 
 class EditList extends StatefulWidget {
   final String path;
@@ -21,7 +22,6 @@ class _EditListState extends State<EditList> {
   bool _isLoading = true;
   Book _book;
   Checklist _list;
-  var _buttonInsets = const EdgeInsets.fromLTRB(32.0, 0.0, 32.0, 0.0);
   var _dropDown = new List<DropdownMenuItem<Checklist>>();
   var _io = new BookIo();
 
@@ -29,9 +29,7 @@ class _EditListState extends State<EditList> {
     super.initState();
     _nameDecoration = _defaultNameDecoration();
 
-    ParsePath
-        .parseList(widget.path)
-        .then((ChecklistWithParent parsedList) {
+    ParsePath.parseList(widget.path).then((ChecklistWithParent parsedList) {
       setState(() {
         _list = parsedList.list;
         _book = parsedList.parent;
@@ -45,7 +43,7 @@ class _EditListState extends State<EditList> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text(Strings.editList),
+        title: overflowText(Strings.editList),
       ),
       body: _getBody(context),
     );
@@ -58,39 +56,36 @@ class _EditListState extends State<EditList> {
       );
     else
       return new Padding(
-        padding: new EdgeInsets.all(12.0),
+        padding: pagePadding,
         child: new ListView(
           children: <Widget>[
-            new TextField(
-              controller: _nameController,
-              decoration: _nameDecoration,
+            editorElementPadding(
+              child: new TextField(
+                controller: _nameController,
+                decoration: _nameDecoration,
+              ),
             ),
-            new Padding(
-              padding: new EdgeInsets.all(32.0),
+            editorElementPadding(
               child: new RaisedButton(
-                child: new Text(Strings.editItems),
+                child: overflowText(Strings.editItems),
                 onPressed: null,
               ),
             ),
             new Padding(
-              padding: _buttonInsets,
-              child: new Column(
-                children: <Widget>[
-                  new Text(Strings.editNextPrimary),
-                  new DropdownButton(
-                    value: _list.nextPrimary,
-                    items: _dropDown,
-                    onChanged: (Checklist selection) async {
-                      var command = _list.setNextPrimary(selection);
-                      var success = await _io.persistBook(_book);
-                      if (!success) setState(() => command.undo());
-                    },
-                  ),
-                ],
-              ),
+              padding: const EdgeInsets.only(top: defaultPad * 3),
+              child: new Text(Strings.editNextPrimary),
             ),
-            new Padding(
-              padding: _buttonInsets,
+            new DropdownButton(
+      value: _list.nextPrimary,
+      items: _dropDown,
+      onChanged: (Checklist selection) async {
+        var command = _list.setNextPrimary(selection);
+        var success = await _io.persistBook(_book);
+        if (!success) setState(() => command.undo());
+      },
+    ),
+
+            editorElementPadding(
               child: new RaisedButton(
                 child: new Text(Strings.editNextAlternatives),
                 onPressed: null,
@@ -109,14 +104,14 @@ class _EditListState extends State<EditList> {
     _dropDown.clear();
     _dropDown.add(
       new DropdownMenuItem<Checklist>(
-        child: new Text(Strings.noSelection),
+        child: overflowText(Strings.noSelection),
         value: null,
       ),
     );
     for (var list in _book.normalLists) {
       _dropDown.add(
         new DropdownMenuItem<Checklist>(
-          child: new Text(list.name),
+          child: overflowText(list.name),
           value: list,
         ),
       );

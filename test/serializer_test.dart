@@ -149,44 +149,44 @@ main() {
 
 Book generateBook() {
   Checklist list2 = new Checklist(
-    "Normal 2",
+    name: "Normal 2",
     id: "ListId2",
     source: [
-      new Item("Item 7"),
-      new Item("Item 8"),
+      new Item(toCheck: "Item 7"),
+      new Item(toCheck: "Item 8"),
     ],
   );
   Checklist list3 = new Checklist(
-    "Normal 3",
+    name: "Normal 3",
     id: "ListId3",
     source: [
-      new Item("Item 9"),
-      new Item("Item 10"),
+      new Item(toCheck: "Item 9"),
+      new Item(toCheck: "Item 10"),
     ],
   );
 
   Checklist list1 = new Checklist(
-    "Normal 1",
+    name: "Normal 1",
     id: "ListId1",
     source: [
       new Item(
-        "Item 1",
+        toCheck: "Item 1",
         action: "Verified",
         trueBranch: [
-          new Item("Item 2", notes: [new Note(Priority.Note, "Note 1")]),
-          new Item("Item 3"),
+          new Item(toCheck: "Item 2", notes: [new Note(Priority.Note, "Note 1")]),
+          new Item(toCheck: "Item 3"),
         ],
         falseBranch: [
-          new Item("Item 4"),
+          new Item(toCheck: "Item 4"),
         ],
         notes: [
           new Note(Priority.Note, "Note 1"),
           new Note(Priority.Warning, "Note 2"),
         ],
       ),
-      new Item("Item 5"),
+      new Item(toCheck: "Item 5"),
       new Item(
-        "Item 6",
+        toCheck: "Item 6",
         notes: [new Note(Priority.Caution, "Note 3")],
       ),
     ],
@@ -194,13 +194,13 @@ Book generateBook() {
     nextAlternatives: [list3],
   );
 
-  Checklist list4 = new Checklist("Emergency 1", id: "ListId4", source: [
-    new Item("Item 11"),
-    new Item("Item 12"),
+  Checklist list4 = new Checklist(name: "Emergency 1", id: "ListId4", source: [
+    new Item(toCheck: "Item 11"),
+    new Item(toCheck: "Item 12"),
   ]);
 
   return new Book(
-    "My fancy new book",
+    name: "My fancy new book",
     normalLists: [
       list1,
       list2,

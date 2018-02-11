@@ -6,6 +6,7 @@ import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:checklist/src/parsepath.dart';
+import 'package:checklist/ui/templates.dart';
 
 class EditBook extends StatefulWidget {
   final String path;
@@ -52,24 +53,24 @@ class _EditBookState extends State<EditBook> {
       );
     else
       return new Padding(
-        padding: new EdgeInsets.all(12.0),
+        padding: pagePadding,
         child: new ListView(
           children: <Widget>[
-            new TextField(
+            editorElementPadding(
+              child: new TextField(
               onSubmitted: _changeName,
                 controller: _nameController,
               decoration: _nameDecoration,
             ),
-            new Padding(
-              padding: new EdgeInsets.all(32.0),
+      ),
+            editorElementPadding(
               child: new RaisedButton(
                 child: new Text(Strings.editNormalLists),
                 onPressed: () =>
                     Navigator.of(context).pushNamed("${widget.path}/normal"),
               ),
             ),
-            new Padding(
-              padding: new EdgeInsets.fromLTRB(32.0, 0.0, 32.0, 32.0),
+            editorElementPadding(
               child: new RaisedButton(
                 child: new Text(Strings.editEmergencyLists),
                 onPressed:  () =>

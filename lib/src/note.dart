@@ -1,3 +1,4 @@
+import 'package:checklist/src/book.dart';
 import 'package:command/command.dart';
 
 enum Priority {

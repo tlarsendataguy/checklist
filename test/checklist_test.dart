@@ -4,7 +4,7 @@ import 'package:checklist/src/item.dart';
 
 main() {
   test("Creating a list without providing an ID generates a random ID", () {
-    var list = new Checklist("Test");
+    var list = new Checklist(name: "Test");
     expect(list.id, isNotNull);
     expect(list.id.length, greaterThan(0));
     print(
@@ -12,7 +12,7 @@ main() {
   });
 
   test("Create a list with an existing id", () {
-    var list = new Checklist("Test", id: "000561804fcc009f61ce0002f95f0000");
+    var list = new Checklist(name: "Test", id: "000561804fcc009f61ce0002f95f0000");
     expect(list.id, equals("000561804fcc009f61ce0002f95f0000"));
   });
 
@@ -234,7 +234,7 @@ main() {
   });
 
   test("Rename checklist", () {
-    var list = new Checklist("Awesome checklist");
+    var list = new Checklist(name: "Awesome checklist");
     expect(list.name, equals("Awesome checklist"));
 
     var command = list.rename("Cool checklist");
@@ -248,8 +248,8 @@ main() {
   });
 
   test("Add primary next checklist", () {
-    var list1 = new Checklist("Hello");
-    var list2 = new Checklist("World");
+    var list1 = new Checklist(name: "Hello");
+    var list2 = new Checklist(name: "World");
 
     var command = list1.setNextPrimary(list2);
     expect(list1.nextPrimary, equals(list2));
@@ -262,8 +262,8 @@ main() {
   });
 
   test("Add/remove alternative next checklists", () {
-    var list1 = new Checklist("Main");
-    var list2 = new Checklist("Alternative");
+    var list1 = new Checklist(name: "Main");
+    var list2 = new Checklist(name: "Alternative");
 
     var command = list1.nextAlternatives.insert(list2);
     expect(list1.nextAlternatives[0], equals(list2));
@@ -279,28 +279,28 @@ main() {
 
 Checklist populatedList() {
   return new Checklist(
-    "Checklist",
+    name: "Checklist",
     source: [
-      new Item("Item 1"),
-      new Item("Item 2"),
-      new Item("Item 3"),
+      new Item(toCheck: "Item 1"),
+      new Item(toCheck: "Item 2"),
+      new Item(toCheck: "Item 3"),
     ],
   );
 }
 
 Checklist populatedBranchedList() {
-  var branch = new Item("Item 2");
-  branch.trueBranch.insert(new Item("True 1"));
-  branch.trueBranch.insert(new Item("True 2"));
-  branch.falseBranch.insert(new Item("False 1"));
-  branch.falseBranch.insert(new Item("False 2"));
+  var branch = new Item(toCheck: "Item 2");
+  branch.trueBranch.insert(new Item(toCheck: "True 1"));
+  branch.trueBranch.insert(new Item(toCheck: "True 2"));
+  branch.falseBranch.insert(new Item(toCheck: "False 1"));
+  branch.falseBranch.insert(new Item(toCheck: "False 2"));
 
   return new Checklist(
-    "Checklist",
+    name: "Checklist",
     source: [
-      new Item("Item 1"),
+      new Item(toCheck: "Item 1"),
       branch,
-      new Item("Item 3"),
+      new Item(toCheck: "Item 3"),
     ],
   );
 }
@@ -334,22 +334,22 @@ Checklist
  */
 
 Checklist nestedBranchedList() {
-  var branch1 = new Item("Parent Branch");
-  var branch2 = new Item("Child Branch");
+  var branch1 = new Item(toCheck: "Parent Branch");
+  var branch2 = new Item(toCheck: "Child Branch");
 
-  branch1.trueBranch.insert(new Item("True Child 1"));
-  branch1.trueBranch.insert(new Item("True Child 2"));
+  branch1.trueBranch.insert(new Item(toCheck: "True Child 1"));
+  branch1.trueBranch.insert(new Item(toCheck: "True Child 2"));
   branch1.falseBranch.insert(branch2);
-  branch1.falseBranch.insert(new Item("False Child 2"));
+  branch1.falseBranch.insert(new Item(toCheck: "False Child 2"));
 
-  branch2.trueBranch.insert(new Item("Sub-Child 1"));
+  branch2.trueBranch.insert(new Item(toCheck: "Sub-Child 1"));
 
   return new Checklist(
-    "Checklist",
+    name: "Checklist",
     source: [
-      new Item("Item 1"),
+      new Item(toCheck: "Item 1"),
       branch1,
-      new Item("Item 2"),
+      new Item(toCheck: "Item 2"),
     ],
   );
 }

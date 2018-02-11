@@ -1,11 +1,29 @@
 import 'dart:collection';
 
+import 'package:checklist/src/book.dart';
 import 'package:command/command.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/randomid.dart';
+import 'package:meta/meta.dart';
 
 class Checklist extends CommandList<Item> {
+  Checklist({
+    @required String name,
+    Iterable<Item> source,
+    Checklist nextPrimary,
+    Iterable<Checklist> nextAlternatives,
+    String id,
+  })
+      : super(source: source, tag: "Checklist") {
+    assert(name != null);
+    _name = name;
+    _id = id ?? RandomId.generate();
+    _nextPrimary = nextPrimary;
+    _nextAlternatives = new CommandList<Checklist>(
+        source: nextAlternatives, tag: "NextAlternatives");
+  }
+
   String _name;
   String _id;
   var _activeBranches = new ListQueue<BranchHistory>();
@@ -20,20 +38,6 @@ class Checklist extends CommandList<Item> {
   String get name => _name;
   Checklist get nextPrimary => _nextPrimary;
   String get id => _id;
-
-  Checklist(String name,
-      {Iterable<Item> source,
-      Checklist nextPrimary,
-      Iterable<Checklist> nextAlternatives,
-      String id})
-      : super(source: source, tag: "Checklist") {
-    assert(name != null);
-    _name = name;
-    _id = id ?? RandomId.generate();
-    _nextPrimary = nextPrimary;
-    _nextAlternatives = new CommandList<Checklist>(
-        source: nextAlternatives, tag: "NextAlternatives");
-  }
 
   Command rename(String newName) {
     return new Command(new RenameList(this, newName))..execute();

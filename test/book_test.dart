@@ -4,7 +4,7 @@ import 'package:checklist/src/checklist.dart';
 
 main() {
   test("Create a book with the specified name", () {
-    var book = new Book("C172 Skyhawk");
+    var book = new Book(name: "C172 Skyhawk");
     expect(book.name, equals("C172 Skyhawk"));
     expect(book.id.length, greaterThan(0));
     expect(book.normalLists.length, equals(0));
@@ -12,21 +12,21 @@ main() {
   });
 
   test("Create a book with a specified ID", () {
-    var book = new Book("C172 Skyhawk", id: '05a49c5890f824');
+    var book = new Book(name: "C172 Skyhawk", id: '05a49c5890f824');
     expect(book.name, equals("C172 Skyhawk"));
     expect(book.id, equals("05a49c5890f824"));
   });
 
   test("Create a book with specified normal and emergency lists", () {
     var book = new Book(
-      "C172 Skyhawk",
+      name: "C172 Skyhawk",
       normalLists: [
-        new Checklist("Normal 1"),
-        new Checklist("Normal 2"),
+        new Checklist(name: "Normal 1"),
+        new Checklist(name: "Normal 2"),
       ],
       emergencyLists: [
-        new Checklist("Emergency 1"),
-        new Checklist("Emergency 2"),
+        new Checklist(name: "Emergency 1"),
+        new Checklist(name: "Emergency 2"),
       ],
     );
 
@@ -39,7 +39,7 @@ main() {
   });
 
   test("Change book name",(){
-    var book = new Book("Hello");
+    var book = new Book(name: "Hello");
     expect(book.name, equals("Hello"));
 
     var command = book.changeName("Hi");

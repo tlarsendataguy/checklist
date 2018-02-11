@@ -105,24 +105,24 @@ main() {
 Future createBook() async {
   var io = new BookIo(writer: new MockDiskWriter());
   var book = new Book(
-    "My book",
+    name: "My book",
     id: bookId,
     normalLists: [
       new Checklist(
-        "My checklist",
+        name: "My checklist",
         id: listId,
         source: [
           new Item(
-            "What to check",
+            toCheck: "What to check",
             action: "Looks ok",
             trueBranch: [
               new Item(
-                "True!",
-                trueBranch: [new Item("Nested true!")],
+                toCheck: "True!",
+                trueBranch: [new Item(toCheck: "Nested true!")],
               ),
             ],
             falseBranch: [
-              new Item("False!"),
+              new Item(toCheck: "False!"),
             ],
           )
         ],

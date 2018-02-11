@@ -1,8 +1,17 @@
+import 'package:checklist/src/book.dart';
 import "package:command/command.dart";
 import 'package:commandlist/commandlist.dart';
 import 'package:checklist/src/note.dart';
 
 class Item {
+  Item({String toCheck, String action,Iterable<Item> trueBranch,Iterable<Item> falseBranch,Iterable<Note> notes}) : assert(toCheck != null) {
+    _toCheck = toCheck;
+    _action = action ?? "";
+    _trueBranch = new CommandList<Item>(source: trueBranch,tag: "TrueBranch");
+    _falseBranch = new CommandList<Item>(source: falseBranch,tag: "FalseBranch");
+    _notes = new CommandList<Note>(source: notes,tag: "Notes");
+  }
+
   String _toCheck;
   String _action;
   CommandList<Item> _trueBranch;
@@ -15,14 +24,6 @@ class Item {
   CommandList<Item> get trueBranch => _trueBranch;
   CommandList<Item> get falseBranch => _falseBranch;
   CommandList<Note> get notes => _notes;
-
-  Item(String toCheck, {String action,Iterable<Item> trueBranch,Iterable<Item> falseBranch,Iterable<Note> notes}) : assert(toCheck != null) {
-    _toCheck = toCheck;
-    _action = action ?? "";
-    _trueBranch = new CommandList<Item>(source: trueBranch,tag: "TrueBranch");
-    _falseBranch = new CommandList<Item>(source: falseBranch,tag: "FalseBranch");
-    _notes = new CommandList<Note>(source: notes,tag: "Notes");
-  }
 
   Command setAction(String newAction) {
     return new Command(new ChangeAction(this, newAction))..execute();

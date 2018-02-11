@@ -9,7 +9,7 @@ import 'package:checklist/src/bookio.dart';
 main() {
   test("Write book", () async {
     var io = new BookIo(writer: new MockDiskWriter());
-    var book = new Book("Hello!", id: "123456");
+    var book = new Book(name: "Hello!", id: "123456");
     var didSucceed = await io.persistBook(book);
     expect(didSucceed, isTrue);
     expect(io.files['123456'], equals("Hello!"));
@@ -22,7 +22,7 @@ main() {
 
   test("Read book", () async {
     var io = new BookIo(writer: new MockDiskWriter());
-    var book = new Book("Hello!");
+    var book = new Book(name: "Hello!");
     var id = book.id;
     await io.persistBook(book);
 
@@ -45,7 +45,7 @@ main() {
 
   test("Delete book", () async {
     var io = new BookIo(writer: new MockDiskWriter());
-    var book = new Book("Short-lived book", id: "543210");
+    var book = new Book(name: "Short-lived book", id: "543210");
     await io.persistBook(book);
 
     var file = new File("543210.json");

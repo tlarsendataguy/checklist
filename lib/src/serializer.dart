@@ -39,8 +39,12 @@ class Deserialize {
 
   Book _deserializeBook(String serializedBook) {
     Map<String, Object> map = JSON.decode(serializedBook);
-    var normalLists = _deserializeChecklistList(map['normalLists']);
-    var emergencyLists = _deserializeChecklistList(map['emergencyLists']);
+    Book book = new Book(
+        name: map['name'],
+        id: map['id'],
+    );
+
+    _deserializeChecklistLists(map['normalLists'],map['emergencyLists'],book);
 
     for (var map in _nextPrimaries) {
       map.list.setNextPrimary(_idToList[map.mappedId]);
@@ -50,29 +54,29 @@ class Deserialize {
       map.list.nextAlternatives.insert(_idToList[map.mappedId]);
     }
 
-    return new Book(
-      map['name'],
-      id: map['id'],
-      normalLists: normalLists,
-      emergencyLists: emergencyLists,
-    );
+    return book;
   }
 
-  Iterable<Checklist> _deserializeChecklistList(
-      List<Map<String, Object>> lists) {
-    var deserializedLists = new List<Checklist>();
-    for (var list in lists) {
-      deserializedLists.add(_deserializeChecklist(list));
+  void _deserializeChecklistLists(
+      List<Map<String, Object>> normalLists,
+      List<Map<String, Object>> emergencyLists,
+      Book book,
+      ) {
+    for (var list in normalLists) {
+      book.normalLists.insert(_deserializeChecklist(list));
     }
-    return deserializedLists;
+    for (var list in emergencyLists){
+      book.emergencyLists.insert(_deserializeChecklist(list));
+    }
   }
 
   Checklist _deserializeChecklist(Map<String, Object> list) {
     var newList = new Checklist(
-      list['name'],
+      name: list['name'],
       id: list['id'],
-      source: _deserializeItemList(list['items']),
     );
+
+    _deserializeItemList(list['items'],newList);
 
     if (list['nextPrimary'] != null) {
       _nextPrimaries
@@ -89,37 +93,31 @@ class Deserialize {
     return newList;
   }
 
-  List<Item> _deserializeItemList(List<Map<String, Object>> items) {
-    var deserializedItems = new List<Item>();
+  void _deserializeItemList(List<Map<String, Object>> items, Checklist parent) {
     for (var item in items) {
-      deserializedItems.add(_deserializeItem(item));
+      parent.insert(_deserializeItem(item));
     }
-    return deserializedItems;
   }
 
   Item _deserializeItem(Map<String, Object> item) {
-    var trueItems = new List<Item>();
-    for (Map<String, Object> trueItem in item['trueBranch']) {
-      trueItems.add(_deserializeItem(trueItem));
-    }
-
-    var falseItems = new List<Item>();
-    for (Map<String, Object> falseItem in item['falseBranch']) {
-      falseItems.add(_deserializeItem(falseItem));
-    }
-
-    var notes = new List<Note>();
-    for (Map<String, String> note in item['notes']) {
-      notes.add(_deserializeNote(note));
-    }
-
-    return new Item(
-      item['toCheck'],
+    var newItem = new Item(
+      toCheck: item['toCheck'],
       action: item['action'],
-      notes: notes,
-      trueBranch: trueItems,
-      falseBranch: falseItems,
     );
+
+    for (Map<String, Object> trueItem in item['trueBranch']) {
+      newItem.trueBranch.insert(_deserializeItem(trueItem));
+    }
+
+    for (Map<String, Object> falseItem in item['falseBranch']) {
+      newItem.falseBranch.insert(_deserializeItem(falseItem));
+    }
+
+    for (Map<String, String> note in item['notes']) {
+      newItem.notes.insert(_deserializeNote(note));
+    }
+
+    return newItem;
   }
 
   Note _deserializeNote(Map<String, String> note) {

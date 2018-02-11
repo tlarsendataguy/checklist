@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:checklist/src/serializer.dart';
+import 'package:checklist/ui/strings.dart';
+import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:checklist/src/book.dart';
@@ -24,25 +26,22 @@ class _NewBookState extends State<NewBook> {
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text("New book"),
+        title: new Text(Strings.newBookTitle),
       ),
       body: new Padding(
-        padding: new EdgeInsets.all(12.0),
-        child: new Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+        padding: pagePadding,
+        child: new ListView(
           children: <Widget>[
-            new Text("Enter a name for the new book of checklists"),
-            new TextField(
-              controller: _name,
-              decoration: _nameDecoration,
+            editorElementPadding(
+              child: new TextField(
+                controller: _name,
+                decoration: _nameDecoration,
+              ),
             ),
-            new Center(
-              child: new Padding(
-                padding: new EdgeInsets.all(32.0),
-                child: new RaisedButton(
-                  child: _createButtonContent(),
-                  onPressed: _createContainer,
-                ),
+            editorElementPadding(
+              child: new RaisedButton(
+                child: _createButtonContent(),
+                onPressed: _createContainer,
               ),
             ),
           ],
@@ -52,18 +51,18 @@ class _NewBookState extends State<NewBook> {
   }
 
   Widget _createButtonContent() {
-    var createBookText = "Create new book";
+    var text = new Text(Strings.newBookButton);
     if (_creating) {
       return new IntrinsicWidth(
         child: new Row(
           children: <Widget>[
-            new Text(createBookText),
+            text,
             new CupertinoActivityIndicator(),
           ],
         ),
       );
     } else {
-      return new Text(createBookText);
+      return text;
     }
   }
 
@@ -80,13 +79,13 @@ class _NewBookState extends State<NewBook> {
       _nameDecoration = _defaultDecoration();
     });
     var io = new BookIo();
-    var book = new Book(_name.text);
+    var book = new Book(name: _name.text);
     await io.persistBook(book);
 
     Navigator.of(context).pushReplacementNamed("/${book.id}");
   }
 
-  static InputDecoration _defaultDecoration(){
+  static InputDecoration _defaultDecoration() {
     return new InputDecoration(
       hintText: _nameHint,
     );
