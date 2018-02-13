@@ -6,7 +6,7 @@ import 'package:checklist/ui/templates.dart';
 class Landing extends StatefulWidget {
   Landing(this.onThemeChanged,{Key key}) : super(key: key);
 
-  ThemeChangeCallback onThemeChanged;
+  final ThemeChangeCallback onThemeChanged;
 
   _LandingState createState() => new _LandingState();
 }

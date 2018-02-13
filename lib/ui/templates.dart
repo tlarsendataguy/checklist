@@ -163,11 +163,17 @@ RaisedButton themeRaisedButton({Widget child, void onPressed}) {
 AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged}) {
   bool makeRed;
   Color newColor;
+  Color newHighlightColor;
+  Color newSplashColor;
   if (ThemeColors.isRed) {
     newColor = primaryGreen;
+    newHighlightColor = primaryGreen700;
+    newSplashColor = primaryGreen600;
     makeRed = false;
   } else {
     newColor = primaryRed;
+    newHighlightColor = primaryRed700;
+    newSplashColor = primaryRed600;
     makeRed = true;
   }
   return new AppBar(
@@ -176,6 +182,8 @@ AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged}) {
     iconTheme: ThemeColors.getThemeIconTheme(),
     actions: <Widget>[
       new IconButton(
+        highlightColor: newHighlightColor,
+        splashColor: newSplashColor,
         color: newColor,
         icon: const Icon(Icons.format_color_fill),
         onPressed: () {

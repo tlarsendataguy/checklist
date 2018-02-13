@@ -13,9 +13,10 @@ import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/src/book.dart';
 
 class EditBookBranch extends StatefulWidget {
-  final String path;
+  EditBookBranch(this.path, this.onThemeChanged);
 
-  EditBookBranch(this.path);
+  final String path;
+  final ThemeChangeCallback onThemeChanged;
 
   createState() => new _EditBookBranchState();
 }
@@ -50,7 +51,10 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: themeAppBar(title: Strings.editLists(_listType)),
+      appBar: themeAppBar(
+        title: Strings.editLists(_listType),
+        onThemeChanged: widget.onThemeChanged,
+      ),
       body: _getBody(context),
     );
   }

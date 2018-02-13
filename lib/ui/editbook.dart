@@ -9,9 +9,10 @@ import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/templates.dart';
 
 class EditBook extends StatefulWidget {
-  final String path;
+  EditBook(this.path, this.onThemeChanged);
 
-  EditBook(this.path);
+  final String path;
+  final ThemeChangeCallback onThemeChanged;
 
   _EditBookState createState() => new _EditBookState();
 }
@@ -25,10 +26,10 @@ class _EditBookState extends State<EditBook> {
 
   _EditBookState();
 
-  initState(){
+  initState() {
     super.initState();
-    ParsePath.parseBook(widget.path).then((Book parsedBook){
-      setState((){
+    ParsePath.parseBook(widget.path).then((Book parsedBook) {
+      setState(() {
         _book = parsedBook;
         _isLoading = false;
         _nameDecoration = _defaultDecoration();
@@ -39,12 +40,15 @@ class _EditBookState extends State<EditBook> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: themeAppBar(title: Strings.editBookTitle),
+      appBar: themeAppBar(
+        title: Strings.editBookTitle,
+        onThemeChanged: widget.onThemeChanged,
+      ),
       body: _getBody(context),
     );
   }
 
-  Widget _getBody(BuildContext context){
+  Widget _getBody(BuildContext context) {
     if (_isLoading)
       return new Center(
         child: new CupertinoActivityIndicator(),
@@ -56,11 +60,11 @@ class _EditBookState extends State<EditBook> {
           children: <Widget>[
             editorElementPadding(
               child: new TextField(
-              onSubmitted: _changeName,
+                onSubmitted: _changeName,
                 controller: _nameController,
-              decoration: _nameDecoration,
+                decoration: _nameDecoration,
+              ),
             ),
-      ),
             editorElementPadding(
               child: themeRaisedButton(
                 child: new Text(Strings.editNormalLists),
@@ -71,7 +75,7 @@ class _EditBookState extends State<EditBook> {
             editorElementPadding(
               child: themeRaisedButton(
                 child: new Text(Strings.editEmergencyLists),
-                onPressed:  () =>
+                onPressed: () =>
                     Navigator.of(context).pushNamed("${widget.path}/emergency"),
               ),
             ),
@@ -80,15 +84,15 @@ class _EditBookState extends State<EditBook> {
       );
   }
 
-  InputDecoration _defaultDecoration(){
+  InputDecoration _defaultDecoration() {
     return new InputDecoration(
       hintText: Strings.nameHint,
     );
   }
 
   Future _changeName(String newName) async {
-    if (newName == ""){
-      setState((){
+    if (newName == "") {
+      setState(() {
         _nameDecoration = new InputDecoration(
           errorText: Strings.noNameError,
           hintText: Strings.nameHint,
@@ -97,7 +101,7 @@ class _EditBookState extends State<EditBook> {
       return;
     }
 
-    setState((){
+    setState(() {
       _nameDecoration = _defaultDecoration();
     });
     _book.changeName(newName);

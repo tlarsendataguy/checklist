@@ -9,9 +9,10 @@ import 'package:checklist/src/book.dart';
 import 'package:checklist/ui/templates.dart';
 
 class EditList extends StatefulWidget {
-  final String path;
+  EditList(this.path, this.onThemeChanged);
 
-  EditList(this.path);
+  final String path;
+  final ThemeChangeCallback onThemeChanged;
 
   createState() => new _EditListState();
 }
@@ -42,7 +43,10 @@ class _EditListState extends State<EditList> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: themeAppBar(title: Strings.editList),
+      appBar: themeAppBar(
+        title: Strings.editList,
+        onThemeChanged: widget.onThemeChanged,
+      ),
       body: _getBody(context),
     );
   }
@@ -74,15 +78,14 @@ class _EditListState extends State<EditList> {
               child: new Text(Strings.editNextPrimary),
             ),
             new DropdownButton(
-      value: _list.nextPrimary,
-      items: _dropDown,
-      onChanged: (Checklist selection) async {
-        var command = _list.setNextPrimary(selection);
-        var success = await _io.persistBook(_book);
-        if (!success) setState(() => command.undo());
-      },
-    ),
-
+              value: _list.nextPrimary,
+              items: _dropDown,
+              onChanged: (Checklist selection) async {
+                var command = _list.setNextPrimary(selection);
+                var success = await _io.persistBook(_book);
+                if (!success) setState(() => command.undo());
+              },
+            ),
             editorElementPadding(
               child: themeRaisedButton(
                 child: new Text(Strings.editNextAlternatives),

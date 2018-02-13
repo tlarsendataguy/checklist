@@ -10,7 +10,9 @@ import 'package:checklist/ui/editbook.dart';
 import 'package:checklist/src/bookio.dart';
 
 class NewBook extends StatefulWidget {
-  NewBook();
+  NewBook(this.onThemeChanged);
+
+  final ThemeChangeCallback onThemeChanged;
 
   _NewBookState createState() => new _NewBookState();
 }
@@ -25,7 +27,10 @@ class _NewBookState extends State<NewBook> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: themeAppBar(title: Strings.newBookTitle),
+      appBar: themeAppBar(
+        title: Strings.newBookTitle,
+        onThemeChanged: widget.onThemeChanged,
+      ),
       body: new Padding(
         padding: pagePadding,
         child: new ListView(

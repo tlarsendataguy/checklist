@@ -56,7 +56,7 @@ class _MyAppState extends State<MyApp>{
       return new MaterialPageRoute(
         settings: settings,
         maintainState: false,
-        builder: (BuildContext context) => new NewBook(),
+        builder: (BuildContext context) => new NewBook(setColor),
       );
     }
 
@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp>{
       return new MaterialPageRoute(
         settings: settings,
         maintainState: false,
-        builder: (BuildContext context) => new EditBook(settings.name),
+        builder: (BuildContext context) => new EditBook(settings.name,setColor),
       );
     }
 
@@ -73,7 +73,7 @@ class _MyAppState extends State<MyApp>{
       return new MaterialPageRoute(
         settings: settings,
         maintainState: false,
-        builder: (BuildContext context) => new EditBookBranch(settings.name),
+        builder: (BuildContext context) => new EditBookBranch(settings.name,setColor),
       );
     }
 
@@ -81,7 +81,7 @@ class _MyAppState extends State<MyApp>{
       return new MaterialPageRoute(
         settings: settings,
         maintainState: false,
-        builder: (BuildContext context) => new EditList(settings.name),
+        builder: (BuildContext context) => new EditList(settings.name,setColor),
       );
     }
 
