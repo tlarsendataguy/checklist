@@ -25,9 +25,7 @@ class _NewBookState extends State<NewBook> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(Strings.newBookTitle),
-      ),
+      appBar: themeAppBar(title: Strings.newBookTitle),
       body: new Padding(
         padding: pagePadding,
         child: new ListView(
@@ -39,7 +37,7 @@ class _NewBookState extends State<NewBook> {
               ),
             ),
             editorElementPadding(
-              child: new RaisedButton(
+              child: themeRaisedButton(
                 child: _createButtonContent(),
                 onPressed: _createContainer,
               ),

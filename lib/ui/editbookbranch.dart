@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/ui/templates.dart';
 import 'package:draggablelistview/draggablelistview.dart';
 import 'package:checklist/ui/listviewpopupmenubutton.dart';
 import 'package:checklist/ui/strings.dart';
@@ -49,9 +50,7 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(Strings.editLists(_listType)),
-      ),
+      appBar: themeAppBar(title: Strings.editLists(_listType)),
       body: _getBody(context),
     );
   }

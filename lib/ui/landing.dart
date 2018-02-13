@@ -4,7 +4,9 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
 
 class Landing extends StatefulWidget {
-  Landing({Key key}) : super(key: key);
+  Landing(this.onThemeChanged,{Key key}) : super(key: key);
+
+  ThemeChangeCallback onThemeChanged;
 
   _LandingState createState() => new _LandingState();
 }
@@ -54,8 +56,9 @@ class _LandingState extends State<Landing> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(Strings.appTitle),
+      appBar: themeAppBar(
+        title: Strings.appTitle,
+        onThemeChanged: widget.onThemeChanged,
       ),
       body: new Padding(
           padding: const EdgeInsets.only(top: listTopPad),

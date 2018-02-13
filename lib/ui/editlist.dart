@@ -42,9 +42,7 @@ class _EditListState extends State<EditList> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: overflowText(Strings.editList),
-      ),
+      appBar: themeAppBar(title: Strings.editList),
       body: _getBody(context),
     );
   }
@@ -66,7 +64,7 @@ class _EditListState extends State<EditList> {
               ),
             ),
             editorElementPadding(
-              child: new RaisedButton(
+              child: themeRaisedButton(
                 child: overflowText(Strings.editItems),
                 onPressed: null,
               ),
@@ -86,7 +84,7 @@ class _EditListState extends State<EditList> {
     ),
 
             editorElementPadding(
-              child: new RaisedButton(
+              child: themeRaisedButton(
                 child: new Text(Strings.editNextAlternatives),
                 onPressed: null,
               ),

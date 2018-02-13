@@ -6,19 +6,31 @@ import 'package:flutter/material.dart';
 import 'package:checklist/ui/landing.dart';
 import 'package:checklist/ui/newbook.dart';
 import 'package:checklist/ui/editlist.dart';
+import 'package:checklist/ui/templates.dart';
 
 void main() => runApp(new MyApp());
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+
+  _MyAppState createState() => new _MyAppState();
+}
+
+class _MyAppState extends State<MyApp>{
+
+  ThemeData theme = ThemeColors.theme;
+
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
       title: Strings.appTitle,
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+      theme: ThemeColors.theme,
       onGenerateRoute: _getRoute,
     );
+  }
+
+  void setColor(bool makeRed){
+    var colorFunc = makeRed ? ThemeColors.setRed : ThemeColors.setGreen;
+    setState(colorFunc);
   }
 
   Route<Null> _getRoute(RouteSettings settings) {
@@ -27,7 +39,7 @@ class MyApp extends StatelessWidget {
       return new MaterialPageRoute<Null>(
         settings: settings,
         maintainState: false,
-        builder: (BuildContext context) => new Landing(),
+        builder: (BuildContext context) => new Landing(setColor),
       );
     }
 

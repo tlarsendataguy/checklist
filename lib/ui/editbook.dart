@@ -39,9 +39,7 @@ class _EditBookState extends State<EditBook> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(Strings.editBookTitle),
-      ),
+      appBar: themeAppBar(title: Strings.editBookTitle),
       body: _getBody(context),
     );
   }
@@ -64,14 +62,14 @@ class _EditBookState extends State<EditBook> {
             ),
       ),
             editorElementPadding(
-              child: new RaisedButton(
+              child: themeRaisedButton(
                 child: new Text(Strings.editNormalLists),
                 onPressed: () =>
                     Navigator.of(context).pushNamed("${widget.path}/normal"),
               ),
             ),
             editorElementPadding(
-              child: new RaisedButton(
+              child: themeRaisedButton(
                 child: new Text(Strings.editEmergencyLists),
                 onPressed:  () =>
                     Navigator.of(context).pushNamed("${widget.path}/emergency"),
