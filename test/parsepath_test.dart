@@ -8,12 +8,70 @@ import 'package:checklist/src/item.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:test/test.dart';
 
-const String bookId = "1234567890abcd";
-const String bookPath = "/$bookId";
-const String listId = "1111111111aaaa";
-const String listPath = "$bookPath/normal/$listId";
+const String bid = "1234567890abcd";
+const String bookPath = "/$bid";
+const String lid = "1111111111aaaa";
+const String listPath = "$bookPath/normal/$lid";
 
 main() {
+  test("Paths validate correctly", () {
+    var paths = {
+      "/": ParsePathResult.Home,
+      "/newBook": ParsePathResult.NewBook,
+      "/$bid": ParsePathResult.Book,
+      "/$bid/normal": ParsePathResult.NormalLists,
+      "/$bid/emergency": ParsePathResult.EmergencyLists,
+      "/$bid/normal/$lid": ParsePathResult.List,
+      "/$bid/emergency/$lid": ParsePathResult.List,
+      "/$bid/normal/$lid/alternatives": ParsePathResult.Alternatives,
+      "/$bid/emergency/$lid/alternatives": ParsePathResult.Alternatives,
+      "/$bid/normal/$lid/items": ParsePathResult.Items,
+      "/$bid/emergency/$lid/items": ParsePathResult.Items,
+      "/$bid/normal/$lid/items/0": ParsePathResult.Item,
+      "/$bid/emergency/$lid/items/0": ParsePathResult.Item,
+      "/$bid/normal/$lid/items/0/notes": ParsePathResult.Notes,
+      "/$bid/emergency/$lid/items/0/notes": ParsePathResult.Notes,
+      "/$bid/normal/$lid/items/0/notes/0": ParsePathResult.Note,
+      "/$bid/emergency/$lid/items/0/notes/0": ParsePathResult.Note,
+      "/$bid/normal/$lid/items/0/true": ParsePathResult.TrueBranch,
+      "/$bid/emergency/$lid/items/0/true": ParsePathResult.TrueBranch,
+      "/$bid/normal/$lid/items/0/false": ParsePathResult.FalseBranch,
+      "/$bid/emergency/$lid/items/0/false": ParsePathResult.FalseBranch,
+      "/$bid/normal/$lid/items/0/true/0": ParsePathResult.Item,
+      "/$bid/emergency/$lid/items/0/true/0": ParsePathResult.Item,
+      "/$bid/normal/$lid/items/0/false/0": ParsePathResult.Item,
+      "/$bid/emergency/$lid/items/0/false/0": ParsePathResult.Item,
+      "/$bid/normal/$lid/items/0/true/0/notes": ParsePathResult.Notes,
+      "/$bid/emergency/$lid/items/0/true/0/notes": ParsePathResult.Notes,
+      "/$bid/normal/$lid/items/0/false/0/notes": ParsePathResult.Notes,
+      "/$bid/emergency/$lid/items/0/false/0/notes": ParsePathResult.Notes,
+      "/$bid/normal/$lid/items/0/true/0/notes/0": ParsePathResult.Note,
+      "/$bid/emergency/$lid/items/0/true/0/notes/0": ParsePathResult.Note,
+      "/$bid/normal/$lid/items/0/false/0/notes/0": ParsePathResult.Note,
+      "/$bid/emergency/$lid/items/0/false/0/notes/0": ParsePathResult.Note,
+      "/$bid/normal/$lid/items/0/true/0/true": ParsePathResult.TrueBranch,
+      "/$bid/emergency/$lid/items/0/true/0/false": ParsePathResult.FalseBranch,
+      "/$bid/normal/$lid/items/0/false/0/true": ParsePathResult.TrueBranch,
+      "/$bid/emergency/$lid/items/0/false/0/false": ParsePathResult.FalseBranch,
+      "$bid": ParsePathResult.InvalidPath,
+      "/$bid/normal/$lid/items/0/notes/0/false": ParsePathResult.InvalidPath,
+      "/$bid/$lid": ParsePathResult.InvalidPath,
+      "/1/normal/6": ParsePathResult.InvalidPath,
+      "/$bid/normal/$lid/0": ParsePathResult.InvalidPath,
+      "/$bid/normal/$lid/item/0": ParsePathResult.InvalidPath,
+      "/$bid/normal/$lid/items/false": ParsePathResult.InvalidPath,
+      "/$bid/normal/$lid/alternatives/0": ParsePathResult.InvalidPath,
+      "/newBook/normal": ParsePathResult.InvalidPath,
+      "/newBook/0": ParsePathResult.InvalidPath,
+      "/newBook/$lid": ParsePathResult.InvalidPath,
+    };
+
+    for (var path in paths.keys){
+      var result = ParsePath.validatePath(path);
+      expect(result, equals(paths[path]),reason: "Path: $path");
+    }
+  });
+
   ParsePath.mock = true;
 
   setUp(() async => await createBook());
@@ -23,7 +81,7 @@ main() {
   test("Parse book path", () async {
     Book book = await ParsePath.parseBook(bookPath);
     expect(book.name, equals("My book"));
-    expect(book.id, equals(bookId));
+    expect(book.id, equals(book));
   });
 
   test("Parse invalid book path", () async {
@@ -44,7 +102,7 @@ main() {
     ChecklistWithParent parent = await ParsePath.parseList(listPath);
     Checklist list = parent.list;
     expect(list.name, equals("My checklist"));
-    expect(list.id, equals(listId));
+    expect(list.id, equals(list));
   });
 
   test("Parse checklist that does not exist in the book", () async {
@@ -83,21 +141,21 @@ main() {
   test("Parse path to normal lists of book", () async {
     var book = await ParsePath.parseBook("$bookPath/normal");
     expect(book.name, equals("My book"));
-    expect(book.id, equals(bookId));
+    expect(book.id, equals(book));
   });
 
   test(
       "Parse book path cannot specify both normal/emergency lists and a list ID",
       () {
     expect(
-      () async => await ParsePath.parseBook("$bookPath/normal/$listId"),
+      () async => await ParsePath.parseBook("$bookPath/normal/$lid"),
       throwsA(new isInstanceOf<ArgumentError>()),
     );
   });
 
-  test("Parse path to true branch of item",() async {
+  test("Parse path to true branch of item", () async {
     Item item = (await ParsePath.parseItem("$listPath/0/true")).item;
-    expect(item.toCheck,equals("What to check"));
+    expect(item.toCheck, equals("What to check"));
     expect(item.action, equals("Looks ok"));
   });
 }
@@ -106,11 +164,11 @@ Future createBook() async {
   var io = new BookIo(writer: new MockDiskWriter());
   var book = new Book(
     name: "My book",
-    id: bookId,
+    id: bid,
     normalLists: [
       new Checklist(
         name: "My checklist",
-        id: listId,
+        id: lid,
         source: [
           new Item(
             toCheck: "What to check",
@@ -133,7 +191,7 @@ Future createBook() async {
 }
 
 Future deleteBook() async {
-  var file = new File("$bookId.json");
+  var file = new File("$bid.json");
   await file.delete();
   file = new File("books.json");
   await file.delete();

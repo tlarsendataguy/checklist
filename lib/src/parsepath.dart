@@ -7,8 +7,174 @@ import 'package:checklist/src/item.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:meta/meta.dart';
 
+
+// Paths must be of the following formats:
+// /newBook
+// /bookId/(normal|emergency)/listId/items/index/(true|false/index)*/notes/index
+// /bookId/(normal|emergency)/listId/alternatives
+//
+// The return object should contains the following references:
+//   Book
+//   List of checklists
+//   List
+//   List of alternatives
+//   List of items
+//   Item
+//   List of sub-items
+//   List of notes
+//   Note
+//
+// An enum describing the final object in the path should also be contained:
+//   Home
+//   Book
+//   NormalLists
+//   EmergencyLists
+//   List
+//   Items
+//   Alternatives
+//   Item
+//   TrueBranch
+//   FalseBranch
+//   Notes
+//   Note
+//   InvalidPath
+//
+// Provide a method to check syntax which returns the enum
+// Provide a second method to actually perform the parse
+
+enum ParsePathResult{
+  Home,
+  NewBook,
+  Book,
+  NormalLists,
+  EmergencyLists,
+  List,
+  Items,
+  Alternatives,
+  Item,
+  TrueBranch,
+  FalseBranch,
+  Notes,
+  Note,
+  InvalidPath,
+}
+
 class ParsePath {
   static bool mock = false;
+
+  static ParsePathResult validatePath(String path){
+    var elements = path.split('/');
+
+    return _validateHome(elements);
+  }
+
+  static ParsePathResult _validateHome(List<String> elements) {
+    // Paths must start with /
+    if (elements.length < 2 || elements[0].isNotEmpty)
+      return ParsePathResult.InvalidPath;
+
+    if (elements[1].isEmpty && elements.length == 2)
+      return ParsePathResult.Home;
+
+    return _validateBook(elements);
+  }
+
+  static ParsePathResult _validateBook(List<String> elements) {
+    if (!_isId(elements[1]) && elements[1] != 'newBook')
+      return ParsePathResult.InvalidPath;
+
+    if (elements[1] == 'newBook'){
+      if (elements.length > 2)
+        return ParsePathResult.InvalidPath;
+
+      return ParsePathResult.NewBook;
+    }
+
+    if (elements.length == 2)
+      return ParsePathResult.Book;
+
+    return _validateBookColl(elements);
+  }
+
+  static ParsePathResult _validateBookColl(List<String> elements) {
+    if (!_isBookColl(elements[2]))
+      return ParsePathResult.InvalidPath;
+
+    if (elements.length == 3){
+      switch (elements[2]){
+        case 'normal':
+          return ParsePathResult.NormalLists;
+        case 'emergency':
+          return ParsePathResult.EmergencyLists;
+      }
+    }
+
+    return _validateList(elements);
+  }
+
+  static ParsePathResult _validateList(List<String> elements) {
+    if (!_isId(elements[3]))
+      return ParsePathResult.InvalidPath;
+
+    if (elements.length == 4)
+      return ParsePathResult.List;
+
+    return _validateListColl(elements);
+  }
+
+  static ParsePathResult _validateListColl(List<String> elements) {
+    if (!_isListColl(elements[4]))
+      return ParsePathResult.InvalidPath;
+
+    if (elements.length == 5){
+      switch (elements[4]){
+        case 'items':
+          return ParsePathResult.Items;
+        case 'alternatives':
+          return ParsePathResult.Alternatives;
+      }
+    } else if (elements[4] == 'alternatives')
+      return ParsePathResult.InvalidPath;
+
+    return _validateItem(elements,5);
+  }
+
+  static ParsePathResult _validateItem(List<String> elements, int current){
+    if (!_isIndex(elements[current]))
+      return ParsePathResult.InvalidPath;
+
+    if (elements.length == current + 1)
+      return ParsePathResult.Item;
+
+    current++;
+    if (!_isItemColl(elements[current]))
+      return ParsePathResult.InvalidPath;
+
+    if (elements.length == current + 1){
+      switch (elements[current]){
+        case 'notes':
+          return ParsePathResult.Notes;
+        case 'true':
+          return ParsePathResult.TrueBranch;
+        case 'false':
+          return ParsePathResult.FalseBranch;
+      }
+    }
+
+    if (elements[current] == 'notes'){
+      current++;
+      if (!_isIndex(elements[current]))
+        return ParsePathResult.InvalidPath;
+
+      if (elements.length > current + 1)
+        return ParsePathResult.InvalidPath;
+
+      return ParsePathResult.Note;
+    }
+
+    current++;
+    return _validateItem(elements, current);
+  }
 
   static Future<Book> parseBook(String path) async {
     if (!_isBook(path))
@@ -83,11 +249,11 @@ class ParsePath {
     bool isBook = _isList(nodes.sublist(0, 4).join('/'));
 
     for (var index = 4; index < nodes.length; index = index + 2) {
-      isBook = isBook && stringIsIndex(nodes[index]);
+      isBook = isBook && _isIndex(nodes[index]);
     }
 
     for (var index = 5; index < nodes.length; index = index + 2) {
-      isBook = isBook && stringIsBranch(nodes[index]);
+      isBook = isBook && _isItemColl(nodes[index]);
     }
 
     return isBook;
@@ -100,7 +266,7 @@ class ParsePath {
     bool isBook = _isBook(nodes.sublist(0, 3).join('/'));
 
     isBook = isBook && stringIsId(nodes[3]);
-    if (nodes.length == 5) isBook = isBook && stringIsBranch(nodes[4]);
+    if (nodes.length == 5) isBook = isBook && _isItemColl(nodes[4]);
 
     return isBook;
   }
@@ -121,19 +287,23 @@ class ParsePath {
     return path.startsWith('/');
   }
 
-  static bool stringIsIndex(String check) {
+  static bool _isIndex(String check) {
     return check.contains(new RegExp(r"^[0-9]+$"));
   }
 
-  static bool stringIsListType(String check) {
+  static bool _isBookColl(String check) {
     return check.contains(new RegExp(r"^(normal|emergency)$"));
   }
 
-  static bool stringIsBranch(String check) {
-    return check.contains(new RegExp(r"^(true|false)$"));
+  static bool _isListColl(String check) {
+    return check.contains(new RegExp(r"^(items|alternatives)$"));
   }
 
-  static bool stringIsId(String check) {
+  static bool _isItemColl(String check) {
+    return check.contains(new RegExp(r"^(true|false|notes)$"));
+  }
+
+  static bool _isId(String check) {
     return check.contains(new RegExp(r"^[0-9a-f]{14}$"));
   }
 

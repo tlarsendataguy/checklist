@@ -33,74 +33,32 @@ class _MyAppState extends State<MyApp>{
     setState(colorFunc);
   }
 
-  Route<Null> _getRoute(RouteSettings settings) {
-    //Get the home page
-    if (settings.name == '/') {
-      return new MaterialPageRoute<Null>(
-        settings: settings,
-        maintainState: false,
-        builder: (BuildContext context) => new Landing(setColor),
-      );
+  Route _getRoute(RouteSettings settings) {
+    var path = settings.name;
+    var result = ParsePath.validatePath(path);
+
+    switch (result){
+      case ParsePathResult.Home:
+        return _buildRoute(settings, new Landing(setColor));
+      case ParsePathResult.NewBook:
+        return _buildRoute(settings, new NewBook(setColor));
+      case ParsePathResult.Book:
+        return _buildRoute(settings, new EditBook(path,setColor));
+      case ParsePathResult.NormalLists:
+      case ParsePathResult.EmergencyLists:
+        return _buildRoute(settings, new EditBookBranch(path,setColor));
+      case ParsePathResult.List:
+        return _buildRoute(settings, new EditList(path,setColor));
+      default:
+        return null;
     }
-
-    final List<String> path = settings.name.split('/');
-
-    //First character in path must be a forward slash
-    if (path[0] != '') {
-      return null;
-    }
-
-    //Get the create new book page
-    if (path[1] == 'newBook') {
-      if (path.length != 2) return null;
-      return new MaterialPageRoute(
-        settings: settings,
-        maintainState: false,
-        builder: (BuildContext context) => new NewBook(setColor),
-      );
-    }
-
-    if (_isBook(path)) {
-      //Get the edit book page
-      return new MaterialPageRoute(
-        settings: settings,
-        maintainState: false,
-        builder: (BuildContext context) => new EditBook(settings.name,setColor),
-      );
-    }
-
-    if (_isBookBranch(path)) {
-      return new MaterialPageRoute(
-        settings: settings,
-        maintainState: false,
-        builder: (BuildContext context) => new EditBookBranch(settings.name,setColor),
-      );
-    }
-
-    if (_isList(path)) {
-      return new MaterialPageRoute(
-        settings: settings,
-        maintainState: false,
-        builder: (BuildContext context) => new EditList(settings.name,setColor),
-      );
-    }
-
-    return null;
   }
 
-  bool _isList(List<String> path) {
-    return path.length == 4 &&
-        _isBookBranch(path.sublist(0, 3)) &&
-        ParsePath.stringIsId(path[3]);
-  }
-
-  bool _isBookBranch(List<String> path) {
-    return path.length == 3 &&
-        _isBook(path.sublist(0, 2)) &&
-        ParsePath.stringIsListType(path[2]);
-  }
-
-  bool _isBook(List<String> path) {
-    return path.length == 2 && ParsePath.stringIsId(path[1]);
+  MaterialPageRoute _buildRoute(RouteSettings settings, Widget builder){
+    return new MaterialPageRoute(
+      settings: settings,
+      maintainState: false,
+      builder: (BuildContext context) => builder,
+    );
   }
 }
