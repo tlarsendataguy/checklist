@@ -35,19 +35,19 @@ class _MyAppState extends State<MyApp>{
 
   Route _getRoute(RouteSettings settings) {
     var path = settings.name;
-    var result = ParsePath.validatePath(path);
+    var result = ParsePath.validate(path);
 
     switch (result){
-      case ParsePathResult.Home:
+      case ParseResult.Home:
         return _buildRoute(settings, new Landing(setColor));
-      case ParsePathResult.NewBook:
+      case ParseResult.NewBook:
         return _buildRoute(settings, new NewBook(setColor));
-      case ParsePathResult.Book:
+      case ParseResult.Book:
         return _buildRoute(settings, new EditBook(path,setColor));
-      case ParsePathResult.NormalLists:
-      case ParsePathResult.EmergencyLists:
+      case ParseResult.NormalLists:
+      case ParseResult.EmergencyLists:
         return _buildRoute(settings, new EditBookBranch(path,setColor));
-      case ParsePathResult.List:
+      case ParseResult.List:
         return _buildRoute(settings, new EditList(path,setColor));
       default:
         return null;

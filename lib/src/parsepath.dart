@@ -4,9 +4,8 @@ import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
+import 'package:checklist/src/note.dart';
 import 'package:commandlist/commandlist.dart';
-import 'package:meta/meta.dart';
-
 
 // Paths must be of the following formats:
 // /newBook
@@ -15,13 +14,8 @@ import 'package:meta/meta.dart';
 //
 // The return object should contains the following references:
 //   Book
-//   List of checklists
 //   List
-//   List of alternatives
-//   List of items
 //   Item
-//   List of sub-items
-//   List of notes
 //   Note
 //
 // An enum describing the final object in the path should also be contained:
@@ -42,249 +36,205 @@ import 'package:meta/meta.dart';
 // Provide a method to check syntax which returns the enum
 // Provide a second method to actually perform the parse
 
-enum ParsePathResult{
+enum ParseResult {
+  InvalidPath,
   Home,
   NewBook,
   Book,
   NormalLists,
   EmergencyLists,
   List,
-  Items,
   Alternatives,
+  Items,
   Item,
   TrueBranch,
   FalseBranch,
   Notes,
   Note,
-  InvalidPath,
 }
 
 class ParsePath {
   static bool mock = false;
 
-  static ParsePathResult validatePath(String path){
+  static ParseResult validate(String path) {
     var elements = path.split('/');
 
     return _validateHome(elements);
   }
 
-  static ParsePathResult _validateHome(List<String> elements) {
+  static ParseResult _validateHome(List<String> elements) {
     // Paths must start with /
     if (elements.length < 2 || elements[0].isNotEmpty)
-      return ParsePathResult.InvalidPath;
+      return ParseResult.InvalidPath;
 
     if (elements[1].isEmpty && elements.length == 2)
-      return ParsePathResult.Home;
+      return ParseResult.Home;
 
     return _validateBook(elements);
   }
 
-  static ParsePathResult _validateBook(List<String> elements) {
+  static ParseResult _validateBook(List<String> elements) {
     if (!_isId(elements[1]) && elements[1] != 'newBook')
-      return ParsePathResult.InvalidPath;
+      return ParseResult.InvalidPath;
 
-    if (elements[1] == 'newBook'){
-      if (elements.length > 2)
-        return ParsePathResult.InvalidPath;
+    if (elements[1] == 'newBook') {
+      if (elements.length > 2) return ParseResult.InvalidPath;
 
-      return ParsePathResult.NewBook;
+      return ParseResult.NewBook;
     }
 
-    if (elements.length == 2)
-      return ParsePathResult.Book;
+    if (elements.length == 2) return ParseResult.Book;
 
     return _validateBookColl(elements);
   }
 
-  static ParsePathResult _validateBookColl(List<String> elements) {
-    if (!_isBookColl(elements[2]))
-      return ParsePathResult.InvalidPath;
+  static ParseResult _validateBookColl(List<String> elements) {
+    if (!_isBookColl(elements[2])) return ParseResult.InvalidPath;
 
-    if (elements.length == 3){
-      switch (elements[2]){
+    if (elements.length == 3) {
+      switch (elements[2]) {
         case 'normal':
-          return ParsePathResult.NormalLists;
+          return ParseResult.NormalLists;
         case 'emergency':
-          return ParsePathResult.EmergencyLists;
+          return ParseResult.EmergencyLists;
       }
     }
 
     return _validateList(elements);
   }
 
-  static ParsePathResult _validateList(List<String> elements) {
-    if (!_isId(elements[3]))
-      return ParsePathResult.InvalidPath;
+  static ParseResult _validateList(List<String> elements) {
+    if (!_isId(elements[3])) return ParseResult.InvalidPath;
 
-    if (elements.length == 4)
-      return ParsePathResult.List;
+    if (elements.length == 4) return ParseResult.List;
 
     return _validateListColl(elements);
   }
 
-  static ParsePathResult _validateListColl(List<String> elements) {
-    if (!_isListColl(elements[4]))
-      return ParsePathResult.InvalidPath;
+  static ParseResult _validateListColl(List<String> elements) {
+    if (!_isListColl(elements[4])) return ParseResult.InvalidPath;
 
-    if (elements.length == 5){
-      switch (elements[4]){
+    if (elements.length == 5) {
+      switch (elements[4]) {
         case 'items':
-          return ParsePathResult.Items;
+          return ParseResult.Items;
         case 'alternatives':
-          return ParsePathResult.Alternatives;
+          return ParseResult.Alternatives;
       }
     } else if (elements[4] == 'alternatives')
-      return ParsePathResult.InvalidPath;
+      return ParseResult.InvalidPath;
 
-    return _validateItem(elements,5);
+    return _validateItem(elements, 5);
   }
 
-  static ParsePathResult _validateItem(List<String> elements, int current){
-    if (!_isIndex(elements[current]))
-      return ParsePathResult.InvalidPath;
+  static ParseResult _validateItem(List<String> elements, int current) {
+    if (!_isIndex(elements[current])) return ParseResult.InvalidPath;
 
-    if (elements.length == current + 1)
-      return ParsePathResult.Item;
+    if (elements.length == current + 1) return ParseResult.Item;
 
     current++;
-    if (!_isItemColl(elements[current]))
-      return ParsePathResult.InvalidPath;
+    if (!_isItemColl(elements[current])) return ParseResult.InvalidPath;
 
-    if (elements.length == current + 1){
-      switch (elements[current]){
+    if (elements.length == current + 1) {
+      switch (elements[current]) {
         case 'notes':
-          return ParsePathResult.Notes;
+          return ParseResult.Notes;
         case 'true':
-          return ParsePathResult.TrueBranch;
+          return ParseResult.TrueBranch;
         case 'false':
-          return ParsePathResult.FalseBranch;
+          return ParseResult.FalseBranch;
       }
     }
 
-    if (elements[current] == 'notes'){
+    if (elements[current] == 'notes') {
       current++;
-      if (!_isIndex(elements[current]))
-        return ParsePathResult.InvalidPath;
+      if (!_isIndex(elements[current])) return ParseResult.InvalidPath;
 
-      if (elements.length > current + 1)
-        return ParsePathResult.InvalidPath;
+      if (elements.length > current + 1) return ParseResult.InvalidPath;
 
-      return ParsePathResult.Note;
+      return ParseResult.Note;
     }
 
     current++;
     return _validateItem(elements, current);
   }
 
-  static Future<Book> parseBook(String path) async {
-    if (!_isBook(path))
-      throw new ArgumentError("path does not represent a Book object");
+  static Future<ParsedItems> parse(String path) async {
+    var result = validate(path);
+    if (result.index <= ParseResult.NewBook.index)
+      return new ParsedItems(result: result);
 
-    String id = path.split('/')[1];
-    return await _getIo().readBook(id);
+    var elements = path.split('/');
+    var book = await _getIo().readBook(elements[1]);
+
+    Checklist list;
+    if (result.index >= ParseResult.List.index)
+      list = _parseList(book, path);
+
+    Item item;
+    if (result.index >= ParseResult.Item.index)
+      item = _parseItem(list, path, 5);
+
+    Note note;
+    if (result.index >= ParseResult.Note.index)
+      note = _parseNote(item, path);
+
+    return new ParsedItems(
+      book: book,
+      list: list,
+      item: item,
+      note: note,
+      result: result,
+    );
   }
 
-  static Future<ChecklistWithParent> parseList(String path) async {
-    if (!_isList(path))
-      throw new ArgumentError("path does not represent a Checklist object");
-
+  static Checklist _parseList(Book book, String path) {
     Iterable<Checklist> collection;
     List<String> elements = path.split('/');
-    String bookId = elements[1];
     String listType = elements[2];
     String listId = elements[3];
 
-    Book book = await _getIo().readBook(bookId);
-    if (listType == 'normal')
+    if (listType == 'normal') {
       collection = book.normalLists;
-    else
+    } else {
       collection = book.emergencyLists;
+    }
 
     for (var list in collection) {
-      if (list.id == listId)
-        return new ChecklistWithParent(list: list, parent: book);
+      if (list.id == listId) return list;
     }
 
     throw new ArgumentError(
         "The Book object does not contain the specified checklist ID");
   }
 
-  static Future<ItemWithParent> parseItem(String path,{Book outBook}) async {
-    if (!_isItem(path))
-      throw new ArgumentError("Path does not represent an Item object");
-
+  static Item _parseItem(
+      CommandList<Item> items, String path, int current) {
     List<String> elements = path.split('/');
-    var listPath = elements.sublist(0, 4).join('/');
-    ChecklistWithParent parent = await parseList(listPath);
-    Checklist list = parent.list;
-
-    int index = int.parse(elements[4]);
-    Item item = list[index];
-    String branch;
-    CommandList<Item> items;
+    int index = int.parse(elements[current]);
 
     try {
-      for (int i = 5; i < elements.length; i++) {
-        if (i.isOdd){
-          branch = elements[i];
-          if (branch == 'true')
-            items = item.trueBranch;
-          else
-            items = item.falseBranch;
-        } else {
-          index = int.parse(elements[i]);
-          item = items[index];
+      Item item = items[index];
+      if (elements.length > current + 2) {
+        switch (elements[current + 1]) {
+          case 'true':
+            return _parseItem(item.trueBranch, path, current + 2);
+          case 'false':
+            return _parseItem(item.falseBranch, path, current + 2);
+          default:
+            return item;
         }
       }
-      return new ItemWithParent(item: item, parent: parent);
+      return item;
     } catch (ex) {
       throw new ArgumentError("The path does not lead to a valid item");
     }
   }
 
-  static bool _isItem(String path) {
-    List<String> nodes = path.split('/');
-    if (nodes.length < 5) return false;
-
-    bool isBook = _isList(nodes.sublist(0, 4).join('/'));
-
-    for (var index = 4; index < nodes.length; index = index + 2) {
-      isBook = isBook && _isIndex(nodes[index]);
-    }
-
-    for (var index = 5; index < nodes.length; index = index + 2) {
-      isBook = isBook && _isItemColl(nodes[index]);
-    }
-
-    return isBook;
-  }
-
-  static bool _isList(String path) {
-    List<String> nodes = path.split('/');
-    if (nodes.length < 4 || nodes.length > 5) return false;
-
-    bool isBook = _isBook(nodes.sublist(0, 3).join('/'));
-
-    isBook = isBook && stringIsId(nodes[3]);
-    if (nodes.length == 5) isBook = isBook && _isItemColl(nodes[4]);
-
-    return isBook;
-  }
-
-  static bool _isBook(String path) {
-    List<String> nodes = path.split('/');
-    bool isBook = _startsWithSlash(path);
-
-    if (nodes.length < 2 || nodes.length > 3) return false;
-
-    isBook = isBook && stringIsId(nodes[1]);
-    if (nodes.length == 3) isBook = isBook && stringIsListType(nodes[2]);
-
-    return isBook;
-  }
-
-  static bool _startsWithSlash(String path) {
-    return path.startsWith('/');
+  static Note _parseNote(Item item, String path) {
+    var elements = path.split('/');
+    var noteIndex = int.parse(elements[elements.length - 1]);
+    return item.notes[noteIndex];
   }
 
   static bool _isIndex(String check) {
@@ -312,16 +262,12 @@ class ParsePath {
   }
 }
 
-class ChecklistWithParent{
-  final Book parent;
-  final Checklist list;
-  ChecklistWithParent({@required this.list, @required this.parent}) :
-    assert(parent != null && list != null);
-}
+class ParsedItems {
+  ParsedItems({this.book, this.list, this.item, this.note, this.result});
 
-class ItemWithParent{
-  final ChecklistWithParent parent;
+  final Book book;
+  final Checklist list;
   final Item item;
-  ItemWithParent({@required this.item, @required this.parent}) :
-      assert(item != null && parent != null);
+  final Note note;
+  final ParseResult result;
 }
