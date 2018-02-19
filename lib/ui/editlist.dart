@@ -1,7 +1,6 @@
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/strings.dart';
-import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
@@ -30,10 +29,10 @@ class _EditListState extends State<EditList> {
     super.initState();
     _nameDecoration = _defaultNameDecoration();
 
-    ParsePath.parseList(widget.path).then((ChecklistWithParent parsedList) {
+    ParsePath.parse(widget.path).then((ParsedItems result) {
       setState(() {
-        _list = parsedList.list;
-        _book = parsedList.parent;
+        _list = result.list;
+        _book = result.book;
         _nameController = new TextEditingController(text: _list.name);
         _generateDropDown();
         _isLoading = false;

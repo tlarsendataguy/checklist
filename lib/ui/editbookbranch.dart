@@ -35,15 +35,20 @@ class _EditBookBranchState extends State<EditBookBranch> {
     _listNameDecoration = _defaultListNameDecoration();
     _listNameController = new TextEditingController();
 
-    ParsePath.parseBook(widget.path).then((Book parsedBook) {
+    ParsePath.parse(widget.path).then((ParsedItems result) {
       setState(() {
-        _book = parsedBook;
-        List<String> elements = widget.path.split('/');
-        _listType = elements[elements.length - 1];
-        if (_listType == 'normal')
-          _lists = parsedBook.normalLists;
-        else
-          _lists = parsedBook.emergencyLists;
+        _book = result.book;
+        switch (result.result) {
+          case ParseResult.NormalLists:
+            _lists = _book.normalLists;
+            break;
+          case ParseResult.EmergencyLists:
+            _lists = _book.emergencyLists;
+            break;
+          default:
+            break;
+        }
+
         _isLoading = false;
       });
     });

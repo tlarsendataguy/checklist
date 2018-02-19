@@ -11,30 +11,6 @@ import 'package:commandlist/commandlist.dart';
 // /newBook
 // /bookId/(normal|emergency)/listId/items/index/(true|false/index)*/notes/index
 // /bookId/(normal|emergency)/listId/alternatives
-//
-// The return object should contains the following references:
-//   Book
-//   List
-//   Item
-//   Note
-//
-// An enum describing the final object in the path should also be contained:
-//   Home
-//   Book
-//   NormalLists
-//   EmergencyLists
-//   List
-//   Items
-//   Alternatives
-//   Item
-//   TrueBranch
-//   FalseBranch
-//   Notes
-//   Note
-//   InvalidPath
-//
-// Provide a method to check syntax which returns the enum
-// Provide a second method to actually perform the parse
 
 enum ParseResult {
   InvalidPath,

@@ -58,7 +58,9 @@ class _LandingState extends State<Landing> {
     return new Scaffold(
       appBar: themeAppBar(
         title: Strings.appTitle,
-        onThemeChanged: widget.onThemeChanged,
+        onThemeChanged: (makeRed) {
+          setState(()=>widget.onThemeChanged(makeRed));
+        },
       ),
       body: new Padding(
           padding: const EdgeInsets.only(top: listTopPad),

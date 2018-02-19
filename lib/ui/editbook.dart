@@ -5,83 +5,67 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:checklist/ui/editorpage.dart';
 
-class EditBook extends StatefulWidget {
-  EditBook(this.path, this.onThemeChanged);
-
-  final String path;
-  final ThemeChangeCallback onThemeChanged;
+class EditBook extends EditorPage {
+  EditBook(String path, ThemeChangeCallback onThemeChanged)
+      : super(path, onThemeChanged);
 
   _EditBookState createState() => new _EditBookState();
 }
 
-class _EditBookState extends State<EditBook> {
+class _EditBookState extends EditorPageState {
+  _EditBookState();
+
   BookIo _io = new BookIo();
-  bool _isLoading = true;
   Book _book;
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
 
-  _EditBookState();
-
   initState() {
     super.initState();
-    ParsePath.parseBook(widget.path).then((Book parsedBook) {
-      setState(() {
-        _book = parsedBook;
-        _isLoading = false;
-        _nameDecoration = _defaultDecoration();
-        _nameController = new TextEditingController(text: _book.name);
-      });
+    initEditorState((result) {
+      _book = result.book;
+      _nameDecoration = _defaultDecoration();
+      _nameController = new TextEditingController(text: _book.name);
     });
   }
 
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: themeAppBar(
-        title: Strings.editBookTitle,
-        onThemeChanged: widget.onThemeChanged,
-      ),
+    return buildPage(
+      context: context,
+      title: Strings.editBookTitle,
       body: _getBody(context),
     );
   }
 
   Widget _getBody(BuildContext context) {
-    if (_isLoading)
-      return new Center(
-        child: new CupertinoActivityIndicator(),
-      );
-    else
-      return new Padding(
-        padding: pagePadding,
-        child: new ListView(
-          children: <Widget>[
-            editorElementPadding(
-              child: new TextField(
-                onSubmitted: _changeName,
-                controller: _nameController,
-                decoration: _nameDecoration,
-              ),
-            ),
-            editorElementPadding(
-              child: themeRaisedButton(
-                child: new Text(Strings.editNormalLists),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed("${widget.path}/normal"),
-              ),
-            ),
-            editorElementPadding(
-              child: themeRaisedButton(
-                child: new Text(Strings.editEmergencyLists),
-                onPressed: () =>
-                    Navigator.of(context).pushNamed("${widget.path}/emergency"),
-              ),
-            ),
-          ],
+    return new ListView(
+      children: <Widget>[
+        editorElementPadding(
+          child: new TextField(
+            onSubmitted: _changeName,
+            controller: _nameController,
+            decoration: _nameDecoration,
+          ),
         ),
-      );
+        editorElementPadding(
+          child: themeRaisedButton(
+            child: new Text(Strings.editNormalLists),
+            onPressed: () =>
+                Navigator.of(context).pushNamed("${widget.path}/normal"),
+          ),
+        ),
+        editorElementPadding(
+          child: themeRaisedButton(
+            child: new Text(Strings.editEmergencyLists),
+            onPressed: () =>
+                Navigator.of(context).pushNamed("${widget.path}/emergency"),
+          ),
+        ),
+      ],
+    );
   }
 
   InputDecoration _defaultDecoration() {

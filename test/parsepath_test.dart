@@ -5,6 +5,7 @@ import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/item.dart';
+import 'package:checklist/src/note.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:test/test.dart';
 
@@ -78,6 +79,16 @@ main() {
 
   tearDown(() async => deleteBook());
 
+  test("Parse newBook", () async {
+    ParsedItems result = await ParsePath.parse("/newBook");
+    expect(result.result, equals(ParseResult.NewBook));
+
+    expect(result.book, isNull);
+    expect(result.list, isNull);
+    expect(result.item, isNull);
+    expect(result.note, isNull);
+  });
+
   test("Parse book", () async {
     ParsedItems result = await ParsePath.parse(bookPath);
     expect(result.result, equals(ParseResult.Book));
@@ -85,6 +96,9 @@ main() {
     var book = result.book;
     expect(book.name, equals("My book"));
     expect(book.id, equals(bid));
+    expect(result.list, isNull);
+    expect(result.item, isNull);
+    expect(result.note, isNull);
   });
 
   test("Parse invalid book", () async {
@@ -100,7 +114,7 @@ main() {
     );
   });
 
-  test("Parse checklist path", () async {
+  test("Parse checklist", () async {
     ParsedItems result = await ParsePath.parse(listPath);
     expect(result.result, equals(ParseResult.List));
 
@@ -108,6 +122,8 @@ main() {
     expect(list.name, equals("My checklist"));
     expect(list.id, equals(lid));
     expect(result.book, isNotNull);
+    expect(result.item, isNull);
+    expect(result.note, isNull);
   });
 
   test("Parse checklist that does not exist in the book", () async {
@@ -115,6 +131,15 @@ main() {
       () async => await ParsePath.parse("$bookPath/normal/2222222222bbbb"),
       throwsA(new isInstanceOf<ArgumentError>()),
     );
+  });
+
+  test("Parse to checklist alternatives", () async {
+    ParsedItems result = await ParsePath.parse("$listPath/alternatives");
+    expect(result.result, equals(ParseResult.Alternatives));
+
+    Checklist list = result.list;
+    expect(list.name, equals("My checklist"));
+    expect(list.id, equals(lid));
   });
 
   test("Parse item", () async {
@@ -126,6 +151,7 @@ main() {
     expect(item.action, equals("Looks ok"));
     expect(result.book, isNotNull);
     expect(result.list, isNotNull);
+    expect(result.note, isNull);
   });
 
   test("Parse nested items", () async {
@@ -165,6 +191,36 @@ main() {
     expect(item.toCheck, equals("What to check"));
     expect(item.action, equals("Looks ok"));
   });
+
+  test("Parse path to false branch of item", () async {
+    ParsedItems result = await ParsePath.parse("$listPath/items/0/false");
+    expect(result.result, equals(ParseResult.FalseBranch));
+
+    Item item = result.item;
+    expect(item.toCheck, equals("What to check"));
+    expect(item.action, equals("Looks ok"));
+  });
+
+  test("Parse path to notes collection of item", () async {
+    ParsedItems result = await ParsePath.parse("$listPath/items/0/notes");
+    expect(result.result, equals(ParseResult.Notes));
+
+    Item item = result.item;
+    expect(item.toCheck, equals("What to check"));
+    expect(item.action, equals("Looks ok"));
+  });
+
+  test("Parse note", () async {
+    ParsedItems result = await ParsePath.parse("$listPath/items/0/notes/0");
+    expect(result.result, equals(ParseResult.Note));
+
+    Note note = result.note;
+    expect(note.priority, equals(Priority.Note));
+    expect(note.text, equals("Just a simple note"));
+    expect(result.book, isNotNull);
+    expect(result.list, isNotNull);
+    expect(result.item, isNotNull);
+  });
 }
 
 Future createBook() async {
@@ -180,6 +236,9 @@ Future createBook() async {
           new Item(
             toCheck: "What to check",
             action: "Looks ok",
+            notes: [
+              new Note(Priority.Note, "Just a simple note"),
+            ],
             trueBranch: [
               new Item(
                 toCheck: "True!",
