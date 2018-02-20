@@ -5,21 +5,20 @@ import 'package:checklist/ui/templates.dart';
 
 typedef void AdditionalInitsCallback(ParsedItems result);
 
-class EditorPage extends StatefulWidget {
-  EditorPage(this.path, this.onThemeChanged);
+abstract class MyAppPage extends StatefulWidget {
+  MyAppPage(this.path, this.onThemeChanged, this.padding);
 
   final String path;
   final ThemeChangeCallback onThemeChanged;
-
-  EditorPageState createState() => new EditorPageState();
+  final EdgeInsetsGeometry padding;
 }
 
-class EditorPageState extends State<EditorPage> {
-  EditorPageState();
+abstract class MyAppPageState extends State<MyAppPage> {
+  MyAppPageState();
 
   bool isLoading = true;
 
-  initEditorState(AdditionalInitsCallback additionalInits) {
+  initPageState(AdditionalInitsCallback additionalInits) {
     ParsePath.parse(widget.path).then((ParsedItems result) {
       setState(() {
         isLoading = false;
@@ -28,29 +27,29 @@ class EditorPageState extends State<EditorPage> {
     });
   }
 
-  Widget buildPage({BuildContext context, String title, Widget body}) {
+  Widget buildPage({BuildContext context, String title, Widget bodyBuilder(BuildContext context)}) {
     return new Scaffold(
       appBar: themeAppBar(
         title: title,
-        onThemeChanged: (makeRed) =>setState(()=>widget.onThemeChanged(makeRed)),
+        onThemeChanged: _themeChanged,
       ),
-      body: _getBody(context, body),
+      body: _getBody(context, bodyBuilder),
     );
   }
 
-  Widget _getBody(BuildContext context, Widget body) {
+  void _themeChanged(bool makeRed) {
+    setState(() => widget.onThemeChanged(makeRed));
+  }
+
+  Widget _getBody(BuildContext context, Widget body(BuildContext context)) {
     if (isLoading)
       return new Center(
         child: new CupertinoActivityIndicator(),
       );
     else
       return new Padding(
-        padding: pagePadding,
-        child: body,
+        padding: widget.padding,
+        child: body(context),
       );
-  }
-
-  build(BuildContext context) {
-    buildPage(context: context, title: "", body: null);
   }
 }

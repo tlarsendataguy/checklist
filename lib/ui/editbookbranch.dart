@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:draggablelistview/draggablelistview.dart';
 import 'package:checklist/ui/listviewpopupmenubutton.dart';
@@ -12,19 +13,16 @@ import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/src/book.dart';
 
-class EditBookBranch extends StatefulWidget {
-  EditBookBranch(this.path, this.onThemeChanged);
-
-  final String path;
-  final ThemeChangeCallback onThemeChanged;
+class EditBookBranch extends MyAppPage {
+  EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
+      : super(path, onThemeChanged, const EdgeInsets.all(0.0));
 
   createState() => new _EditBookBranchState();
 }
 
-class _EditBookBranchState extends State<EditBookBranch> {
+class _EditBookBranchState extends MyAppPageState {
   TextEditingController _listNameController;
   InputDecoration _listNameDecoration;
-  bool _isLoading = true;
   String _listType;
   Book _book;
   CommandList<Checklist> _lists;
@@ -32,80 +30,82 @@ class _EditBookBranchState extends State<EditBookBranch> {
 
   initState() {
     super.initState();
-    _listNameDecoration = _defaultListNameDecoration();
-    _listNameController = new TextEditingController();
 
-    ParsePath.parse(widget.path).then((ParsedItems result) {
-      setState(() {
-        _book = result.book;
-        switch (result.result) {
-          case ParseResult.NormalLists:
-            _lists = _book.normalLists;
-            break;
-          case ParseResult.EmergencyLists:
-            _lists = _book.emergencyLists;
-            break;
-          default:
-            break;
-        }
+    var result = ParsePath.validate(widget.path);
+    switch (result) {
+      case ParseResult.NormalLists:
+        _listType = 'normal';
+        break;
+      case ParseResult.EmergencyLists:
+        _listType = 'emergency';
+        break;
+      default:
+        break;
+    }
 
-        _isLoading = false;
-      });
+    initPageState((result) {
+      _listNameDecoration = _defaultListNameDecoration();
+      _listNameController = new TextEditingController();
+      _book = result.book;
+
+      switch (result.result) {
+        case ParseResult.NormalLists:
+          _lists = _book.normalLists;
+          break;
+        case ParseResult.EmergencyLists:
+          _lists = _book.emergencyLists;
+          break;
+        default:
+          break;
+      }
     });
   }
 
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: themeAppBar(
-        title: Strings.editLists(_listType),
-        onThemeChanged: widget.onThemeChanged,
-      ),
-      body: _getBody(context),
+    return buildPage(
+      context: context,
+      title: Strings.editLists(_listType),
+      bodyBuilder: _getBody,
     );
   }
 
   Widget _getBody(BuildContext context) {
-    if (_isLoading)
-      return new Center(
-        child: new CupertinoActivityIndicator(),
-      );
-    else
-      return new Column(
-        children: <Widget>[
-          new Expanded(
-            child: new DraggableListView<Checklist>(
-              rowHeight: 48.0,
-              source: _lists,
-              builder: _checklistToWidget,
-              onMove: (int oldIndex, int newIndex) async {
-                var command = _lists.moveItem(oldIndex, newIndex);
-                setState(() {});
-                if (!await _io.persistBook(_book)) {
-                  setState(() => command.undo());
-                }
-              },
-            ),
+    return new Column(
+      children: <Widget>[
+        new Expanded(
+          child: new DraggableListView<Checklist>(
+            rowHeight: 48.0,
+            source: _lists,
+            builder: _checklistToWidget,
+            onMove: (int oldIndex, int newIndex) async {
+              var command = _lists.moveItem(oldIndex, newIndex);
+              setState(() {});
+              if (!await _io.persistBook(_book)) {
+                setState(() => command.undo());
+              }
+            },
           ),
-          new Padding(
-            padding: new EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                  child: new TextField(
-                    onSubmitted: _createChecklist,
-                    controller: _listNameController,
-                    decoration: _listNameDecoration,
-                  ),
+        ),
+        new Padding(
+          padding: new EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
+          child: new Row(
+            children: <Widget>[
+              new Expanded(
+                child: new TextField(
+                  onSubmitted: _createChecklist,
+                  controller: _listNameController,
+                  decoration: _listNameDecoration,
                 ),
-                new IconButton(
-                  icon: new Icon(Icons.add),
-                  onPressed: null,
-                ),
-              ],
-            ),
+              ),
+              new IconButton(
+                icon: new Icon(Icons.add),
+                onPressed: null,
+              ),
+            ],
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 
   InputDecoration _defaultListNameDecoration() {

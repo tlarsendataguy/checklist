@@ -5,16 +5,16 @@ PODS:
 
 DEPENDENCIES:
   - Flutter (from `/Users/tlarsen/flutter/bin/cache/artifacts/engine/ios`)
-  - path_provider (from `/Users/tlarsen/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.0/ios`)
+  - path_provider (from `/Users/tlarsen/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.1/ios`)
 
 EXTERNAL SOURCES:
   Flutter:
     :path: /Users/tlarsen/flutter/bin/cache/artifacts/engine/ios
   path_provider:
-    :path: /Users/tlarsen/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.0/ios
+    :path: /Users/tlarsen/.pub-cache/hosted/pub.dartlang.org/path_provider-0.3.1/ios
 
 SPEC CHECKSUMS:
-  Flutter: d674e78c937094a75ac71dd77e921e840bea3dbf
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
   path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
 
 PODFILE CHECKSUM: cc70c01bca487bebd110b87397f017f3b76a89f1

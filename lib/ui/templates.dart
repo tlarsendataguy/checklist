@@ -31,7 +31,7 @@ const Color primaryGreen700 = const Color(0xFF009900);
 const Color primaryGreen800 = const Color(0xFF006600);
 const Color primaryGreen900 = const Color(0xFF003300);
 const Color primaryGreen950 = const Color(0xFF001A00);
-const Color blackGreen = const Color(0xFF000A00);
+const Color blackGreen = const Color(0xFF000000);
 
 class ThemeColors {
   static Color primary50 = primaryRed50;
@@ -82,6 +82,9 @@ class ThemeColors {
       textTheme: textTheme,
       accentTextTheme: textTheme,
       primaryTextTheme: textTheme,
+      textSelectionColor: isRed ? primaryGreen : primaryRed,
+      textSelectionHandleColor: isRed ? primaryGreen : primaryRed,
+      indicatorColor: isRed ? primaryGreen : primaryRed,
     );
   }
 
@@ -149,7 +152,7 @@ class ThemeColors {
   }
 }
 
-RaisedButton themeRaisedButton({Widget child, void onPressed}) {
+RaisedButton themeRaisedButton({Widget child, void onPressed()}) {
   return new RaisedButton(
     disabledColor: ThemeColors.black,
     color: ThemeColors.black,

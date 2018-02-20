@@ -8,14 +8,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/editorpage.dart';
 
-class EditBook extends EditorPage {
+class EditBook extends MyAppPage {
   EditBook(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged);
+      : super(path, onThemeChanged, pagePadding);
 
   _EditBookState createState() => new _EditBookState();
 }
 
-class _EditBookState extends EditorPageState {
+class _EditBookState extends MyAppPageState {
   _EditBookState();
 
   BookIo _io = new BookIo();
@@ -25,7 +25,7 @@ class _EditBookState extends EditorPageState {
 
   initState() {
     super.initState();
-    initEditorState((result) {
+    initPageState((result) {
       _book = result.book;
       _nameDecoration = _defaultDecoration();
       _nameController = new TextEditingController(text: _book.name);
@@ -36,7 +36,7 @@ class _EditBookState extends EditorPageState {
     return buildPage(
       context: context,
       title: Strings.editBookTitle,
-      body: _getBody(context),
+      bodyBuilder: _getBody,
     );
   }
 

@@ -4,7 +4,7 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
 
 class Landing extends StatefulWidget {
-  Landing(this.onThemeChanged,{Key key}) : super(key: key);
+  Landing(this.onThemeChanged);
 
   final ThemeChangeCallback onThemeChanged;
 
