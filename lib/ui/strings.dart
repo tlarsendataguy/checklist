@@ -3,6 +3,8 @@ class Strings{
   static String newBookTitle = "New book";
   static String newBookButton = "Create new book";
   static String editBookTitle = "Edit book";
+  static String normalLists = "Normal checklists";
+  static String emergencyLists = "Emergency checklists";
   static String editNormalLists = "Edit normal checklists";
   static String editEmergencyLists = "Edit emergency checklists";
   static String editLists(String type) => "Edit $type checklists";

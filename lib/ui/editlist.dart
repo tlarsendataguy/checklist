@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/editorpage.dart';
@@ -6,6 +8,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:checklist/ui/chooselist.dart';
 
 class EditList extends MyAppPage {
   EditList(String path, ThemeChangeCallback onThemeChanged)
@@ -60,14 +63,13 @@ class _EditListState extends MyAppPageState {
           padding: const EdgeInsets.only(top: defaultPad * 3),
           child: new Text(Strings.editNextPrimary),
         ),
-        new DropdownButton(
-          value: _list.nextPrimary,
-          items: _dropDown,
-          onChanged: (Checklist selection) async {
-            var command = _list.setNextPrimary(selection);
-            var success = await _io.persistBook(_book);
-            if (!success) setState(() => command.undo());
-          },
+        new RaisedButton(
+          onPressed: _setNextPrimary,
+          child: new Text(
+            _list.nextPrimary == null ?
+            Strings.noSelection :
+            _list.nextPrimary.name,
+          ),
         ),
         editorElementPadding(
           child: themeRaisedButton(
@@ -98,6 +100,17 @@ class _EditListState extends MyAppPageState {
           value: list,
         ),
       );
+    }
+  }
+
+  Future _setNextPrimary() async {
+    var selection = await chooseList(context,_book);
+    if (selection != null){
+      var list = selection.list;
+      var command = _list.setNextPrimary(list);
+      setState((){});
+      var success = await _io.persistBook(_book);
+      if (!success) setState(()=>command.undo());
     }
   }
 }
