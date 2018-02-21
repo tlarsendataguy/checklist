@@ -13,14 +13,14 @@ import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/src/book.dart';
 
-class EditBookBranch extends MyAppPage {
+class EditBookBranch extends EditorPage {
   EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
       : super(path, onThemeChanged, const EdgeInsets.all(0.0));
 
   createState() => new _EditBookBranchState();
 }
 
-class _EditBookBranchState extends MyAppPageState {
+class _EditBookBranchState extends EditorPageState {
   TextEditingController _listNameController;
   InputDecoration _listNameDecoration;
   String _listType;

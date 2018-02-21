@@ -1,4 +1,5 @@
 import 'package:checklist/src/parsepath.dart';
+import 'package:checklist/ui/editalternatives.dart';
 import 'package:checklist/ui/editbook.dart';
 import 'package:checklist/ui/editbookbranch.dart';
 import 'package:checklist/ui/strings.dart';
@@ -49,6 +50,8 @@ class _MyAppState extends State<MyApp>{
         return _buildRoute(settings, new EditBookBranch(path,setColor));
       case ParseResult.List:
         return _buildRoute(settings, new EditList(path,setColor));
+      case ParseResult.Alternatives:
+        return _buildRoute(settings, new EditAlternatives(path,setColor));
       default:
         return null;
     }

@@ -1,23 +1,24 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/strings.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/chooselist.dart';
 
-class EditList extends MyAppPage {
+class EditList extends EditorPage {
   EditList(String path, ThemeChangeCallback onThemeChanged)
       : super(path, onThemeChanged, pagePadding);
 
   createState() => new _EditListState();
 }
 
-class _EditListState extends MyAppPageState {
+class _EditListState extends EditorPageState {
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
   Book _book;
@@ -56,25 +57,27 @@ class _EditListState extends MyAppPageState {
         editorElementPadding(
           child: themeRaisedButton(
             child: overflowText(Strings.editItems),
-            onPressed: null,
+            onPressed: _editItems,
           ),
         ),
         new Padding(
           padding: const EdgeInsets.only(top: defaultPad * 3),
           child: new Text(Strings.editNextPrimary),
         ),
-        new RaisedButton(
-          onPressed: _setNextPrimary,
-          child: new Text(
-            _list.nextPrimary == null ?
-            Strings.noSelection :
-            _list.nextPrimary.name,
+        editorElementPadding(
+          child: themeRaisedButton(
+            onPressed: _setNextPrimary,
+            child: new Text(
+              _list.nextPrimary == null
+                  ? Strings.noSelection
+                  : _list.nextPrimary.name,
+            ),
           ),
         ),
         editorElementPadding(
           child: themeRaisedButton(
-            child: new Text(Strings.editNextAlternatives),
-            onPressed: null,
+            child: new Text(_alternativeButtonText()),
+            onPressed: _editAlternatives,
           ),
         ),
       ],
@@ -104,13 +107,25 @@ class _EditListState extends MyAppPageState {
   }
 
   Future _setNextPrimary() async {
-    var selection = await chooseList(context,_book);
-    if (selection != null){
+    var selection = await chooseList(context, _book);
+    if (selection != null) {
       var list = selection.list;
       var command = _list.setNextPrimary(list);
-      setState((){});
+      setState(() {});
       var success = await _io.persistBook(_book);
-      if (!success) setState(()=>command.undo());
+      if (!success) setState(() => command.undo());
     }
+  }
+
+  void _editItems() {
+    Navigator.of(context).pushNamed("${widget.path}/items}");
+  }
+
+  void _editAlternatives() {
+    Navigator.of(context).pushNamed("${widget.path}/alternatives");
+  }
+
+  String _alternativeButtonText() {
+    return "${Strings.editNextAlternatives} (${_list.nextAlternatives.length})";
   }
 }

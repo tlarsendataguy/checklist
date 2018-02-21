@@ -5,16 +5,16 @@ import 'package:checklist/ui/templates.dart';
 
 typedef void AdditionalInitsCallback(ParsedItems result);
 
-abstract class MyAppPage extends StatefulWidget {
-  MyAppPage(this.path, this.onThemeChanged, this.padding);
+abstract class EditorPage extends StatefulWidget {
+  EditorPage(this.path, this.onThemeChanged, this.padding);
 
   final String path;
   final ThemeChangeCallback onThemeChanged;
   final EdgeInsetsGeometry padding;
 }
 
-abstract class MyAppPageState extends State<MyAppPage> {
-  MyAppPageState();
+abstract class EditorPageState extends State<EditorPage> {
+  EditorPageState();
 
   bool isLoading = true;
 

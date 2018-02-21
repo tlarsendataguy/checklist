@@ -8,14 +8,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/editorpage.dart';
 
-class EditBook extends MyAppPage {
+class EditBook extends EditorPage {
   EditBook(String path, ThemeChangeCallback onThemeChanged)
       : super(path, onThemeChanged, pagePadding);
 
   _EditBookState createState() => new _EditBookState();
 }
 
-class _EditBookState extends MyAppPageState {
+class _EditBookState extends EditorPageState {
   _EditBookState();
 
   BookIo _io = new BookIo();
