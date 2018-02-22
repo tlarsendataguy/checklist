@@ -1,7 +1,5 @@
 import 'dart:async';
 
-import 'package:checklist/src/book.dart';
-import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -18,17 +16,14 @@ class EditBook extends EditorPage {
 class _EditBookState extends EditorPageState {
   _EditBookState();
 
-  BookIo _io = new BookIo();
-  Book _book;
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
 
   initState() {
     super.initState();
-    initPageState((result) {
-      _book = result.book;
+    initEditorState((result) {
       _nameDecoration = _defaultDecoration();
-      _nameController = new TextEditingController(text: _book.name);
+      _nameController = new TextEditingController(text: book.name);
     });
   }
 
@@ -88,7 +83,7 @@ class _EditBookState extends EditorPageState {
     setState(() {
       _nameDecoration = _defaultDecoration();
     });
-    _book.changeName(newName);
-    await _io.persistBook(_book);
+    book.changeName(newName);
+    await io.persistBook(book);
   }
 }

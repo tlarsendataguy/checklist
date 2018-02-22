@@ -1,3 +1,6 @@
+import 'package:checklist/src/book.dart';
+import 'package:checklist/src/bookio.dart';
+import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
@@ -17,10 +20,13 @@ abstract class EditorPageState extends State<EditorPage> {
   EditorPageState();
 
   bool isLoading = true;
+  BookIo io = new BookIo();
+  Book book;
 
-  initPageState(AdditionalInitsCallback additionalInits) {
+  initEditorState(AdditionalInitsCallback additionalInits) {
     ParsePath.parse(widget.path).then((ParsedItems result) {
       setState(() {
+        book = result.book;
         isLoading = false;
         additionalInits(result);
       });
@@ -51,5 +57,15 @@ abstract class EditorPageState extends State<EditorPage> {
         padding: widget.padding,
         child: body(context),
       );
+  }
+
+  OnMove buildOnMove(CommandList list){
+    return (int oldIndex, int newIndex) async {
+      var command = list.moveItem(oldIndex, newIndex);
+      setState((){});
+      if (!await io.persistBook(book)) {
+        setState(()=> command.undo());
+      }
+    };
   }
 }

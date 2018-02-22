@@ -21,17 +21,14 @@ class EditList extends EditorPage {
 class _EditListState extends EditorPageState {
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
-  Book _book;
   Checklist _list;
   var _dropDown = new List<DropdownMenuItem<Checklist>>();
-  var _io = new BookIo();
 
   initState() {
     super.initState();
     _nameDecoration = _defaultNameDecoration();
-    initPageState((result) {
+    initEditorState((result) {
       _list = result.list;
-      _book = result.book;
       _nameController = new TextEditingController(text: _list.name);
       _generateDropDown();
     });
@@ -96,7 +93,7 @@ class _EditListState extends EditorPageState {
         value: null,
       ),
     );
-    for (var list in _book.normalLists) {
+    for (var list in book.normalLists) {
       _dropDown.add(
         new DropdownMenuItem<Checklist>(
           child: overflowText(list.name),
@@ -107,18 +104,18 @@ class _EditListState extends EditorPageState {
   }
 
   Future _setNextPrimary() async {
-    var selection = await chooseList(context, _book);
+    var selection = await chooseList(context, book);
     if (selection != null) {
       var list = selection.list;
       var command = _list.setNextPrimary(list);
       setState(() {});
-      var success = await _io.persistBook(_book);
+      var success = await io.persistBook(book);
       if (!success) setState(() => command.undo());
     }
   }
 
   void _editItems() {
-    Navigator.of(context).pushNamed("${widget.path}/items}");
+    Navigator.of(context).pushNamed("${widget.path}/items");
   }
 
   void _editAlternatives() {

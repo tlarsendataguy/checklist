@@ -24,9 +24,7 @@ class _EditBookBranchState extends EditorPageState {
   TextEditingController _listNameController;
   InputDecoration _listNameDecoration;
   String _listType;
-  Book _book;
   CommandList<Checklist> _lists;
-  BookIo _io = new BookIo();
 
   initState() {
     super.initState();
@@ -43,17 +41,16 @@ class _EditBookBranchState extends EditorPageState {
         break;
     }
 
-    initPageState((result) {
+    initEditorState((result) {
       _listNameDecoration = _defaultListNameDecoration();
       _listNameController = new TextEditingController();
-      _book = result.book;
 
       switch (result.result) {
         case ParseResult.NormalLists:
-          _lists = _book.normalLists;
+          _lists = book.normalLists;
           break;
         case ParseResult.EmergencyLists:
-          _lists = _book.emergencyLists;
+          _lists = book.emergencyLists;
           break;
         default:
           break;
@@ -77,13 +74,7 @@ class _EditBookBranchState extends EditorPageState {
             rowHeight: 48.0,
             source: _lists,
             builder: _checklistToWidget,
-            onMove: (int oldIndex, int newIndex) async {
-              var command = _lists.moveItem(oldIndex, newIndex);
-              setState(() {});
-              if (!await _io.persistBook(_book)) {
-                setState(() => command.undo());
-              }
-            },
+            onMove: buildOnMove(_lists),
           ),
         ),
         new Padding(
@@ -115,7 +106,7 @@ class _EditBookBranchState extends EditorPageState {
   void _createChecklist(String listName) {
     var list = new Checklist(name: listName);
     var command = _lists.insert(list);
-    _io.persistBook(_book).then((bool result) {
+    io.persistBook(book).then((bool result) {
       setState(() {
         if (result) {
           _listNameDecoration = new InputDecoration(
@@ -140,7 +131,7 @@ class _EditBookBranchState extends EditorPageState {
       editAction: () => Navigator.of(context).pushNamed(editPath),
       deleteAction: () async {
         var command = _lists.remove(list);
-        var success = await _io.persistBook(_book);
+        var success = await io.persistBook(book);
         if (!success)
           command.undo();
         else

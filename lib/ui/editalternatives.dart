@@ -9,7 +9,7 @@ import 'package:checklist/ui/templates.dart';
 
 class EditAlternatives extends EditorPage {
   EditAlternatives(String path,ThemeChangeCallback onThemeChanged) :
-      super(path,onThemeChanged, const EdgeInsets.only(top: 8.0));
+      super(path,onThemeChanged, defaultPadding);
 
   createState() => new EditAlternativesState();
 }
@@ -21,7 +21,7 @@ class EditAlternativesState extends EditorPageState {
 
   initState(){
     super.initState();
-    initPageState((result){
+    initEditorState((result){
       _alternatives = result.list.nextAlternatives;
     });
   }
@@ -39,15 +39,11 @@ class EditAlternativesState extends EditorPageState {
       rowHeight: 48.0,
       source: _alternatives,
       builder: _buildListItem,
-      onMove: _onMove,
+      onMove: buildOnMove(_alternatives),
     );
   }
 
   Widget _buildListItem(Checklist list){
     return new Text(list.name);
-  }
-
-  void _onMove(int oldIndex, int newIndex) {
-    _alternatives.moveItem(oldIndex, newIndex);
   }
 }
