@@ -14,7 +14,7 @@ class Selection {
   Checklist list;
 }
 
-Future<Selection> chooseList(BuildContext context, Book book) async {
+Future<Selection> chooseList(BuildContext context, Book book, {bool haveNoSelection = true}) async {
   return await showDialog<Selection>(
     context: context,
     child: new Dialog(
@@ -40,14 +40,8 @@ Future<Selection> chooseList(BuildContext context, Book book) async {
                 new Expanded(
                   child: new TabBarView(
                     children: <Widget>[
-                      new ListView.builder(
-                        itemBuilder: _normalBuilder(book),
-                        itemCount: book.normalLists.length + 1,
-                      ),
-                      new ListView.builder(
-                        itemBuilder: _emergencyBuilder(book),
-                        itemCount: book.emergencyLists.length + 1,
-                      ),
+                      _buildListView(book.normalLists,haveNoSelection),
+                      _buildListView(book.emergencyLists, haveNoSelection),
                     ],
                   ),
                 ),
@@ -70,12 +64,14 @@ Future<Selection> chooseList(BuildContext context, Book book) async {
   );
 }
 
-Builder _normalBuilder(Book book) {
-  return _rootBuilder(book.normalLists);
-}
+ListView _buildListView(CommandList<Checklist> lists, bool haveNoSelection){
+  int count = lists.length;
+  if (haveNoSelection) count++;
 
-Builder _emergencyBuilder(Book book) {
-  return _rootBuilder(book.emergencyLists);
+  return new ListView.builder(
+    itemBuilder: _rootBuilder(lists),
+    itemCount: count,
+  );
 }
 
 Builder _rootBuilder(CommandList<Checklist> lists) {

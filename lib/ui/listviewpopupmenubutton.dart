@@ -1,3 +1,4 @@
+import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 import 'package:checklist/ui/strings.dart';
@@ -32,16 +33,17 @@ class ListViewPopupMenuButtonState extends State<ListViewPopupMenuButton> {
             break;
           case "Delete":
             var result = await showDialog<bool>(
+              barrierDismissible: false,
               context: context,
               child: new AlertDialog(
                 title: new Text(Strings.deleteTitle),
                 content: new Text(Strings.deleteContent),
                 actions: <Widget>[
-                  new FlatButton(
+                  themeFlatButton(
                     child: new Text(Strings.cancel),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
-                  new RaisedButton(
+                  themeRaisedButtonReversed(
                     child: new Text(Strings.deleteTitle),
                     onPressed: () => Navigator.of(context).pop(true),
                   ),

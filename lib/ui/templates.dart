@@ -69,6 +69,7 @@ class ThemeColors {
         },
       ),
       primaryColorBrightness: Brightness.dark,
+      dialogBackgroundColor: primary950,
       accentColor: primary800,
       accentColorBrightness: Brightness.light,
       canvasColor: black,
@@ -156,6 +157,27 @@ RaisedButton themeRaisedButton({Widget child, void onPressed()}) {
   return new RaisedButton(
     disabledColor: ThemeColors.black,
     color: ThemeColors.black,
+    textColor: ThemeColors.primary,
+    disabledTextColor: ThemeColors.primary900,
+    onPressed: onPressed,
+    child: child,
+  );
+}
+
+RaisedButton themeRaisedButtonReversed({Widget child, void onPressed()}) {
+  return new RaisedButton(
+    disabledColor: ThemeColors.primary600,
+    color: ThemeColors.primary600,
+    textColor: ThemeColors.black,
+    disabledTextColor: ThemeColors.primary400,
+    onPressed: onPressed,
+    child: child,
+  );
+}
+
+FlatButton themeFlatButton({Widget child, void onPressed()}) {
+  return new FlatButton(
+    disabledColor: ThemeColors.black,
     textColor: ThemeColors.primary,
     disabledTextColor: ThemeColors.primary900,
     onPressed: onPressed,

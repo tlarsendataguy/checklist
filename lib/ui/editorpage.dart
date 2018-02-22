@@ -1,5 +1,8 @@
+import 'dart:async';
+
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
+import 'package:command/command.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +10,7 @@ import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/templates.dart';
 
 typedef void AdditionalInitsCallback(ParsedItems result);
+typedef void OnMove(int oldIndex, int newIndex);
 
 abstract class EditorPage extends StatefulWidget {
   EditorPage(this.path, this.onThemeChanged, this.padding);
@@ -63,9 +67,13 @@ abstract class EditorPageState extends State<EditorPage> {
     return (int oldIndex, int newIndex) async {
       var command = list.moveItem(oldIndex, newIndex);
       setState((){});
-      if (!await io.persistBook(book)) {
-        setState(()=> command.undo());
-      }
+      await persistBookOrUndo(command);
     };
+  }
+
+  Future persistBookOrUndo(Command command) async {
+    if (!await io.persistBook(book)) {
+      setState(()=> command.undo());
+    }
   }
 }
