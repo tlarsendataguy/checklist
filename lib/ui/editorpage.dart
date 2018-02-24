@@ -37,7 +37,10 @@ abstract class EditorPageState extends State<EditorPage> {
     });
   }
 
-  Widget buildPage({BuildContext context, String title, Widget bodyBuilder(BuildContext context)}) {
+  Widget buildPage(
+      {BuildContext context,
+      String title,
+      Widget bodyBuilder(BuildContext context)}) {
     return new Scaffold(
       appBar: themeAppBar(
         title: title,
@@ -63,17 +66,28 @@ abstract class EditorPageState extends State<EditorPage> {
       );
   }
 
-  OnMove buildOnMove(CommandList list){
+  OnMove buildOnMove(CommandList list) {
     return (int oldIndex, int newIndex) async {
       var command = list.moveItem(oldIndex, newIndex);
-      setState((){});
+      setState(() {});
       await persistBookOrUndo(command);
     };
   }
 
   Future persistBookOrUndo(Command command) async {
     if (!await io.persistBook(book)) {
-      setState(()=> command.undo());
+      setState(() => command.undo());
+    }
+  }
+
+  void _goBack() {
+    var pathElements = widget.path.split('/');
+    pathElements.removeLast();
+    var newPath = pathElements.join('/');
+    if (newPath == '') {
+      Navigator.of(context).pop();
+    } else {
+      Navigator.of(context).pushReplacementNamed(newPath);
     }
   }
 }

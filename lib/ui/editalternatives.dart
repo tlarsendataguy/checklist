@@ -49,9 +49,12 @@ class EditAlternativesState extends EditorPageState {
         new Row(
           children: <Widget>[
             new Expanded(
-              child: themeRaisedButton(
-                child: new Text(Strings.addAlternative),
-                onPressed: _addAlternative,
+              child: new Padding(
+                child: themeRaisedButton(
+                  child: new Text(Strings.addAlternative),
+                  onPressed: _addAlternative,
+                ),
+                padding: defaultLRB,
               ),
             ),
           ],

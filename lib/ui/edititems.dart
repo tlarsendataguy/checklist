@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:checklist/src/item.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/listviewpopupmenubutton.dart';
@@ -18,43 +20,111 @@ class EditItemsState extends EditorPageState {
   EditItemsState();
 
   CommandList<Item> _items;
+  var _toCheckController = new TextEditingController();
+  var _actionController = new TextEditingController();
+  InputDecoration _toCheckDecoration;
+  InputDecoration _actionDecoration;
 
   initState() {
     super.initState();
+    _toCheckDecoration = _defaultToCheckDecoration();
+    _actionDecoration = new InputDecoration(hintText: Strings.actionHint);
     initEditorState((result) {
       _items = result.list;
     });
   }
 
+  InputDecoration _defaultToCheckDecoration() {
+    return new InputDecoration(
+      hintText: Strings.toCheckHint,
+    );
+  }
+
+  InputDecoration _noToCheck() {
+    return new InputDecoration(
+      hintText: Strings.toCheckHint,
+      errorText: Strings.toCheckError,
+    );
+  }
+
+  InputDecoration _errorSaving() {
+    return new InputDecoration(
+      hintText: Strings.toCheckHint,
+      errorText: Strings.createItemError,
+    );
+  }
+
   Widget _buildBody(BuildContext context) {
-    return new Column(
-      children: <Widget>[
-        new Expanded(
-          child: new DraggableListView<Item>(
-            rowHeight: 72.0,
-            source: _items,
-            builder: _buildRow,
-            onMove: buildOnMove(_items),
+    return new Padding(
+      padding: defaultLRB,
+      child: new Column(
+        children: <Widget>[
+          new Expanded(
+            child: new DraggableListView<Item>(
+              rowHeight: 72.0,
+              source: _items,
+              builder: _buildRow,
+              onMove: buildOnMove(_items),
+            ),
           ),
-        ),
-        new Row(
-          children: <Widget>[
-            new Expanded(
-    child: new Column(
+          new TextField(
+            controller: _toCheckController,
+            decoration: _toCheckDecoration,
+          ),
+          new Padding(
+            padding: new EdgeInsets.only(top: defaultPad),
+            child: new Row(
               children: <Widget>[
-                new TextField(),
-                new TextField(),
+                new Expanded(
+                  child: new TextField(
+                    controller: _actionController,
+                    decoration: _actionDecoration,
+                    onSubmitted: (_) => _addItem(),
+                  ),
+                ),
+                new IconButton(
+                  icon: new Icon(Icons.add),
+                  onPressed: _addItem,
+                ),
               ],
             ),
-    ),
-            new IconButton(
-                icon: new Icon(Icons.add),
-              onPressed: null,
-            ),
-          ],
-        ),
-      ],
+          ),
+        ],
+      ),
     );
+  }
+
+  Future _addItem() async {
+    if (_toCheckController.text == '') {
+      setState(_displayNoToCheck);
+      return;
+    }
+
+    var toCheck = _toCheckController.text;
+    var action = _actionController.text;
+    var item = new Item(toCheck: toCheck, action: action);
+    var command = _items.insert(item);
+    var success = await io.persistBook(book);
+    if (success) {
+      setState(_resetEntry);
+    } else {
+      command.undo();
+      setState(_displayErrorSaving);
+    }
+  }
+
+  void _displayNoToCheck() {
+    _toCheckDecoration = _noToCheck();
+  }
+
+  void _resetEntry() {
+    _toCheckDecoration = _defaultToCheckDecoration();
+    _toCheckController.text = '';
+    _actionController.text = '';
+  }
+
+  void _displayErrorSaving() {
+    _toCheckDecoration = _errorSaving();
   }
 
   Widget _buildRow(Item item) {
@@ -63,8 +133,18 @@ class EditItemsState extends EditorPageState {
       deleteAction: _deleteItem(item),
       child: new Column(
         children: <Widget>[
-          overflowText(item.toCheck),
-          overflowText(item.action),
+          new Expanded(
+            child: new Align(
+              alignment: Alignment.bottomLeft,
+              child: overflowText(item.toCheck),
+            ),
+          ),
+          new Expanded(
+            child: new Align(
+              alignment: Alignment.topLeft,
+              child: overflowText(item.action),
+            ),
+          ),
         ],
       ),
     );

@@ -78,7 +78,7 @@ class _EditBookBranchState extends EditorPageState {
           ),
         ),
         new Padding(
-          padding: new EdgeInsets.fromLTRB(12.0, 0.0, 12.0, 12.0),
+          padding: defaultLRB,
           child: new Row(
             children: <Widget>[
               new Expanded(
@@ -90,7 +90,7 @@ class _EditBookBranchState extends EditorPageState {
               ),
               new IconButton(
                 icon: new Icon(Icons.add),
-                onPressed: null,
+                onPressed: _pressCreate,
               ),
             ],
           ),
@@ -104,24 +104,48 @@ class _EditBookBranchState extends EditorPageState {
   }
 
   void _createChecklist(String listName) {
+    if (listName == ''){
+      setState(_noNameProvided);
+      return;
+    }
+
     var list = new Checklist(name: listName);
     var command = _lists.insert(list);
     io.persistBook(book).then((bool result) {
       setState(() {
         if (result) {
-          _listNameDecoration = new InputDecoration(
-            hintText: Strings.nameHint,
-          );
-          _listNameController.text = "";
+          _resetTextfield();
         } else {
           command.undo();
-          _listNameDecoration = new InputDecoration(
-            hintText: Strings.nameHint,
-            errorText: Strings.createListFailed,
-          );
+          _errorCreating();
         }
       });
     });
+  }
+
+  _noNameProvided(){
+    _listNameDecoration = new InputDecoration(
+      hintText: Strings.nameHint,
+      errorText: Strings.noNameError,
+    );
+  }
+
+  _resetTextfield(){
+    _listNameDecoration = new InputDecoration(
+      hintText: Strings.nameHint,
+    );
+    _listNameController.text = "";
+  }
+
+  _errorCreating(){
+    _listNameDecoration = new InputDecoration(
+      hintText: Strings.nameHint,
+      errorText: Strings.createListFailed,
+    );
+  }
+
+  void _pressCreate(){
+    _createChecklist(_listNameController.text);
   }
 
   Widget _checklistToWidget(Checklist list) {

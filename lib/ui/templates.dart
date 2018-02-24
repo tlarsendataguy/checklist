@@ -6,6 +6,8 @@ const double defaultPad = 16.0;
 const double listTopPad = 8.0;
 var pagePadding = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, 0.0);
 var defaultPadding = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
+var defaultLRB = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, defaultPad);
+var defaultLTRB = const EdgeInsets.all(defaultPad);
 
 const Color primaryRed50 = const Color(0xFFFFE6E6);
 const Color primaryRed100 = const Color(0xFFFFCCCC);
@@ -83,6 +85,7 @@ class ThemeColors {
       textTheme: textTheme,
       accentTextTheme: textTheme,
       primaryTextTheme: textTheme,
+      errorColor: isRed ? primaryGreen : primaryRed,
       textSelectionColor: isRed ? primaryGreen : primaryRed,
       textSelectionHandleColor: isRed ? primaryGreen : primaryRed,
       indicatorColor: isRed ? primaryGreen : primaryRed,
@@ -185,7 +188,7 @@ FlatButton themeFlatButton({Widget child, void onPressed()}) {
   );
 }
 
-AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged}) {
+AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged, Widget leading}) {
   bool makeRed;
   Color newColor;
   Color newHighlightColor;
@@ -201,8 +204,10 @@ AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged}) {
     newSplashColor = primaryRed600;
     makeRed = true;
   }
+
   return new AppBar(
     title: new Text(title),
+    leading: leading,
     backgroundColor: ThemeColors.primary950,
     iconTheme: ThemeColors.getThemeIconTheme(),
     actions: <Widget>[

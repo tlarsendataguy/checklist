@@ -13,6 +13,7 @@ class Strings{
   static String noNameError = "Name cannot be blank";
   static String toCheckHint = "Parameter to check";
   static String toCheckError = "The parameter cannot be blank";
+  static String createItemError = "There was an error saving the new item.  Please try again.";
   static String actionHint = "Value to verify";
   static String createList = "Add checklist";
   static String createListFailed = "List could not be created";
