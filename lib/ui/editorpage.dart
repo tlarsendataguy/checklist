@@ -1,69 +1,54 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
+import 'package:checklist/src/mobilediskwriter.dart';
+import 'package:checklist/ui/navigationpage.dart';
 import 'package:command/command.dart';
 import 'package:commandlist/commandlist.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:flutter/material.dart';
 
 typedef void AdditionalInitsCallback(ParsedItems result);
 typedef void OnMove(int oldIndex, int newIndex);
 
-abstract class EditorPage extends StatefulWidget {
-  EditorPage(this.path, this.onThemeChanged, this.padding);
-
-  final String path;
-  final ThemeChangeCallback onThemeChanged;
-  final EdgeInsetsGeometry padding;
+abstract class EditorPage extends NavigationPage {
+  EditorPage({String title, String path, ThemeChangeCallback onThemeChanged})
+      : super(title: title, path: path, onThemeChanged: onThemeChanged);
 }
 
-abstract class EditorPageState extends State<EditorPage> {
-  EditorPageState();
-
+abstract class EditorPageState extends NavigationPageState {
   bool isLoading = true;
-  BookIo io = new BookIo();
+  BookIo io = new BookIo(writer: new MobileDiskWriter());
   Book book;
+  ParsedItems parseResult;
 
-  initEditorState(AdditionalInitsCallback additionalInits) {
+  void afterParseInit();
+
+  initState() {
+    super.initState();
+
     ParsePath.parse(widget.path).then((ParsedItems result) {
       setState(() {
+        parseResult = result;
         book = result.book;
         isLoading = false;
-        additionalInits(result);
+        if (afterParseInit != null) afterParseInit();
       });
     });
   }
 
-  Widget buildPage(
-      {BuildContext context,
-      String title,
-      Widget bodyBuilder(BuildContext context)}) {
+  Widget buildEditorPage(Widget buildBody()) {
     return new Scaffold(
-      appBar: themeAppBar(
-        title: title,
-        onThemeChanged: _themeChanged,
-      ),
-      body: _getBody(context, bodyBuilder),
+      appBar: appBar,
+      body: isLoading
+          ? Center(
+              child: CupertinoActivityIndicator(),
+            )
+          : buildBody(),
     );
-  }
-
-  void _themeChanged(bool makeRed) {
-    setState(() => widget.onThemeChanged(makeRed));
-  }
-
-  Widget _getBody(BuildContext context, Widget body(BuildContext context)) {
-    if (isLoading)
-      return new Center(
-        child: new CupertinoActivityIndicator(),
-      );
-    else
-      return new Padding(
-        padding: widget.padding,
-        child: body(context),
-      );
   }
 
   OnMove buildOnMove(CommandList list) {
@@ -77,17 +62,6 @@ abstract class EditorPageState extends State<EditorPage> {
   Future persistBookOrUndo(Command command) async {
     if (!await io.persistBook(book)) {
       setState(() => command.undo());
-    }
-  }
-
-  void _goBack() {
-    var pathElements = widget.path.split('/');
-    pathElements.removeLast();
-    var newPath = pathElements.join('/');
-    if (newPath == '') {
-      Navigator.of(context).pop();
-    } else {
-      Navigator.of(context).pushReplacementNamed(newPath);
     }
   }
 }

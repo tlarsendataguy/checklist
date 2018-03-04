@@ -1,4 +1,3 @@
-import 'package:checklist/src/book.dart';
 import "package:command/command.dart";
 import 'package:commandlist/commandlist.dart';
 import 'package:checklist/src/note.dart';

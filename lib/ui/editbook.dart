@@ -8,58 +8,56 @@ import 'package:checklist/ui/editorpage.dart';
 
 class EditBook extends EditorPage {
   EditBook(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged, pagePadding);
+      : super(
+          path: path,
+          title: Strings.editBookTitle,
+          onThemeChanged: onThemeChanged,
+        );
 
   _EditBookState createState() => new _EditBookState();
 }
 
 class _EditBookState extends EditorPageState {
-  _EditBookState();
-
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
 
-  initState() {
-    super.initState();
-    initEditorState((result) {
-      _nameDecoration = _defaultDecoration();
-      _nameController = new TextEditingController(text: book.name);
-    });
+  void afterParseInit() {
+    _nameDecoration = _defaultDecoration();
+    _nameController = new TextEditingController(text: book.name);
   }
 
   Widget build(BuildContext context) {
-    return buildPage(
-      context: context,
-      title: Strings.editBookTitle,
-      bodyBuilder: _getBody,
-    );
+    return buildEditorPage(_buildBody);
   }
 
-  Widget _getBody(BuildContext context) {
-    return new ListView(
-      children: <Widget>[
-        editorElementPadding(
-          child: new TextField(
-            onSubmitted: _changeName,
-            controller: _nameController,
-            decoration: _nameDecoration,
+  Widget _buildBody() {
+    return Padding(
+      padding: pagePadding,
+      child: ListView(
+        children: <Widget>[
+          editorElementPadding(
+            child: TextField(
+              onSubmitted: _changeName,
+              controller: _nameController,
+              decoration: _nameDecoration,
+            ),
           ),
-        ),
-        editorElementPadding(
-          child: themeRaisedButton(
-            child: new Text(Strings.editNormalLists),
-            onPressed: () =>
-                Navigator.of(context).pushNamed("${widget.path}/normal"),
+          editorElementPadding(
+            child: themeRaisedButton(
+              child: Text(
+                  Strings.editNormalLists + " (${book.normalLists.length})"),
+              onPressed: navigateTo("${widget.path}/normal"),
+            ),
           ),
-        ),
-        editorElementPadding(
-          child: themeRaisedButton(
-            child: new Text(Strings.editEmergencyLists),
-            onPressed: () =>
-                Navigator.of(context).pushNamed("${widget.path}/emergency"),
+          editorElementPadding(
+            child: themeRaisedButton(
+              child: Text(Strings.editEmergencyLists +
+                  " (${book.emergencyLists.length})"),
+              onPressed: navigateTo("${widget.path}/emergency"),
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 

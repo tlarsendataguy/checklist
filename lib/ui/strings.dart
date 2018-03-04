@@ -25,4 +25,5 @@ class Strings{
   static String deleteContent = "Are you sure you want to delete the selected item?";
   static String cancel = "Cancel";
   static String addAlternative = 'Add alternative';
+  static String editItem = "Edit item";
 }

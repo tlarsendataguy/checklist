@@ -11,13 +11,16 @@ import 'package:checklist/ui/templates.dart';
 
 class EditItems extends EditorPage {
   EditItems(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged, defaultPadding);
+      : super(
+          title: Strings.editItems,
+          path: path,
+          onThemeChanged: onThemeChanged,
+        );
 
-  State<StatefulWidget> createState() => new EditItemsState();
+  State<StatefulWidget> createState() => new _EditItemsState();
 }
 
-class EditItemsState extends EditorPageState {
-  EditItemsState();
+class _EditItemsState extends EditorPageState {
 
   CommandList<Item> _items;
   var _toCheckController = new TextEditingController();
@@ -25,13 +28,10 @@ class EditItemsState extends EditorPageState {
   InputDecoration _toCheckDecoration;
   InputDecoration _actionDecoration;
 
-  initState() {
-    super.initState();
+  void afterParseInit(){
     _toCheckDecoration = _defaultToCheckDecoration();
     _actionDecoration = new InputDecoration(hintText: Strings.actionHint);
-    initEditorState((result) {
-      _items = result.list;
-    });
+    _items = parseResult.list;
   }
 
   InputDecoration _defaultToCheckDecoration() {
@@ -51,46 +51,6 @@ class EditItemsState extends EditorPageState {
     return new InputDecoration(
       hintText: Strings.toCheckHint,
       errorText: Strings.createItemError,
-    );
-  }
-
-  Widget _buildBody(BuildContext context) {
-    return new Padding(
-      padding: defaultLRB,
-      child: new Column(
-        children: <Widget>[
-          new Expanded(
-            child: new DraggableListView<Item>(
-              rowHeight: 72.0,
-              source: _items,
-              builder: _buildRow,
-              onMove: buildOnMove(_items),
-            ),
-          ),
-          new TextField(
-            controller: _toCheckController,
-            decoration: _toCheckDecoration,
-          ),
-          new Padding(
-            padding: new EdgeInsets.only(top: defaultPad),
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                  child: new TextField(
-                    controller: _actionController,
-                    decoration: _actionDecoration,
-                    onSubmitted: (_) => _addItem(),
-                  ),
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.add),
-                  onPressed: _addItem,
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -152,9 +112,7 @@ class EditItemsState extends EditorPageState {
 
   Function _editItem(Item item) {
     int index = _items.indexOf(item);
-    return () {
-      Navigator.of(context).pushNamed("${widget.path}/$index");
-    };
+    return navigateTo("${widget.path}/$index");
   }
 
   Function _deleteItem(Item item) {
@@ -165,12 +123,48 @@ class EditItemsState extends EditorPageState {
     };
   }
 
+  Widget _buildBody(){
+    return Padding(
+      padding: defaultLTRB,
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: DraggableListView<Item>(
+              rowHeight: 72.0,
+              source: _items,
+              builder: _buildRow,
+              onMove: buildOnMove(_items),
+            ),
+          ),
+          TextField(
+            controller: _toCheckController,
+            decoration: _toCheckDecoration,
+          ),
+          Padding(
+            padding: EdgeInsets.only(top: defaultPad),
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: TextField(
+                    controller: _actionController,
+                    decoration: _actionDecoration,
+                    onSubmitted: (_) => _addItem(),
+                  ),
+                ),
+                IconButton(
+                  icon: Icon(Icons.add),
+                  onPressed: _addItem,
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
-    return buildPage(
-      context: context,
-      title: Strings.editItems,
-      bodyBuilder: _buildBody,
-    );
+    return buildEditorPage(_buildBody);
   }
 }

@@ -4,9 +4,9 @@ description: Create and use checklists
 dependencies:
   flutter:
     sdk: flutter
-  command: ^0.0.2
-  commandlist: ^0.0.2
-  path_provider: any
+  command: ^0.0.3
+  commandlist: ^0.0.3
+  path_provider: 0.2.2
   draggablelistview:
     path: /Users/tlarsen/Documents/Projects/draggablelistview
 

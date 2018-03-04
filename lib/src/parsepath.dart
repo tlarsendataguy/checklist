@@ -30,7 +30,11 @@ enum ParseResult {
 }
 
 class ParsePath {
-  static bool mock = false;
+  static DiskWriter _writer;
+
+  static void setWriter(DiskWriter writer) {
+    _writer = writer;
+  }
 
   static ParseResult validate(String path) {
     var elements = path.split('/');
@@ -136,12 +140,16 @@ class ParsePath {
   }
 
   static Future<ParsedItems> parse(String path) async {
+    if (_writer == null){
+      throw new Exception("writer was not set before calling parse");
+    }
+
     var result = validate(path);
     if (result.index <= ParseResult.NewBook.index)
       return new ParsedItems(result: result);
 
     var elements = path.split('/');
-    var book = await _getIo().readBook(elements[1]);
+    var book = await _getIo(_writer).readBook(elements[1]);
 
     Checklist list;
     if (result.index >= ParseResult.List.index)
@@ -213,6 +221,17 @@ class ParsePath {
     return item.notes[noteIndex];
   }
 
+  static String pop(String path){
+    if (validate(path) == ParseResult.InvalidPath)
+      throw new ArgumentError("The path provided is not a valid path");
+
+    var elements = path.split('/');
+    elements.removeLast();
+    var backPath = elements.join('/');
+    if (backPath == '') backPath = '/';
+    return backPath;
+  }
+
   static bool _isIndex(String check) {
     return check.contains(new RegExp(r"^[0-9]+$"));
   }
@@ -233,8 +252,8 @@ class ParsePath {
     return check.contains(new RegExp(r"^[0-9a-f]{14}$"));
   }
 
-  static BookIo _getIo() {
-    return mock ? new BookIo(writer: new MockDiskWriter()) : new BookIo();
+  static BookIo _getIo(DiskWriter writer) {
+    return new BookIo(writer: writer);
   }
 }
 

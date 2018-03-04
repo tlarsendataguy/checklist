@@ -67,13 +67,13 @@ main() {
       "/newBook/$lid": ParseResult.InvalidPath,
     };
 
-    for (var path in paths.keys){
+    for (var path in paths.keys) {
       var result = ParsePath.validate(path);
-      expect(result, equals(paths[path]),reason: "Path: $path");
+      expect(result, equals(paths[path]), reason: "Path: $path");
     }
   });
 
-  ParsePath.mock = true;
+  ParsePath.setWriter(new MockDiskWriter());
 
   setUp(() async => await createBook());
 
@@ -220,6 +220,26 @@ main() {
     expect(result.book, isNotNull);
     expect(result.list, isNotNull);
     expect(result.item, isNotNull);
+  });
+
+  test("Pop path", () {
+    var start = "/$bid/normal";
+    var end = ParsePath.pop(start);
+    expect(end, equals("/$bid"));
+  });
+
+  test("Pop path to home", () {
+    var start = "/$bid";
+    var end = ParsePath.pop(start);
+    expect(end, equals("/"));
+  });
+
+  test("Pop invalid path", () {
+    var start = "/$bid/lgj34o9jdlfkjg2094jgfdfl";
+    expect(
+      () => ParsePath.pop(start),
+      throwsA(new isInstanceOf<ArgumentError>()),
+    );
   });
 }
 

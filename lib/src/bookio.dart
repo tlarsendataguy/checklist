@@ -4,17 +4,17 @@ import 'dart:convert';
 
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/serializer.dart';
-import 'package:path_provider/path_provider.dart';
+import 'package:meta/meta.dart';
+//import 'package:path_provider/path_provider.dart';
 
 class BookIo {
+  BookIo({@required this.writer});
+
   Map<String, String> files;
   DiskWriter writer;
 
-  BookIo({this.writer}){
-   if (writer == null) writer = new MobileDiskWriter();
-  }
-
   Future<bool> persistBook(Book book) async {
+
     await initializeFileList();
     var serializedBook = Serializer.serialize(book);
     try {
@@ -44,8 +44,12 @@ class BookIo {
 
   Future<Map<String, String>> _readFileList(File fileList) async {
     var contents = await fileList.readAsString();
-    Map<String,String> files = JSON.decode(contents);
-    return files;
+    Map<String,Object> filesRaw = JSON.decode(contents);
+    var filesFinal = new Map<String,String>();
+    for (var key in filesRaw.keys){
+      filesFinal[key] = filesRaw[key].toString();
+    }
+    return filesFinal;
   }
 
   Future initializeFileList() async {
@@ -57,7 +61,7 @@ class BookIo {
       try {
         files = await _readFileList(fileList);
       } catch (ex){
-        files = new Map<String,String>();
+        files = new Map<String, String>();
       }
     } else {
       files = new Map<String, String>();
@@ -73,13 +77,6 @@ class BookIo {
 
 abstract class DiskWriter{
   Future<File> getLocalFile(String fileName);
-}
-
-class MobileDiskWriter extends DiskWriter{
-  Future<File> getLocalFile(String fileName) async {
-    String dir = (await getApplicationDocumentsDirectory()).path;
-    return new File("$dir/$fileName.json");
-  }
 }
 
 class MockDiskWriter extends DiskWriter{

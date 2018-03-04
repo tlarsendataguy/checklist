@@ -3,86 +3,85 @@ import 'dart:async';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/strings.dart';
-import 'package:checklist/src/book.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/chooselist.dart';
 
 class EditList extends EditorPage {
   EditList(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged, pagePadding);
+      : super(
+          title: Strings.editList,
+          path: path,
+          onThemeChanged: onThemeChanged,
+        );
 
   createState() => new _EditListState();
 }
 
 class _EditListState extends EditorPageState {
+
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
   Checklist _list;
   var _dropDown = new List<DropdownMenuItem<Checklist>>();
 
-  initState() {
-    super.initState();
+  void afterParseInit(){
     _nameDecoration = _defaultNameDecoration();
-    initEditorState((result) {
-      _list = result.list;
-      _nameController = new TextEditingController(text: _list.name);
-      _generateDropDown();
-    });
+    _list = parseResult.list;
+    _nameController = new TextEditingController(text: _list.name);
+    _generateDropDown();
   }
 
   Widget build(BuildContext context) {
-    return buildPage(
-      context: context,
-      title: Strings.editList,
-      bodyBuilder: _getBody,
-    );
+    return buildEditorPage(_buildBody);
   }
 
-  Widget _getBody(BuildContext context) {
-    return new ListView(
-      children: <Widget>[
-        editorElementPadding(
-          child: new TextField(
-            controller: _nameController,
-            decoration: _nameDecoration,
-          ),
-        ),
-        editorElementPadding(
-          child: themeRaisedButton(
-            child: overflowText(Strings.editItems),
-            onPressed: _editItems,
-          ),
-        ),
-        new Padding(
-          padding: const EdgeInsets.only(top: defaultPad * 3),
-          child: new Text(Strings.editNextPrimary),
-        ),
-        editorElementPadding(
-          child: themeRaisedButton(
-            onPressed: _setNextPrimary,
-            child: new Text(
-              _list.nextPrimary == null
-                  ? Strings.noSelection
-                  : _list.nextPrimary.name,
+  Widget _buildBody(){
+    return Padding(
+      padding: pagePadding,
+      child: ListView(
+        children: <Widget>[
+          editorElementPadding(
+            child: TextField(
+              controller: _nameController,
+              decoration: _nameDecoration,
             ),
           ),
-        ),
-        editorElementPadding(
-          child: themeRaisedButton(
-            child: new Text(_alternativeButtonText()),
-            onPressed: _editAlternatives,
+          editorElementPadding(
+            child: themeRaisedButton(
+              child: overflowText(Strings.editItems + " (${_list.length})"),
+              onPressed: navigateTo("${widget.path}/items"),
+            ),
           ),
-        ),
-      ],
+          Padding(
+            padding: EdgeInsets.only(top: defaultPad * 3),
+            child: Text(Strings.editNextPrimary),
+          ),
+          editorElementPadding(
+            child: themeRaisedButton(
+              onPressed: _setNextPrimary,
+              child: Text(
+                _list.nextPrimary == null
+                    ? Strings.noSelection
+                    : _list.nextPrimary.name,
+              ),
+            ),
+          ),
+          editorElementPadding(
+            child: themeRaisedButton(
+              child: Text(_alternativeButtonText()),
+              onPressed: navigateTo("${widget.path}/alternatives"),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
   InputDecoration _defaultNameDecoration() {
-    return new InputDecoration(hintText: Strings.nameHint);
+    return InputDecoration(hintText: Strings.nameHint);
   }
 
   void _generateDropDown() {
@@ -112,14 +111,6 @@ class _EditListState extends EditorPageState {
       var success = await io.persistBook(book);
       if (!success) setState(() => command.undo());
     }
-  }
-
-  void _editItems() {
-    Navigator.of(context).pushNamed("${widget.path}/items");
-  }
-
-  void _editAlternatives() {
-    Navigator.of(context).pushNamed("${widget.path}/alternatives");
   }
 
   String _alternativeButtonText() {

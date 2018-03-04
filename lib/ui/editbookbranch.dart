@@ -1,6 +1,3 @@
-import 'dart:async';
-
-import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/templates.dart';
@@ -11,91 +8,76 @@ import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
-import 'package:checklist/src/book.dart';
 
 class EditBookBranch extends EditorPage {
   EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged, const EdgeInsets.all(0.0));
+      : super(
+            title: Strings.editLists(path.split('/').last),
+            path: path,
+            onThemeChanged: onThemeChanged);
 
   createState() => new _EditBookBranchState();
 }
 
 class _EditBookBranchState extends EditorPageState {
+
   TextEditingController _listNameController;
   InputDecoration _listNameDecoration;
-  String _listType;
   CommandList<Checklist> _lists;
 
-  initState() {
-    super.initState();
+  void afterParseInit(){
+    _listNameDecoration = _defaultListNameDecoration();
+    _listNameController = new TextEditingController();
 
-    var result = ParsePath.validate(widget.path);
-    switch (result) {
+    switch (parseResult.result) {
       case ParseResult.NormalLists:
-        _listType = 'normal';
+        _lists = book.normalLists;
         break;
       case ParseResult.EmergencyLists:
-        _listType = 'emergency';
+        _lists = book.emergencyLists;
         break;
       default:
         break;
     }
-
-    initEditorState((result) {
-      _listNameDecoration = _defaultListNameDecoration();
-      _listNameController = new TextEditingController();
-
-      switch (result.result) {
-        case ParseResult.NormalLists:
-          _lists = book.normalLists;
-          break;
-        case ParseResult.EmergencyLists:
-          _lists = book.emergencyLists;
-          break;
-        default:
-          break;
-      }
-    });
   }
 
   Widget build(BuildContext context) {
-    return buildPage(
-      context: context,
-      title: Strings.editLists(_listType),
-      bodyBuilder: _getBody,
-    );
+    return buildEditorPage(_buildBody);
   }
 
-  Widget _getBody(BuildContext context) {
-    return new Column(
-      children: <Widget>[
-        new Expanded(
-          child: new DraggableListView<Checklist>(
-            rowHeight: 48.0,
-            source: _lists,
-            builder: _checklistToWidget,
-            onMove: buildOnMove(_lists),
+  Widget _buildBody() {
+    return new Padding(
+      padding: defaultPadding,
+      child: new Column(
+        children: <Widget>[
+          new Expanded(
+            child: new DraggableListView<Checklist>(
+              rowHeight: 48.0,
+              source: _lists,
+              builder: _checklistToWidget,
+              onMove: buildOnMove(_lists),
+            ),
           ),
-        ),
-        new Padding(
-          padding: defaultLRB,
-          child: new Row(
-            children: <Widget>[
-              new Expanded(
-                child: new TextField(
-                  onSubmitted: _createChecklist,
-                  controller: _listNameController,
-                  decoration: _listNameDecoration,
+          new Padding(
+            padding: defaultLRB,
+            child: new Row(
+              children: <Widget>[
+                new Expanded(
+                  child: new TextField(
+                    onSubmitted: _createChecklist,
+                    controller: _listNameController,
+                    decoration: _listNameDecoration,
+                  ),
                 ),
-              ),
-              new IconButton(
-                icon: new Icon(Icons.add),
-                onPressed: _pressCreate,
-              ),
-            ],
+                new IconButton(
+                  icon: new Icon(Icons.add),
+                  onPressed: _pressCreate,
+                ),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -104,7 +86,7 @@ class _EditBookBranchState extends EditorPageState {
   }
 
   void _createChecklist(String listName) {
-    if (listName == ''){
+    if (listName == '') {
       setState(_noNameProvided);
       return;
     }
@@ -123,28 +105,28 @@ class _EditBookBranchState extends EditorPageState {
     });
   }
 
-  _noNameProvided(){
+  _noNameProvided() {
     _listNameDecoration = new InputDecoration(
       hintText: Strings.nameHint,
       errorText: Strings.noNameError,
     );
   }
 
-  _resetTextfield(){
+  _resetTextfield() {
     _listNameDecoration = new InputDecoration(
       hintText: Strings.nameHint,
     );
     _listNameController.text = "";
   }
 
-  _errorCreating(){
+  _errorCreating() {
     _listNameDecoration = new InputDecoration(
       hintText: Strings.nameHint,
       errorText: Strings.createListFailed,
     );
   }
 
-  void _pressCreate(){
+  void _pressCreate() {
     _createChecklist(_listNameController.text);
   }
 
@@ -152,7 +134,7 @@ class _EditBookBranchState extends EditorPageState {
     var editPath = widget.path + "/" + list.id;
 
     return new ListViewPopupMenuButton(
-      editAction: () => Navigator.of(context).pushNamed(editPath),
+      editAction: navigateTo(editPath),
       deleteAction: () async {
         var command = _lists.remove(list);
         var success = await io.persistBook(book);

@@ -38,7 +38,7 @@ class Deserialize {
   }
 
   Book _deserializeBook(String serializedBook) {
-    Map<String, Object> map = JSON.decode(serializedBook);
+    var map = JSON.decode(serializedBook);
     Book book = new Book(
         name: map['name'],
         id: map['id'],
@@ -58,8 +58,8 @@ class Deserialize {
   }
 
   void _deserializeChecklistLists(
-      List<Map<String, Object>> normalLists,
-      List<Map<String, Object>> emergencyLists,
+      List normalLists,
+      List emergencyLists,
       Book book,
       ) {
     for (var list in normalLists) {
@@ -93,7 +93,7 @@ class Deserialize {
     return newList;
   }
 
-  void _deserializeItemList(List<Map<String, Object>> items, Checklist parent) {
+  void _deserializeItemList(List items, Checklist parent) {
     for (var item in items) {
       parent.insert(_deserializeItem(item));
     }
@@ -113,14 +113,14 @@ class Deserialize {
       newItem.falseBranch.insert(_deserializeItem(falseItem));
     }
 
-    for (Map<String, String> note in item['notes']) {
+    for (Map<String, Object> note in item['notes']) {
       newItem.notes.insert(_deserializeNote(note));
     }
 
     return newItem;
   }
 
-  Note _deserializeNote(Map<String, String> note) {
+  Note _deserializeNote(Map<String, Object> note) {
     return _uniqueNotes.putIfAbsent(
       "${note['priority']}.${note['text']}",
       () => new Note(

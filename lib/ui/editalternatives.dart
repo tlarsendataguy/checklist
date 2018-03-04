@@ -10,56 +10,55 @@ import 'package:checklist/ui/chooselist.dart';
 
 class EditAlternatives extends EditorPage {
   EditAlternatives(String path, ThemeChangeCallback onThemeChanged)
-      : super(path, onThemeChanged, defaultPadding);
+      : super(
+          title: Strings.editNextAlternatives,
+          path: path,
+          onThemeChanged: onThemeChanged,
+        );
 
-  createState() => new EditAlternativesState();
+  createState() => new _EditAlternativesState();
 }
 
-class EditAlternativesState extends EditorPageState {
-  EditAlternativesState();
+class _EditAlternativesState extends EditorPageState {
 
   CommandList<Checklist> _alternatives;
 
-  initState() {
-    super.initState();
-    initEditorState((result) {
-      _alternatives = result.list.nextAlternatives;
-    });
+  void afterParseInit(){
+    _alternatives = parseResult.list.nextAlternatives;
   }
 
   Widget build(BuildContext context) {
-    return buildPage(
-      context: context,
-      title: Strings.editNextAlternatives,
-      bodyBuilder: _buildBody,
-    );
+    return buildEditorPage(_buildBody);
   }
 
-  Widget _buildBody(BuildContext context) {
-    return new Column(
-      children: <Widget>[
-        new Expanded(
-          child: new DraggableListView<Checklist>(
-            rowHeight: 48.0,
-            source: _alternatives,
-            builder: _buildListItem,
-            onMove: buildOnMove(_alternatives),
-          ),
-        ),
-        new Row(
-          children: <Widget>[
-            new Expanded(
-              child: new Padding(
-                child: themeRaisedButton(
-                  child: new Text(Strings.addAlternative),
-                  onPressed: _addAlternative,
-                ),
-                padding: defaultLRB,
-              ),
+  Widget _buildBody() {
+    return new Padding(
+      padding: defaultPadding,
+      child: new Column(
+        children: <Widget>[
+          new Expanded(
+            child: new DraggableListView<Checklist>(
+              rowHeight: 48.0,
+              source: _alternatives,
+              builder: _buildListItem,
+              onMove: buildOnMove(_alternatives),
             ),
-          ],
-        )
-      ],
+          ),
+          new Row(
+            children: <Widget>[
+              new Expanded(
+                child: new Padding(
+                  child: themeRaisedButton(
+                    child: new Text(Strings.addAlternative),
+                    onPressed: _addAlternative,
+                  ),
+                  padding: defaultLRB,
+                ),
+              ),
+            ],
+          )
+        ],
+      ),
     );
   }
 

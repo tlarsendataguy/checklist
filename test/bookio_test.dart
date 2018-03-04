@@ -71,7 +71,7 @@ main() {
 
 Future cleanUpFiles() async {
   var file = new File("books.json");
-  Map<String, String> filesToDelete = JSON.decode(await file.readAsString());
+  Map<String, Object> filesToDelete = JSON.decode(await file.readAsString());
   await file.delete();
   for (var fileToDelete in filesToDelete.keys) {
     file = new File("$fileToDelete.json");

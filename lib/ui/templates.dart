@@ -210,6 +210,7 @@ AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged, Widget lea
     leading: leading,
     backgroundColor: ThemeColors.primary950,
     iconTheme: ThemeColors.getThemeIconTheme(),
+    automaticallyImplyLeading: false,
     actions: <Widget>[
       new IconButton(
         highlightColor: newHighlightColor,

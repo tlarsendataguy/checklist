@@ -1,26 +1,30 @@
+import 'package:checklist/src/mobilediskwriter.dart';
+import 'package:checklist/ui/navigationpage.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
 
-class Landing extends StatefulWidget {
-  Landing(this.onThemeChanged);
-
-  final ThemeChangeCallback onThemeChanged;
+class Landing extends NavigationPage {
+  Landing(String path, ThemeChangeCallback onThemeChanged)
+      : super(
+          title: Strings.appTitle,
+          path: path,
+          onThemeChanged: onThemeChanged,
+        );
 
   _LandingState createState() => new _LandingState();
 }
 
-class _LandingState extends State<Landing> {
+class _LandingState extends NavigationPageState {
+
   var books = new List<Widget>();
   BookIo io;
-
-  _LandingState();
 
   initState() {
     super.initState();
 
-    io = new BookIo()
+    io = new BookIo(writer: new MobileDiskWriter())
       ..initializeFileList().then((_) {
         setState(() {
           for (var id in io.files.keys) {
@@ -40,9 +44,7 @@ class _LandingState extends State<Landing> {
                           defaultPad, 0.0, defaultPad, 0.0),
                       child: new InkWell(
                         child: new Icon(Icons.edit),
-                        onTap: () {
-                          Navigator.of(context).pushNamed("/$id");
-                        },
+                        onTap: navigateTo("/$id"),
                       ),
                     ),
                   ],
@@ -56,19 +58,12 @@ class _LandingState extends State<Landing> {
 
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: themeAppBar(
-        title: Strings.appTitle,
-        onThemeChanged: (makeRed) {
-          setState(()=>widget.onThemeChanged(makeRed));
-        },
-      ),
+      appBar: appBar,
       body: new Padding(
           padding: const EdgeInsets.only(top: listTopPad),
           child: _buildListview(context)),
       floatingActionButton: new FloatingActionButton(
-        onPressed: () {
-          Navigator.of(context).pushNamed("/newBook");
-        },
+        onPressed: navigateTo("/newBook"),
         child: new Icon(Icons.add),
       ),
     );
