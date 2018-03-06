@@ -1,5 +1,3 @@
-import 'package:checklist/ui/edititem.dart';
-import 'package:checklist/ui/editnotes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
@@ -13,6 +11,8 @@ import 'package:checklist/ui/landing.dart';
 import 'package:checklist/ui/newbook.dart';
 import 'package:checklist/ui/editlist.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:checklist/ui/edititem.dart';
+import 'package:checklist/ui/editnotes.dart';
 
 typedef MaterialPageRoute RouteBuilder(Widget builder);
 

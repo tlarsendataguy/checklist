@@ -30,6 +30,7 @@ class Strings{
   static String editItem = "Edit item";
   static String editTrueBranch = "Edit true items";
   static String editFalseBranch = "Edit false items";
+  static String addNote = "Add note";
   static String editNotes = "Edit notes";
   static String priorityToString(Priority priority){
     switch (priority){
@@ -43,4 +44,6 @@ class Strings{
         return "";
     }
   }
+  static String existingNotes = "Notes already in the checklist:";
+  static String createNote = "Create a new note:";
 }
