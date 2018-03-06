@@ -40,6 +40,7 @@ class _EditBookState extends EditorPageState {
               onSubmitted: _changeName,
               controller: _nameController,
               decoration: _nameDecoration,
+              maxLength: maxNameLen,
             ),
           ),
           editorElementPadding(

@@ -8,6 +8,10 @@ var pagePadding = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, 0.0);
 var defaultPadding = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
 var defaultLRB = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, defaultPad);
 var defaultLTRB = const EdgeInsets.all(defaultPad);
+var maxNameLen = 40;
+var maxToCheckLen = 40;
+var maxActionLen = 30;
+var maxNoteLen = 100;
 
 const Color primaryRed50 = const Color(0xFFFFE6E6);
 const Color primaryRed100 = const Color(0xFFFFCCCC);

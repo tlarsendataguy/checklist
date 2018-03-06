@@ -37,6 +37,7 @@ class _NewBookState extends NavigationPageState {
               child: TextField(
                 controller: _name,
                 decoration: _nameDecoration,
+                maxLength: maxNameLen,
               ),
             ),
             editorElementPadding(

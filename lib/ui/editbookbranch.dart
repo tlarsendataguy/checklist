@@ -12,9 +12,19 @@ import 'package:checklist/src/parsepath.dart';
 class EditBookBranch extends EditorPage {
   EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
       : super(
-            title: Strings.editLists(path.split('/').last),
+            title: _getTitle(path),
             path: path,
             onThemeChanged: onThemeChanged);
+
+
+  static String _getTitle(String path){
+    var result = ParsePath.validate(path);
+    if (result == ParseResult.EmergencyLists) {
+      return Strings.editEmergencyLists;
+    } else {
+      return Strings.editNormalLists;
+    }
+  }
 
   createState() => new _EditBookBranchState();
 }
@@ -67,6 +77,7 @@ class _EditBookBranchState extends EditorPageState {
                     onSubmitted: _createChecklist,
                     controller: _listNameController,
                     decoration: _listNameDecoration,
+                    maxLength: maxNameLen,
                   ),
                 ),
                 new IconButton(

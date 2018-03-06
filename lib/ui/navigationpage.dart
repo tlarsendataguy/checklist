@@ -28,18 +28,25 @@ abstract class NavigationPageState extends State<NavigationPage> {
             onPressed: _goBack,
           );
 
-    appBar = themeAppBar(
-      title: widget.title,
-      onThemeChanged: _themeChanged,
-      leading: leading,
-    );
+    _createAppBar();
   }
 
   AppBar appBar;
   Widget leading;
 
   void _themeChanged(bool makeRed) {
-    setState(() => widget.onThemeChanged(makeRed));
+    setState(() {
+      widget.onThemeChanged(makeRed);
+      _createAppBar();
+    });
+  }
+
+  void _createAppBar(){
+    appBar = themeAppBar(
+      title: widget.title,
+      onThemeChanged: _themeChanged,
+      leading: leading,
+    );
   }
 
   Function navigateTo(String path) {

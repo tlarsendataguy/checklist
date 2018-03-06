@@ -1,3 +1,5 @@
+import 'package:checklist/src/note.dart';
+
 class Strings{
   static String appTitle = "Checklist App";
   static String newBookTitle = "New book";
@@ -14,7 +16,7 @@ class Strings{
   static String toCheckHint = "Parameter to check";
   static String toCheckError = "The parameter cannot be blank";
   static String createItemError = "There was an error saving the new item.  Please try again.";
-  static String actionHint = "Value to verify";
+  static String actionHint = "Value to verify (optional)";
   static String createList = "Add checklist";
   static String createListFailed = "List could not be created";
   static String editItems = "Edit items";
@@ -26,4 +28,19 @@ class Strings{
   static String cancel = "Cancel";
   static String addAlternative = 'Add alternative';
   static String editItem = "Edit item";
+  static String editTrueBranch = "Edit true items";
+  static String editFalseBranch = "Edit false items";
+  static String editNotes = "Edit notes";
+  static String priorityToString(Priority priority){
+    switch (priority){
+      case Priority.Caution:
+        return "Caution";
+      case Priority.Warning:
+        return "Warning";
+      case Priority.Note:
+        return "Note";
+      default:
+        return "";
+    }
+  }
 }

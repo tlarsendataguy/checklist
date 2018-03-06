@@ -47,6 +47,7 @@ class _EditListState extends EditorPageState {
             child: TextField(
               controller: _nameController,
               decoration: _nameDecoration,
+              maxLength: maxNameLen,
             ),
           ),
           editorElementPadding(

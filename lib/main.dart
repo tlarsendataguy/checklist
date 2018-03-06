@@ -1,4 +1,5 @@
 import 'package:checklist/ui/edititem.dart';
+import 'package:checklist/ui/editnotes.dart';
 import 'package:flutter/material.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
@@ -68,9 +69,13 @@ class _MyAppState extends State<MyApp>{
       case ParseResult.Alternatives:
         return router(new EditAlternatives(path,setColor));
       case ParseResult.Items:
+      case ParseResult.TrueBranch:
+      case ParseResult.FalseBranch:
         return router(new EditItems(path,setColor));
       case ParseResult.Item:
         return router(new EditItem(path,setColor));
+      case ParseResult.Notes:
+        return router(new EditNotes(path,setColor));
       default:
         return null;
     }

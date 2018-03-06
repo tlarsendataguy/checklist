@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:checklist/src/item.dart';
+import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/listviewpopupmenubutton.dart';
 import 'package:checklist/ui/strings.dart';
@@ -12,10 +13,24 @@ import 'package:checklist/ui/templates.dart';
 class EditItems extends EditorPage {
   EditItems(String path, ThemeChangeCallback onThemeChanged)
       : super(
-          title: Strings.editItems,
+          title: _getTitle(path),
           path: path,
           onThemeChanged: onThemeChanged,
         );
+
+  static String _getTitle(String path){
+    var result = ParsePath.validate(path);
+    switch (result){
+      case ParseResult.Item:
+        return Strings.editItems;
+      case ParseResult.TrueBranch:
+        return Strings.editTrueBranch;
+      case ParseResult.FalseBranch:
+        return Strings.editFalseBranch;
+      default:
+        return '';
+    }
+  }
 
   State<StatefulWidget> createState() => new _EditItemsState();
 }
@@ -31,7 +46,19 @@ class _EditItemsState extends EditorPageState {
   void afterParseInit(){
     _toCheckDecoration = _defaultToCheckDecoration();
     _actionDecoration = new InputDecoration(hintText: Strings.actionHint);
-    _items = parseResult.list;
+    switch(parseResult.result){
+      case ParseResult.Items:
+        _items = parseResult.list;
+        break;
+      case ParseResult.TrueBranch:
+        _items = parseResult.item.trueBranch;
+        break;
+      case ParseResult.FalseBranch:
+        _items = parseResult.item.falseBranch;
+        break;
+      default:
+        break;
+    }
   }
 
   InputDecoration _defaultToCheckDecoration() {
@@ -139,6 +166,7 @@ class _EditItemsState extends EditorPageState {
           TextField(
             controller: _toCheckController,
             decoration: _toCheckDecoration,
+            maxLength: maxToCheckLen,
           ),
           Padding(
             padding: EdgeInsets.only(top: defaultPad),
@@ -149,6 +177,7 @@ class _EditItemsState extends EditorPageState {
                     controller: _actionController,
                     decoration: _actionDecoration,
                     onSubmitted: (_) => _addItem(),
+                    maxLength: maxActionLen,
                   ),
                 ),
                 IconButton(
