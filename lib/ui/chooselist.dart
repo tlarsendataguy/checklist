@@ -14,49 +14,25 @@ class Selection {
   Checklist list;
 }
 
-Future<Selection> chooseList(BuildContext context, Book book, {bool haveNoSelection = true}) async {
+Future<Selection> chooseList(BuildContext context, Book book,
+    {bool haveNoSelection = true}) async {
   return await showDialog<Selection>(
     context: context,
-    child: new Dialog(
-      child: new DefaultTabController(
+    child: ThemeDialog(
+      child: DefaultTabController(
         length: 2,
-        child: new Container(
-          decoration: new BoxDecoration(
-            border: new Border.all(color: ThemeColors.primary, width: 1.0),
+        child: Scaffold(
+          appBar: TabBar(
+            tabs: <Widget>[
+              Tab(text: Strings.normalLists),
+              Tab(text: Strings.emergencyLists),
+            ],
           ),
-          child: new Scaffold(
-            appBar: new TabBar(
-              tabs: <Widget>[
-                new Tab(
-                  text: Strings.normalLists,
-                ),
-                new Tab(
-                  text: Strings.emergencyLists,
-                )
-              ],
-            ),
-            body: new Column(
-              children: <Widget>[
-                new Expanded(
-                  child: new TabBarView(
-                    children: <Widget>[
-                      _buildListView(book.normalLists,haveNoSelection),
-                      _buildListView(book.emergencyLists, haveNoSelection),
-                    ],
-                  ),
-                ),
-                new Row(
-                  children: <Widget>[
-                    new Expanded(
-                      child: themeRaisedButton(
-                        onPressed: () => Navigator.of(context).pop(null),
-                        child: new Text(Strings.cancel),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+          body: TabBarView(
+            children: <Widget>[
+              _buildListView(book.normalLists, haveNoSelection),
+              _buildListView(book.emergencyLists, haveNoSelection),
+            ],
           ),
         ),
       ),
@@ -64,7 +40,7 @@ Future<Selection> chooseList(BuildContext context, Book book, {bool haveNoSelect
   );
 }
 
-ListView _buildListView(CommandList<Checklist> lists, bool haveNoSelection){
+ListView _buildListView(CommandList<Checklist> lists, bool haveNoSelection) {
   int count = lists.length;
   if (haveNoSelection) count++;
 

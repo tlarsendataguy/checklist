@@ -32,7 +32,7 @@ class _EditBookState extends EditorPageState {
 
   Widget _buildBody() {
     return Padding(
-      padding: pagePadding,
+      padding: defaultLR,
       child: ListView(
         children: <Widget>[
           editorElementPadding(

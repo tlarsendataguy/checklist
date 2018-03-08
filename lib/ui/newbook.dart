@@ -30,7 +30,7 @@ class _NewBookState extends NavigationPageState {
     return Scaffold(
       appBar: appBar,
       body: Padding(
-        padding: pagePadding,
+        padding: defaultLR,
         child: ListView(
           children: <Widget>[
             editorElementPadding(

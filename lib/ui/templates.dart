@@ -1,12 +1,15 @@
+import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
+import 'package:meta/meta.dart';
 
 typedef void ThemeChangeCallback(bool makeRed);
 
 const double defaultPad = 16.0;
 const double listTopPad = 8.0;
-var pagePadding = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, 0.0);
-var defaultPadding = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
-var defaultLRB = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, defaultPad);
+var defaultLR = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, 0.0);
+var defaultT = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
+var defaultLRB =
+    const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, defaultPad);
 var defaultLTRB = const EdgeInsets.all(defaultPad);
 var maxNameLen = 40;
 var maxToCheckLen = 40;
@@ -105,21 +108,21 @@ class ThemeColors {
   static TextTheme getThemeTextTheme() {
     var style = getThemeTextStyle();
     return new TextTheme(
-    display1: style,
-    display2: style,
-    display3: style,
-    display4: style,
-    headline: style,
-    title: style,
-    subhead: style,
-    body1: style,
-    body2: style,
-    caption: style,
-    button: style,
-  );
+      display1: style,
+      display2: style,
+      display3: style,
+      display4: style,
+      headline: style,
+      title: style,
+      subhead: style,
+      body1: style,
+      body2: style,
+      caption: style,
+      button: style,
+    );
   }
 
-  static IconThemeData getThemeIconTheme(){
+  static IconThemeData getThemeIconTheme() {
     return new IconThemeData(
       color: primary,
     );
@@ -192,7 +195,8 @@ FlatButton themeFlatButton({Widget child, void onPressed()}) {
   );
 }
 
-AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged, Widget leading}) {
+AppBar themeAppBar(
+    {String title, ThemeChangeCallback onThemeChanged, Widget leading}) {
   bool makeRed;
   Color newColor;
   Color newHighlightColor;
@@ -231,7 +235,7 @@ AppBar themeAppBar({String title, ThemeChangeCallback onThemeChanged, Widget lea
 
 Widget editorElementPadding({Widget child}) {
   return new Padding(
-    padding: defaultPadding,
+    padding: defaultT,
     child: child,
   );
 }
@@ -242,4 +246,36 @@ Widget overflowText(String text) {
     softWrap: false,
     overflow: TextOverflow.ellipsis,
   );
+}
+
+class ThemeDialog extends StatelessWidget {
+  ThemeDialog({@required this.child});
+
+  final Widget child;
+
+  build(BuildContext context) {
+    return Dialog(
+      child: Container(
+        decoration: BoxDecoration(
+          color: ThemeColors.black,
+          border: Border.all(color: ThemeColors.primary),
+        ),
+        child: Column(
+          children: <Widget>[
+           Expanded(child: child),
+           Row(
+             children: <Widget>[
+               Expanded(
+                 child: themeRaisedButton(
+                     onPressed: () => Navigator.of(context).pop(null),
+                     child: Text(Strings.cancel),
+                 ),
+               ),
+             ],
+           ),
+          ],
+        ),
+      ),
+    );
+  }
 }

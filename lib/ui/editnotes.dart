@@ -10,6 +10,7 @@ import 'package:checklist/ui/templates.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:draggablelistview/draggablelistview.dart';
 import 'package:flutter/material.dart';
+import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditNotes extends EditorPage {
   EditNotes(String path, ThemeChangeCallback onThemeChanged)
@@ -24,7 +25,7 @@ class EditNotes extends EditorPage {
 
 class EditNotesState extends EditorPageState {
   CommandList<Note> _notes;
-  HashSet<Note> _existingNotes;
+  var _existingNotes = new HashSet<Note>();
 
   void afterParseInit() {
     _notes = parseResult.item.notes;
@@ -46,30 +47,23 @@ class EditNotesState extends EditorPageState {
   }
 
   Widget _buildBody() {
-    return Padding(
-      padding: EdgeInsets.only(top: listTopPad),
-      child: Column(
-        children: <Widget>[
-          Expanded(
-            child: DraggableListView<Note>(
-              source: _notes,
-              rowHeight: 72.0,
-              onMove: buildOnMove(_notes),
-              builder: _noteBuilder,
-            ),
-          ),
-          themeRaisedButton(
-            onPressed: _addNote,
-            child: new Text(Strings.addNote),
-          ),
-        ],
+    return ListViewPageFrame(
+      listContent: DraggableListView<Note>(
+        source: _notes,
+        rowHeight: 72.0,
+        onMove: buildOnMove(_notes),
+        builder: _noteBuilder,
+      ),
+      bottomContent: themeRaisedButton(
+        onPressed: _addNote,
+        child: new Text(Strings.addNote),
       ),
     );
   }
 
   Widget _noteBuilder(Note note) {
     return Padding(
-      padding: defaultPadding,
+      padding: defaultT,
       child: Column(
         children: <Widget>[
           Text(note.text),
@@ -84,6 +78,8 @@ class EditNotesState extends EditorPageState {
     if (selection == null) return;
 
     var command = _notes.insert(selection);
+    _existingNotes.add(selection);
+    setState((){});
     persistBookOrUndo(command);
   }
 

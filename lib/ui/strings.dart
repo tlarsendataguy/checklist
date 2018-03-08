@@ -46,4 +46,5 @@ class Strings{
   }
   static String existingNotes = "Notes already in the checklist:";
   static String createNote = "Create a new note:";
+  static String noNoteTextError = "The note cannot be blank";
 }

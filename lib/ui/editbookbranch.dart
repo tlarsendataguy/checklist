@@ -8,16 +8,14 @@ import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/parsepath.dart';
+import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditBookBranch extends EditorPage {
   EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
       : super(
-            title: _getTitle(path),
-            path: path,
-            onThemeChanged: onThemeChanged);
+            title: _getTitle(path), path: path, onThemeChanged: onThemeChanged);
 
-
-  static String _getTitle(String path){
+  static String _getTitle(String path) {
     var result = ParsePath.validate(path);
     if (result == ParseResult.EmergencyLists) {
       return Strings.editEmergencyLists;
@@ -30,12 +28,11 @@ class EditBookBranch extends EditorPage {
 }
 
 class _EditBookBranchState extends EditorPageState {
-
   TextEditingController _listNameController;
   InputDecoration _listNameDecoration;
   CommandList<Checklist> _lists;
 
-  void afterParseInit(){
+  void afterParseInit() {
     _listNameDecoration = _defaultListNameDecoration();
     _listNameController = new TextEditingController();
 
@@ -56,36 +53,26 @@ class _EditBookBranchState extends EditorPageState {
   }
 
   Widget _buildBody() {
-    return new Padding(
-      padding: defaultPadding,
-      child: new Column(
+    return ListViewPageFrame(
+      listContent: DraggableListView<Checklist>(
+        rowHeight: 48.0,
+        source: _lists,
+        builder: _checklistToWidget,
+        onMove: buildOnMove(_lists),
+      ),
+      bottomContent: Row(
         children: <Widget>[
-          new Expanded(
-            child: new DraggableListView<Checklist>(
-              rowHeight: 48.0,
-              source: _lists,
-              builder: _checklistToWidget,
-              onMove: buildOnMove(_lists),
+          Expanded(
+            child: TextField(
+              onSubmitted: _createChecklist,
+              controller: _listNameController,
+              decoration: _listNameDecoration,
+              maxLength: maxNameLen,
             ),
           ),
-          new Padding(
-            padding: defaultLRB,
-            child: new Row(
-              children: <Widget>[
-                new Expanded(
-                  child: new TextField(
-                    onSubmitted: _createChecklist,
-                    controller: _listNameController,
-                    decoration: _listNameDecoration,
-                    maxLength: maxNameLen,
-                  ),
-                ),
-                new IconButton(
-                  icon: new Icon(Icons.add),
-                  onPressed: _pressCreate,
-                ),
-              ],
-            ),
+          IconButton(
+            icon: Icon(Icons.add),
+            onPressed: _pressCreate,
           ),
         ],
       ),

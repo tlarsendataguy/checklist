@@ -9,6 +9,7 @@ import 'package:commandlist/commandlist.dart';
 import 'package:draggablelistview/draggablelistview.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditItems extends EditorPage {
   EditItems(String path, ThemeChangeCallback onThemeChanged)
@@ -18,10 +19,10 @@ class EditItems extends EditorPage {
           onThemeChanged: onThemeChanged,
         );
 
-  static String _getTitle(String path){
+  static String _getTitle(String path) {
     var result = ParsePath.validate(path);
-    switch (result){
-      case ParseResult.Item:
+    switch (result) {
+      case ParseResult.Items:
         return Strings.editItems;
       case ParseResult.TrueBranch:
         return Strings.editTrueBranch;
@@ -36,17 +37,16 @@ class EditItems extends EditorPage {
 }
 
 class _EditItemsState extends EditorPageState {
-
   CommandList<Item> _items;
   var _toCheckController = new TextEditingController();
   var _actionController = new TextEditingController();
   InputDecoration _toCheckDecoration;
   InputDecoration _actionDecoration;
 
-  void afterParseInit(){
+  void afterParseInit() {
     _toCheckDecoration = _defaultToCheckDecoration();
     _actionDecoration = new InputDecoration(hintText: Strings.actionHint);
-    switch(parseResult.result){
+    switch (parseResult.result) {
       case ParseResult.Items:
         _items = parseResult.list;
         break;
@@ -118,21 +118,24 @@ class _EditItemsState extends EditorPageState {
     return new ListViewPopupMenuButton(
       editAction: _editItem(item),
       deleteAction: _deleteItem(item),
-      child: new Column(
-        children: <Widget>[
-          new Expanded(
-            child: new Align(
-              alignment: Alignment.bottomLeft,
-              child: overflowText(item.toCheck),
+      child: Padding(
+        padding: defaultLR,
+        child: Column(
+          children: <Widget>[
+            new Expanded(
+              child: new Align(
+                alignment: Alignment.bottomLeft,
+                child: overflowText(item.toCheck),
+              ),
             ),
-          ),
-          new Expanded(
-            child: new Align(
-              alignment: Alignment.topLeft,
-              child: overflowText(item.action),
+            new Expanded(
+              child: new Align(
+                alignment: Alignment.topLeft,
+                child: overflowText(item.action),
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -150,19 +153,16 @@ class _EditItemsState extends EditorPageState {
     };
   }
 
-  Widget _buildBody(){
-    return Padding(
-      padding: defaultLTRB,
-      child: Column(
+  Widget _buildBody() {
+    return ListViewPageFrame(
+      listContent: DraggableListView<Item>(
+        rowHeight: 72.0,
+        source: _items,
+        builder: _buildRow,
+        onMove: buildOnMove(_items),
+      ),
+      bottomContent: Column(
         children: <Widget>[
-          Expanded(
-            child: DraggableListView<Item>(
-              rowHeight: 72.0,
-              source: _items,
-              builder: _buildRow,
-              onMove: buildOnMove(_items),
-            ),
-          ),
           TextField(
             controller: _toCheckController,
             decoration: _toCheckDecoration,

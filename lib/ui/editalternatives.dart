@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/chooselist.dart';
+import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditAlternatives extends EditorPage {
   EditAlternatives(String path, ThemeChangeCallback onThemeChanged)
@@ -20,10 +21,9 @@ class EditAlternatives extends EditorPage {
 }
 
 class _EditAlternativesState extends EditorPageState {
-
   CommandList<Checklist> _alternatives;
 
-  void afterParseInit(){
+  void afterParseInit() {
     _alternatives = parseResult.list.nextAlternatives;
   }
 
@@ -32,47 +32,28 @@ class _EditAlternativesState extends EditorPageState {
   }
 
   Widget _buildBody() {
-    return new Padding(
-      padding: defaultPadding,
-      child: new Column(
-        children: <Widget>[
-          new Expanded(
-            child: new DraggableListView<Checklist>(
-              rowHeight: 48.0,
-              source: _alternatives,
-              builder: _buildListItem,
-              onMove: buildOnMove(_alternatives),
-            ),
-          ),
-          new Row(
-            children: <Widget>[
-              new Expanded(
-                child: new Padding(
-                  child: themeRaisedButton(
-                    child: new Text(Strings.addAlternative),
-                    onPressed: _addAlternative,
-                  ),
-                  padding: defaultLRB,
-                ),
-              ),
-            ],
-          )
-        ],
+    return ListViewPageFrame(
+      listContent: new DraggableListView<Checklist>(
+        rowHeight: 48.0,
+        source: _alternatives,
+        builder: _buildListItem,
+        onMove: buildOnMove(_alternatives),
+      ),
+      bottomContent: themeRaisedButton(
+        child: new Text(Strings.addAlternative),
+        onPressed: _addAlternative,
       ),
     );
   }
 
   Widget _buildListItem(Checklist list) {
-    return new Row(
+    return Row(
       children: <Widget>[
-        new Padding(
-          padding: const EdgeInsets.only(left: defaultPad, right: defaultPad),
-          child: new IconButton(
-            icon: new Icon(Icons.delete),
-            onPressed: _deleteAlternative(list),
-          ),
+        IconButton(
+          icon: Icon(Icons.delete),
+          onPressed: _deleteAlternative(list),
         ),
-        new Text(list.name),
+        Text(list.name),
       ],
     );
   }
