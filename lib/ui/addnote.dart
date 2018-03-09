@@ -46,11 +46,9 @@ class _AddNoteState extends State<AddNote> {
       var note = existingNotes.elementAt(index);
       return themeRaisedButton(
         onPressed: () => Navigator.of(context).pop(note),
-        child: Column(
-          children: <Widget>[
-            overflowText(note.text),
-            Text(Strings.priorityToString(note.priority)),
-          ],
+        child: ListItem2TextRows(
+          line1: note.text,
+          line2: Strings.priorityToString(note.priority),
         ),
       );
     };

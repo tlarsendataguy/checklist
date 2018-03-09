@@ -118,25 +118,10 @@ class _EditItemsState extends EditorPageState {
     return new ListViewPopupMenuButton(
       editAction: _editItem(item),
       deleteAction: _deleteItem(item),
-      child: Padding(
-        padding: defaultLR,
-        child: Column(
-          children: <Widget>[
-            new Expanded(
-              child: new Align(
-                alignment: Alignment.bottomLeft,
-                child: overflowText(item.toCheck),
-              ),
-            ),
-            new Expanded(
-              child: new Align(
-                alignment: Alignment.topLeft,
-                child: overflowText(item.action),
-              ),
-            ),
-          ],
-        ),
-      ),
+      child: ListItem2TextRows(
+        line1: item.toCheck,
+        line2: item.action,
+      )
     );
   }
 

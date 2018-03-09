@@ -45,6 +45,7 @@ ListView _buildListView(CommandList<Checklist> lists, bool haveNoSelection) {
   if (haveNoSelection) count++;
 
   return new ListView.builder(
+    itemExtent: 48.0,
     itemBuilder: _rootBuilder(lists),
     itemCount: count,
   );
@@ -55,12 +56,12 @@ Builder _rootBuilder(CommandList<Checklist> lists) {
     if (index == lists.length) {
       return themeRaisedButton(
           onPressed: () => Navigator.of(context).pop(new Selection(null)),
-          child: new Text(Strings.noSelection));
+          child: ListItem1TextRow(Strings.noSelection));
     }
     var list = lists[index];
     return themeRaisedButton(
       onPressed: () => Navigator.of(context).pop(new Selection(list)),
-      child: new Text(list.name),
+      child: ListItem1TextRow(list.name),
     );
   };
 }

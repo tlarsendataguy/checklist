@@ -53,7 +53,7 @@ class _EditAlternativesState extends EditorPageState {
           icon: Icon(Icons.delete),
           onPressed: _deleteAlternative(list),
         ),
-        Text(list.name),
+        overflowText(list.name,TextStyle(fontSize: 16.0)),
       ],
     );
   }

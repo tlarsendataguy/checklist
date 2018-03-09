@@ -5,7 +5,8 @@ import 'package:meta/meta.dart';
 typedef void ThemeChangeCallback(bool makeRed);
 
 const double defaultPad = 16.0;
-const double listTopPad = 8.0;
+const double listTBPad = 8.0;
+var listTB = const EdgeInsets.only(top: listTBPad,bottom: listTBPad);
 var defaultLR = const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, 0.0);
 var defaultT = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
 var defaultLRB =
@@ -165,6 +166,7 @@ class ThemeColors {
 
 RaisedButton themeRaisedButton({Widget child, void onPressed()}) {
   return new RaisedButton(
+    padding: EdgeInsets.all(0.0),
     disabledColor: ThemeColors.black,
     color: ThemeColors.black,
     textColor: ThemeColors.primary,
@@ -240,11 +242,12 @@ Widget editorElementPadding({Widget child}) {
   );
 }
 
-Widget overflowText(String text) {
+Widget overflowText(String text,[TextStyle style]) {
   return new Text(
     text,
     softWrap: false,
     overflow: TextOverflow.ellipsis,
+    style: style,
   );
 }
 
@@ -275,6 +278,66 @@ class ThemeDialog extends StatelessWidget {
            ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class ListItem1TextRow extends StatelessWidget {
+  ListItem1TextRow(this.text);
+
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: defaultLR,
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: overflowText(
+          text,
+          TextStyle(fontSize: 16.0),
+        ),
+      ),
+    );
+  }
+}
+
+class ListItem2TextRows extends StatelessWidget {
+  ListItem2TextRows({this.line1,this.line2});
+
+  final String line1;
+  final String line2;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: defaultLR,
+      child: Column(
+        children: <Widget>[
+          Expanded(
+            child: Align(
+              alignment: Alignment.bottomLeft,
+              child: overflowText(
+                  line1,
+                TextStyle(
+                  fontSize: 16.0,
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Align(
+              alignment: Alignment.topLeft,
+              child: Text(
+                  line2,
+                style: TextStyle(
+                  fontSize: 14.0,
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

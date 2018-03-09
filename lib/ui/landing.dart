@@ -33,20 +33,11 @@ class _LandingState extends NavigationPageState {
                 height: 48.0,
                 child: new Row(
                   children: <Widget>[
-                    new Expanded(
-                      child: new Padding(
-                        child: overflowText(io.files[id]),
-                        padding: const EdgeInsets.only(left: defaultPad),
+                    Expanded(child:ListItem1TextRow(io.files[id])),
+                    IconButton(
+                        icon: Icon(Icons.edit),
+                        onPressed: navigateTo("/$id"),
                       ),
-                    ),
-                    new Padding(
-                      padding: const EdgeInsets.fromLTRB(
-                          defaultPad, 0.0, defaultPad, 0.0),
-                      child: new InkWell(
-                        child: new Icon(Icons.edit),
-                        onTap: navigateTo("/$id"),
-                      ),
-                    ),
                   ],
                 ),
               ),
@@ -60,7 +51,7 @@ class _LandingState extends NavigationPageState {
     return new Scaffold(
       appBar: appBar,
       body: new Padding(
-          padding: const EdgeInsets.only(top: listTopPad),
+          padding: const EdgeInsets.only(top: listTBPad),
           child: _buildListview(context)),
       floatingActionButton: new FloatingActionButton(
         onPressed: navigateTo("/newBook"),

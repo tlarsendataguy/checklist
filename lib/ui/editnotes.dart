@@ -11,6 +11,7 @@ import 'package:commandlist/commandlist.dart';
 import 'package:draggablelistview/draggablelistview.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/ui/listviewpageframe.dart';
+import 'package:checklist/ui/listviewpopupmenubutton.dart';
 
 class EditNotes extends EditorPage {
   EditNotes(String path, ThemeChangeCallback onThemeChanged)
@@ -62,15 +63,27 @@ class EditNotesState extends EditorPageState {
   }
 
   Widget _noteBuilder(Note note) {
-    return Padding(
-      padding: defaultT,
-      child: Column(
-        children: <Widget>[
-          Text(note.text),
-          Text(Strings.priorityToString(note.priority)),
-        ],
+    return ListViewPopupMenuButton(
+      editAction: _editNote(note),
+      deleteAction: _deleteNote(note),
+      child: ListItem2TextRows(
+        line1: note.text,
+        line2: Strings.priorityToString(note.priority),
       ),
     );
+  }
+
+  Function _editNote(Note note) {
+    var index = _notes.indexOf(note);
+    return navigateTo("${widget.path}/$index");
+  }
+
+  Function _deleteNote(Note note){
+    return () {
+      var command = _notes.remove(note);
+      setState((){});
+      persistBookOrUndo(command);
+    };
   }
 
   Future _addNote() async {
@@ -79,7 +92,7 @@ class EditNotesState extends EditorPageState {
 
     var command = _notes.insert(selection);
     _existingNotes.add(selection);
-    setState((){});
+    setState(() {});
     persistBookOrUndo(command);
   }
 

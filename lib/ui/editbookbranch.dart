@@ -141,20 +141,7 @@ class _EditBookBranchState extends EditorPageState {
         else
           setState(() {});
       },
-      child: new Container(
-        height: 48.0,
-        child: new Padding(
-          padding: new EdgeInsets.only(left: 16.0),
-          child: new Align(
-            alignment: new Alignment(-1.0, 0.0),
-            child: new Text(
-              list.name,
-              softWrap: false,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ),
-      ),
+      child: ListItem1TextRow(list.name),
     );
   }
 }

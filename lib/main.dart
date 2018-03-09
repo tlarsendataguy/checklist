@@ -1,3 +1,4 @@
+import 'package:checklist/ui/editnote.dart';
 import 'package:flutter/material.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
@@ -76,6 +77,8 @@ class _MyAppState extends State<MyApp>{
         return router(new EditItem(path,setColor));
       case ParseResult.Notes:
         return router(new EditNotes(path,setColor));
+      case ParseResult.Note:
+        return router(new EditNote(path,setColor));
       default:
         return null;
     }
