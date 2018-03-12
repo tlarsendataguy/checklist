@@ -30,17 +30,6 @@ class _AddNoteState extends State<AddNote> {
   InputDecoration errorDecoration() =>
       new InputDecoration(errorText: Strings.noNoteTextError);
 
-  List<DropdownMenuItem<Priority>> _getPriorities() {
-    var priorities = new List<DropdownMenuItem<Priority>>();
-    for (var priority in Priority.values) {
-      priorities.add(DropdownMenuItem<Priority>(
-        value: priority,
-        child: Text(Strings.priorityToString(priority)),
-      ));
-    }
-    return priorities;
-  }
-
   Widget Function(BuildContext, int) _getBuilder(HashSet<Note> existingNotes) {
     return (BuildContext context, int index) {
       var note = existingNotes.elementAt(index);
@@ -88,13 +77,14 @@ class _AddNoteState extends State<AddNote> {
                   decoration: decoration,
                   maxLines: 3,
                   maxLength: maxNoteLen,
+                  keyboardType: TextInputType.text,
                 ),
                 Row(
                   children: <Widget>[
                     Expanded(
                       child: DropdownButton<Priority>(
                         value: selectedPriority,
-                        items: _getPriorities(),
+                        items: getPriorities(),
                         onChanged: (selection) =>
                             setState(() => selectedPriority = selection),
                       ),

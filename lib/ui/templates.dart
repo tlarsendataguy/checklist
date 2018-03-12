@@ -1,3 +1,4 @@
+import 'package:checklist/src/note.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
@@ -12,6 +13,7 @@ var defaultT = const EdgeInsets.fromLTRB(0.0, defaultPad, 0.0, 0.0);
 var defaultLRB =
     const EdgeInsets.fromLTRB(defaultPad, 0.0, defaultPad, defaultPad);
 var defaultLTRB = const EdgeInsets.all(defaultPad);
+var defaultL = const EdgeInsets.only(left: defaultPad);
 var maxNameLen = 40;
 var maxToCheckLen = 40;
 var maxActionLen = 30;
@@ -23,6 +25,7 @@ const Color primaryRed200 = const Color(0xFFFF9999);
 const Color primaryRed300 = const Color(0xFFFF6666);
 const Color primaryRed400 = const Color(0xFFFF3333);
 const Color primaryRed = const Color(0xFFFF0000);
+const Color primaryRedTransparent = const Color(0x44FF0000);
 const Color primaryRed600 = const Color(0xFFCC0000);
 const Color primaryRed700 = const Color(0xFF990000);
 const Color primaryRed800 = const Color(0xFF660000);
@@ -36,6 +39,7 @@ const Color primaryGreen200 = const Color(0xFF99FF99);
 const Color primaryGreen300 = const Color(0xFF66FF66);
 const Color primaryGreen400 = const Color(0xFF33FF33);
 const Color primaryGreen = const Color(0xFF00FF00);
+const Color primaryGreenTransparent = const Color(0x4400FF00);
 const Color primaryGreen600 = const Color(0xFF00CC00);
 const Color primaryGreen700 = const Color(0xFF009900);
 const Color primaryGreen800 = const Color(0xFF006600);
@@ -50,6 +54,7 @@ class ThemeColors {
   static Color primary300 = primaryRed300;
   static Color primary400 = primaryRed400;
   static Color primary = primaryRed;
+  static Color primaryTransparent = primaryRedTransparent;
   static Color primary600 = primaryRed600;
   static Color primary700 = primaryRed700;
   static Color primary800 = primaryRed800;
@@ -136,6 +141,7 @@ class ThemeColors {
     primary300 = primaryRed300;
     primary400 = primaryRed400;
     primary = primaryRed;
+    primaryTransparent = primaryRedTransparent;
     primary600 = primaryRed600;
     primary700 = primaryRed700;
     primary800 = primaryRed800;
@@ -153,6 +159,7 @@ class ThemeColors {
     primary300 = primaryGreen300;
     primary400 = primaryGreen400;
     primary = primaryGreen;
+    primaryTransparent = primaryGreenTransparent;
     primary600 = primaryGreen600;
     primary700 = primaryGreen700;
     primary800 = primaryGreen800;
@@ -291,7 +298,7 @@ class ListItem1TextRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: defaultLR,
+      padding: defaultL,
       child: Align(
         alignment: Alignment.centerLeft,
         child: overflowText(
@@ -312,7 +319,7 @@ class ListItem2TextRows extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: defaultLR,
+      padding: defaultL,
       child: Column(
         children: <Widget>[
           Expanded(
@@ -341,4 +348,15 @@ class ListItem2TextRows extends StatelessWidget {
       ),
     );
   }
+}
+
+List<DropdownMenuItem<Priority>> getPriorities() {
+  var priorities = new List<DropdownMenuItem<Priority>>();
+  for (var priority in Priority.values) {
+    priorities.add(DropdownMenuItem<Priority>(
+      value: priority,
+      child: Text(Strings.priorityToString(priority)),
+    ));
+  }
+  return priorities;
 }

@@ -1,4 +1,5 @@
 import 'package:checklist/ui/editnote.dart';
+import 'package:checklist/ui/pathroute.dart';
 import 'package:flutter/material.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
@@ -85,10 +86,18 @@ class _MyAppState extends State<MyApp>{
   }
 
   RouteBuilder _buildRouter(RouteSettings settings){
+    int level;
+    String path = settings.name;
+
+    if (path == '/')
+      level = 0;
+    else
+      level = path.split('/').length - 1;
+
     return (Widget builder){
-      return new MaterialPageRoute(
+      return new PathRoute(
         settings: settings,
-        maintainState: false,
+        level: level,
         builder: (BuildContext context) => builder,
       );
     };
