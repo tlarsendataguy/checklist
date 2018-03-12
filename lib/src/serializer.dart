@@ -156,7 +156,8 @@ class Serialize {
     var serializableAlternatives = new List<String>();
 
     for (var alternative in list.nextAlternatives) {
-      serializableAlternatives.add(alternative.id);
+      if (alternative != null)
+        serializableAlternatives.add(alternative.id);
     }
 
     var map = <String, Object>{
