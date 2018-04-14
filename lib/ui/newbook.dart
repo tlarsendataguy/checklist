@@ -10,11 +10,10 @@ import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
 
 class NewBook extends NavigationPage {
-  NewBook(String path, ThemeChangeCallback onThemeChanged)
+  NewBook(String path)
       : super(
           title: Strings.newBookTitle,
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   _NewBookState createState() => new _NewBookState();

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "632164518196",
+    "firebase_url": "https://checklistapp-8ffa4.firebaseio.com",
+    "project_id": "checklistapp-8ffa4",
+    "storage_bucket": "checklistapp-8ffa4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:632164518196:android:bd80c127d7073454",
+        "android_client_info": {
+          "package_name": "com.porcupinesupernova.checklist"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "632164518196-r8kverqb1enpm9dcq2jsu62rp7nvrjla.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMMRUx0d9O-hztGIalImaaUB2XUVcqz4k"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

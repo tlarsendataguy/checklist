@@ -5,11 +5,10 @@ import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 
 class EditItem extends EditorPage {
-  EditItem(String path, ThemeChangeCallback onThemeChanged)
+  EditItem(String path)
       : super(
           title: Strings.editItem,
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   createState() => new _EditItemState();

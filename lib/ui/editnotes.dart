@@ -14,11 +14,10 @@ import 'package:checklist/ui/listviewpageframe.dart';
 import 'package:checklist/ui/listviewpopupmenubutton.dart';
 
 class EditNotes extends EditorPage {
-  EditNotes(String path, ThemeChangeCallback onThemeChanged)
+  EditNotes(String path)
       : super(
           title: Strings.editNotes,
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   createState() => new EditNotesState();

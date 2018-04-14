@@ -1,5 +1,6 @@
 import 'package:checklist/ui/editnote.dart';
 import 'package:checklist/ui/pathroute.dart';
+import 'package:checklist/ui/usebook.dart';
 import 'package:flutter/material.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
@@ -28,15 +29,6 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp>{
-
-  ThemeData theme = ThemeColors.theme;
-
-  @override
-  void initState() {
-    super.initState();
-
-  }
-
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -46,11 +38,6 @@ class _MyAppState extends State<MyApp>{
     );
   }
 
-  void setColor(bool makeRed){
-    var colorFunc = makeRed ? ThemeColors.setRed : ThemeColors.setGreen;
-    setState(colorFunc);
-  }
-
   Route _getRoute(RouteSettings settings) {
     var path = settings.name;
     var result = ParsePath.validate(path);
@@ -58,34 +45,37 @@ class _MyAppState extends State<MyApp>{
 
     switch (result){
       case ParseResult.Home:
-        return router(new Landing(path, setColor));
+        return router(new Landing(path));
       case ParseResult.NewBook:
-        return router(new NewBook(path, setColor));
+        return router(new NewBook(path));
+      case ParseResult.UseBook:
+        var internalPopper = _buildRouter(settings,true);
+        return router(new UseBook(path));
       case ParseResult.Book:
-        return router(new EditBook(path,setColor));
+        return router(new EditBook(path));
       case ParseResult.NormalLists:
       case ParseResult.EmergencyLists:
-        return router(new EditBookBranch(path,setColor));
+        return router(new EditBookBranch(path));
       case ParseResult.List:
-        return router(new EditList(path,setColor));
+        return router(new EditList(path));
       case ParseResult.Alternatives:
-        return router(new EditAlternatives(path,setColor));
+        return router(new EditAlternatives(path));
       case ParseResult.Items:
       case ParseResult.TrueBranch:
       case ParseResult.FalseBranch:
-        return router(new EditItems(path,setColor));
+        return router(new EditItems(path));
       case ParseResult.Item:
-        return router(new EditItem(path,setColor));
+        return router(new EditItem(path));
       case ParseResult.Notes:
-        return router(new EditNotes(path,setColor));
+        return router(new EditNotes(path));
       case ParseResult.Note:
-        return router(new EditNote(path,setColor));
+        return router(new EditNote(path));
       default:
         return null;
     }
   }
 
-  RouteBuilder _buildRouter(RouteSettings settings){
+  RouteBuilder _buildRouter(RouteSettings settings, [bool willHandlePopInternally = false]){
     int level;
     String path = settings.name;
 
@@ -99,6 +89,7 @@ class _MyAppState extends State<MyApp>{
         settings: settings,
         level: level,
         builder: (BuildContext context) => builder,
+        willHandlePopInternally: willHandlePopInternally,
       );
     };
   }

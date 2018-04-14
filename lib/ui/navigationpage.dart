@@ -1,4 +1,3 @@
-import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -6,11 +5,9 @@ abstract class NavigationPage extends StatefulWidget {
   NavigationPage({
     @required this.title,
     @required this.path,
-    @required this.onThemeChanged,
   });
 
   final String path;
-  final ThemeChangeCallback onThemeChanged;
   final String title;
 }
 
@@ -34,17 +31,9 @@ abstract class NavigationPageState extends State<NavigationPage> {
   AppBar appBar;
   Widget leading;
 
-  void _themeChanged(bool makeRed) {
-    setState(() {
-      widget.onThemeChanged(makeRed);
-      _createAppBar();
-    });
-  }
-
   void _createAppBar(){
-    appBar = themeAppBar(
-      title: widget.title,
-      onThemeChanged: _themeChanged,
+    appBar = new AppBar(
+      title: new Text(widget.title),
       leading: leading,
     );
   }

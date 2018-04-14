@@ -16,6 +16,7 @@ enum ParseResult {
   InvalidPath,
   Home,
   NewBook,
+  UseBook,
   Book,
   NormalLists,
   EmergencyLists,
@@ -61,6 +62,10 @@ class ParsePath {
       if (elements.length > 2) return ParseResult.InvalidPath;
 
       return ParseResult.NewBook;
+    }
+
+    if (elements.length == 3 && elements[2] == 'use') {
+      return ParseResult.UseBook;
     }
 
     if (elements.length == 2) return ParseResult.Book;
@@ -226,6 +231,7 @@ class ParsePath {
       throw new ArgumentError("The path provided is not a valid path");
 
     var elements = path.split('/');
+    if (elements[elements.length - 1] == 'use') elements.removeLast();
     elements.removeLast();
     var backPath = elements.join('/');
     if (backPath == '') backPath = '/';

@@ -204,44 +204,6 @@ FlatButton themeFlatButton({Widget child, void onPressed()}) {
   );
 }
 
-AppBar themeAppBar(
-    {String title, ThemeChangeCallback onThemeChanged, Widget leading}) {
-  bool makeRed;
-  Color newColor;
-  Color newHighlightColor;
-  Color newSplashColor;
-  if (ThemeColors.isRed) {
-    newColor = primaryGreen;
-    newHighlightColor = primaryGreen700;
-    newSplashColor = primaryGreen600;
-    makeRed = false;
-  } else {
-    newColor = primaryRed;
-    newHighlightColor = primaryRed700;
-    newSplashColor = primaryRed600;
-    makeRed = true;
-  }
-
-  return new AppBar(
-    title: new Text(title),
-    leading: leading,
-    backgroundColor: ThemeColors.primary950,
-    iconTheme: ThemeColors.getThemeIconTheme(),
-    automaticallyImplyLeading: false,
-    actions: <Widget>[
-      new IconButton(
-        highlightColor: newHighlightColor,
-        splashColor: newSplashColor,
-        color: newColor,
-        icon: const Icon(Icons.format_color_fill),
-        onPressed: () {
-          onThemeChanged(makeRed);
-        },
-      )
-    ],
-  );
-}
-
 Widget editorElementPadding({Widget child}) {
   return new Padding(
     padding: defaultT,

@@ -65,6 +65,9 @@ main() {
       "/newBook/normal": ParseResult.InvalidPath,
       "/newBook/0": ParseResult.InvalidPath,
       "/newBook/$lid": ParseResult.InvalidPath,
+
+      "/$bid/use": ParseResult.UseBook,
+      "/$bid/use/0": ParseResult.InvalidPath,
     };
 
     for (var path in paths.keys) {
@@ -240,6 +243,18 @@ main() {
       () => ParsePath.pop(start),
       throwsA(new isInstanceOf<ArgumentError>()),
     );
+  });
+
+  test("Parse use book", () async {
+    ParsedItems result = await ParsePath.parse("/$bid/use");
+    expect(result.result, equals(ParseResult.UseBook));
+    expect(result.book.id, equals(bid));
+  });
+
+  test("Pop from use", (){
+    var start = "/$bid/use";
+    var end = ParsePath.pop(start);
+    expect(end, equals('/'));
   });
 }
 

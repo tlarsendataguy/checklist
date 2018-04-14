@@ -7,11 +7,10 @@ import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/editorpage.dart';
 
 class EditBook extends EditorPage {
-  EditBook(String path, ThemeChangeCallback onThemeChanged)
+  EditBook(String path)
       : super(
           path: path,
           title: Strings.editBookTitle,
-          onThemeChanged: onThemeChanged,
         );
 
   _EditBookState createState() => new _EditBookState();

@@ -5,8 +5,8 @@ import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 
 class EditNote extends EditorPage {
-  EditNote(String path,ThemeChangeCallback onThemeChanged) :
-      super(path:path,onThemeChanged: onThemeChanged, title: Strings.editNote);
+  EditNote(String path) :
+      super(path:path,title: Strings.editNote);
 
   createState() => new EditNoteState();
 }

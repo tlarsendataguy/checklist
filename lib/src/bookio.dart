@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/serializer.dart';
 import 'package:meta/meta.dart';
-//import 'package:path_provider/path_provider.dart';
 
 class BookIo {
   BookIo({@required this.writer});
@@ -44,7 +43,7 @@ class BookIo {
 
   Future<Map<String, String>> _readFileList(File fileList) async {
     var contents = await fileList.readAsString();
-    Map<String,Object> filesRaw = JSON.decode(contents);
+    Map<String,Object> filesRaw = json.decode(contents);
     var filesFinal = new Map<String,String>();
     for (var key in filesRaw.keys){
       filesFinal[key] = filesRaw[key].toString();
@@ -70,7 +69,7 @@ class BookIo {
 
   Future _persistFileList() async {
     var file = await writer.getLocalFile("books");
-    var contents = JSON.encode(files);
+    var contents = json.encode(files);
     await file.writeAsString(contents,flush: true);
   }
 }

@@ -10,24 +10,22 @@ import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/chooselist.dart';
 
 class EditList extends EditorPage {
-  EditList(String path, ThemeChangeCallback onThemeChanged)
+  EditList(String path)
       : super(
           title: Strings.editList,
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   createState() => new _EditListState();
 }
 
 class _EditListState extends EditorPageState {
-
   TextEditingController _nameController;
   InputDecoration _nameDecoration;
   Checklist _list;
   var _dropDown = new List<DropdownMenuItem<Checklist>>();
 
-  void afterParseInit(){
+  void afterParseInit() {
     _nameDecoration = _defaultNameDecoration();
     _list = parseResult.list;
     _nameController = new TextEditingController(text: _list.name);
@@ -38,7 +36,7 @@ class _EditListState extends EditorPageState {
     return buildEditorPage(_buildBody);
   }
 
-  Widget _buildBody(){
+  Widget _buildBody() {
     return Padding(
       padding: defaultLR,
       child: ListView(
@@ -48,6 +46,7 @@ class _EditListState extends EditorPageState {
               controller: _nameController,
               decoration: _nameDecoration,
               maxLength: maxNameLen,
+              onSubmitted: _changeName,
             ),
           ),
           editorElementPadding(
@@ -81,8 +80,25 @@ class _EditListState extends EditorPageState {
     );
   }
 
+  void _changeName(String newName) {
+    if (newName == '') setState(() => _nameDecoration = _errorNameDecoration());
+
+    var command = _list.rename(newName);
+
+    setState(() {
+      _nameDecoration = _defaultNameDecoration();
+    });
+
+    persistBookOrUndo(command);
+  }
+
   InputDecoration _defaultNameDecoration() {
     return InputDecoration(hintText: Strings.nameHint);
+  }
+
+  InputDecoration _errorNameDecoration() {
+    return InputDecoration(
+        hintText: Strings.nameHint, errorText: Strings.noNameError);
   }
 
   void _generateDropDown() {

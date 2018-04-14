@@ -12,11 +12,10 @@ import 'package:checklist/ui/templates.dart';
 import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditItems extends EditorPage {
-  EditItems(String path, ThemeChangeCallback onThemeChanged)
+  EditItems(String path)
       : super(
           title: _getTitle(path),
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   static String _getTitle(String path) {

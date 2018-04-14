@@ -38,7 +38,7 @@ class Deserialize {
   }
 
   Book _deserializeBook(String serializedBook) {
-    var map = JSON.decode(serializedBook);
+    var map = json.decode(serializedBook);
     Book book = new Book(
         name: map['name'],
         id: map['id'],
@@ -140,7 +140,7 @@ class Serialize {
       "emergencyLists": _serializeChecklistList(container.emergencyLists),
     };
 
-    return JSON.encode(containerMap);
+    return json.encode(containerMap);
   }
 
   static List<Map<String, Object>> _serializeChecklistList(

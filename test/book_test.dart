@@ -38,12 +38,12 @@ main() {
     expect(book.emergencyLists[1].name, equals("Emergency 2"));
   });
 
-  test("Change book name",(){
+  test("Change book name", () {
     var book = new Book(name: "Hello");
     expect(book.name, equals("Hello"));
 
     var command = book.changeName("Hi");
-    expect(command.key,equals("Book.ChangeName"));
+    expect(command.key, equals("Book.ChangeName"));
     expect(book.name, equals("Hi"));
 
     command.undo();
@@ -51,5 +51,86 @@ main() {
 
     command.execute();
     expect(book.name, equals("Hi"));
+  });
+
+  test("Deleting a book removes it from all alternatives", () {
+    var book = new Book(name: "Book");
+    var list1 = new Checklist(name: "List 1");
+    var list2 = new Checklist(name: "List 2");
+    var list3 = new Checklist(name: "List 3");
+
+    list1.setNextPrimary(list3);
+    list2.nextAlternatives.insert(list3);
+
+    book.normalLists.insert(list1);
+    book.normalLists.insert(list2);
+    book.normalLists.insert(list3);
+
+    expect(list1.nextPrimary.name, equals("List 3"));
+    expect(list2.nextAlternatives[0].name, equals("List 3"));
+
+    var command = book.normalLists.remove(list3);
+
+    expect(list1.nextPrimary, isNull);
+    expect(list2.nextAlternatives.length, equals(0));
+
+    command.undo();
+
+    expect(list1.nextPrimary.name, equals("List 3"));
+    expect(list2.nextAlternatives[0].name, equals("List 3"));
+  });
+
+  test("Delete a book with duplicate next alternatives", () {
+    var book = new Book(name: "Book");
+    var list1 = new Checklist(name: "List 1");
+    var list2 = new Checklist(name: "List 2");
+    var list3 = new Checklist(name: "List 3");
+
+    book.normalLists.insert(list1);
+    book.normalLists.insert(list2);
+    book.normalLists.insert(list3);
+    list1.nextAlternatives.insert(list2);
+    list1.nextAlternatives.insert(list3);
+    list1.nextAlternatives.insert(list2);
+
+    expect(list1.nextAlternatives.length, equals(3));
+    expect(list1.nextAlternatives[0].name, equals("List 2"));
+    expect(list1.nextAlternatives[1].name, equals("List 3"));
+    expect(list1.nextAlternatives[2].name, equals("List 2"));
+
+    var command = book.normalLists.remove(list2);
+    expect(list1.nextAlternatives[0].name, equals("List 3"));
+    expect(list1.nextAlternatives.length, equals(1));
+
+    command.undo();
+    expect(list1.nextAlternatives.length, equals(3));
+    expect(list1.nextAlternatives[0].name, equals("List 2"));
+    expect(list1.nextAlternatives[1].name, equals("List 3"));
+    expect(list1.nextAlternatives[2].name, equals("List 2"));
+
+    command.execute();
+    expect(list1.nextAlternatives[0].name, equals("List 3"));
+    expect(list1.nextAlternatives.length, equals(1));
+  });
+
+  test("Delete an alternative in a different collection",(){
+    var book = new Book(name: "Book");
+    var list1 = new Checklist(name: "List 1");
+    var list2 = new Checklist(name: "List 2");
+
+    book.normalLists.insert(list1);
+    book.emergencyLists.insert(list2);
+    list1.setNextPrimary(list2);
+
+    expect(list1.nextPrimary.name, equals("List 2"));
+
+    var command = book.emergencyLists.remove(list2);
+    expect(list1.nextPrimary, isNull);
+
+    command.undo();
+    expect(list1.nextPrimary.name, equals("List 2"));
+
+    command.execute();
+    expect(list1.nextPrimary, isNull);
   });
 }

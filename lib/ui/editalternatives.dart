@@ -10,11 +10,10 @@ import 'package:checklist/ui/chooselist.dart';
 import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditAlternatives extends EditorPage {
-  EditAlternatives(String path, ThemeChangeCallback onThemeChanged)
+  EditAlternatives(String path)
       : super(
           title: Strings.editNextAlternatives,
           path: path,
-          onThemeChanged: onThemeChanged,
         );
 
   createState() => new _EditAlternativesState();

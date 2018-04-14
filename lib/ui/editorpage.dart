@@ -15,8 +15,8 @@ typedef void AdditionalInitsCallback(ParsedItems result);
 typedef void OnMove(int oldIndex, int newIndex);
 
 abstract class EditorPage extends NavigationPage {
-  EditorPage({String title, String path, ThemeChangeCallback onThemeChanged})
-      : super(title: title, path: path, onThemeChanged: onThemeChanged);
+  EditorPage({String title, String path})
+      : super(title: title, path: path);
 }
 
 abstract class EditorPageState extends NavigationPageState {

@@ -11,9 +11,9 @@ import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/listviewpageframe.dart';
 
 class EditBookBranch extends EditorPage {
-  EditBookBranch(String path, ThemeChangeCallback onThemeChanged)
+  EditBookBranch(String path)
       : super(
-            title: _getTitle(path), path: path, onThemeChanged: onThemeChanged);
+            title: _getTitle(path), path: path);
 
   static String _getTitle(String path) {
     var result = ParsePath.validate(path);
