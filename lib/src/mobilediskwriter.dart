@@ -1,8 +1,8 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:checklist/src/diskwriter.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:checklist/src/bookio.dart';
 
 class MobileDiskWriter extends DiskWriter{
   Future<File> getLocalFile(String fileName) async {

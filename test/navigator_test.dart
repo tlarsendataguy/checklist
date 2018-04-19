@@ -7,38 +7,52 @@ import 'package:test/test.dart';
 main() {
   var startItem = new Item(toCheck: "Check 1", action: "Value 1");
   var item2 = new Item(toCheck: "Check 2", action: "Value 2");
+  var item3 = new Item(toCheck: "Check 3", action: "Value 3");
   var startList = new Checklist(
     name: "Normal 1",
-    source: [startItem],
+    source: [startItem, item2],
   );
   var list2 = new Checklist(
     name: "Normal 2",
-    source: [item2],
+    source: [item3],
   );
   var book = new Book(
     name: "Navigation test",
     normalLists: [startList, list2],
   );
 
-  test("Start book navigation", (){
+  test("Test canMoveNext and canGoBack",(){
     var navigator = new Navigator(book);
-    expect(navigator.currentList, equals(startList));
-    expect(navigator.priorList, isNull);
-    expect(navigator.priorHistory, isNull);
-  });
 
-  test("Navigate to another list",(){
-    var navigator = new Navigator(book);
-    navigator.navigateTo(list2);
-    expect(navigator.currentList, list2);
-    expect(navigator.priorList, startList);
+    expect(navigator.canMoveNext, isTrue);
+    expect(navigator.canGoBack, isFalse);
+
+    navigator.moveNext();
+
+    expect(navigator.canMoveNext, isTrue);
+    expect(navigator.canGoBack, isTrue);
+
+    navigator.moveNext();
+
+    expect(navigator.canMoveNext, isFalse);
+    expect(navigator.canGoBack, isTrue);
+
+    navigator.goBack();
+
+    expect(navigator.canMoveNext, isTrue);
+    expect(navigator.canGoBack, isTrue);
+
+    navigator.goBack();
+
+    expect(navigator.canMoveNext, isTrue);
+    expect(navigator.canGoBack, isFalse);
   });
 
   test("Move to the next item", () {
     var fixture = populatedListFixture();
     var list = fixture.list;
     var navigator = fixture.navigator;
-    var item = navigator.nextItem();
+    var item = navigator.moveNext();
 
     expect(navigator.currentItem, equals(list[1]));
     expect(item, equals(list[1]));
@@ -46,24 +60,24 @@ main() {
 
   test("Move past the last item", () {
     var navigator = populatedListFixture().navigator;
-    navigator.nextItem();
-    navigator.nextItem();
+    navigator.moveNext();
+    navigator.moveNext();
 
-    var item = navigator.nextItem();
+    var item = navigator.moveNext();
     expect(navigator.currentItem, isNull);
     expect(item, equals(null));
 
     expect(
-            () => navigator.nextItem(), throwsA(new isInstanceOf<UnsupportedError>()));
+            () => navigator.moveNext(), throwsA(new isInstanceOf<UnsupportedError>()));
   });
 
   test("Move to the prior item", () {
     var fixture = populatedListFixture();
     var navigator = fixture.navigator;
     var list = fixture.list;
-    navigator.nextItem();
+    navigator.moveNext();
 
-    var item = navigator.priorItem();
+    var item = navigator.goBack();
     expect(navigator.currentItem, equals(list[0]));
     expect(item, equals(list[0]));
   });
@@ -73,17 +87,17 @@ main() {
     var navigator = fixture.navigator;
     var list = fixture.list;
 
-    var item = navigator.priorItem();
+    var item = navigator.goBack();
     expect(navigator.currentItem, equals(list[0]));
     expect(item, equals(list[0]));
   });
 
   test("Branch items can only move next if true or false is specified", () {
     var navigator = populatedBranchedListFixture().navigator;
-    navigator.nextItem();
+    navigator.moveNext();
 
     expect(
-            () => navigator.nextItem(), throwsA(new isInstanceOf<UnsupportedError>()));
+            () => navigator.moveNext(), throwsA(new isInstanceOf<UnsupportedError>()));
   });
 
   test(
@@ -91,11 +105,11 @@ main() {
           () {
         var fixture = populatedBranchedListFixture();
         var navigator = fixture.navigator;
-        navigator.nextItem();
+        navigator.moveNext();
 
         var shouldBe = fixture.list[1].trueBranch[0];
 
-        var item = navigator.nextItem(branch: true);
+        var item = navigator.moveNext(branch: true);
         expect(item, equals(shouldBe));
         expect(navigator.currentItem, equals(shouldBe));
       });
@@ -105,14 +119,14 @@ main() {
           () {
         var fixture = populatedBranchedListFixture();
         var navigator = fixture.navigator;
-        navigator.nextItem();
+        navigator.moveNext();
 
         var shouldBe = fixture.list[2];
 
-        navigator.nextItem(branch: true);
-        navigator.nextItem();
+        navigator.moveNext(branch: true);
+        navigator.moveNext();
 
-        var item = navigator.nextItem();
+        var item = navigator.moveNext();
         expect(item, equals(shouldBe));
         expect(navigator.currentItem, equals(shouldBe));
       });
@@ -125,13 +139,13 @@ main() {
         var navigator = fixture.navigator;
         var list = fixture.list;
 
-        navigator.nextItem();
-        var item = navigator.nextItem(branch: true);
+        navigator.moveNext();
+        var item = navigator.moveNext(branch: true);
 
         expect(item, equals(list[1].trueBranch[0]));
         expect(navigator.currentItem, equals(list[1].trueBranch[0]));
 
-        item = navigator.priorItem();
+        item = navigator.goBack();
 
         expect(item, equals(shouldBe));
         expect(navigator.currentItem, shouldBe);
@@ -142,19 +156,19 @@ main() {
     var navigator = nestedBranchedList().navigator;
     expect(navigator.currentItem.toCheck, equals("Item 1"));
 
-    var item = navigator.nextItem();
+    var item = navigator.moveNext();
     expect(item.toCheck, equals("Parent Branch"));
 
-    item = navigator.nextItem(branch: true);
+    item = navigator.moveNext(branch: true);
     expect(item.toCheck, equals("True Child 1"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item.toCheck, equals("True Child 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item.toCheck, equals("Item 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item, isNull);
   });
 
@@ -163,40 +177,40 @@ main() {
     var navigator = nestedBranchedList().navigator;
     expect(navigator.currentItem.toCheck, equals("Item 1"));
 
-    var item = navigator.nextItem();
+    var item = navigator.moveNext();
     expect(item.toCheck, equals("Parent Branch"));
 
-    item = navigator.nextItem(branch: false);
+    item = navigator.moveNext(branch: false);
     expect(item.toCheck, equals("Child Branch"));
 
-    item = navigator.nextItem(branch: true);
+    item = navigator.moveNext(branch: true);
     expect(item.toCheck, equals("Sub-Child 1"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item.toCheck, equals("False Child 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item.toCheck, equals("Item 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item, isNull);
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("Item 2"));
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("False Child 2"));
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("Sub-Child 1"));
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("Child Branch"));
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("Parent Branch"));
 
-    item = navigator.priorItem();
+    item = navigator.goBack();
     expect(item.toCheck, equals("Item 1"));
   });
 
@@ -205,48 +219,48 @@ main() {
     var navigator = nestedBranchedList().navigator;
     expect(navigator.currentItem.toCheck, equals("Item 1"));
 
-    var item = navigator.nextItem();
+    var item = navigator.moveNext();
     expect(item.toCheck, equals("Parent Branch"));
 
-    item = navigator.nextItem(branch: false);
+    item = navigator.moveNext(branch: false);
     expect(item.toCheck, equals("Child Branch"));
 
-    item = navigator.nextItem(branch: false);
+    item = navigator.moveNext(branch: false);
     expect(item.toCheck, equals("False Child 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item.toCheck, equals("Item 2"));
 
-    item = navigator.nextItem();
+    item = navigator.moveNext();
     expect(item, isNull);
   });
 
   test("Specifying true or false on a non-branch is an error", () {
     var navigator = populatedBranchedListFixture().navigator;
-    expect(() => navigator.nextItem(branch: true),
+    expect(() => navigator.moveNext(branch: true),
         throwsA(new isInstanceOf<UnsupportedError>()));
   });
 
   test("Invalid history was provided to the play history method", () {
     //History that doesn't specify branch when needed
     var history1 = [
-      new BranchHistory(0, null),
-      new BranchHistory(1, null),
-      new BranchHistory(2, null),
+      new NavigationHistory(0, null),
+      new NavigationHistory(1, null),
+      new NavigationHistory(2, null),
     ];
 
     //History that is longer than the list
     var history2 = [
-      new BranchHistory(0, null),
-      new BranchHistory(1, null),
-      new BranchHistory(2, null),
-      new BranchHistory(3, null),
+      new NavigationHistory(0, null),
+      new NavigationHistory(1, null),
+      new NavigationHistory(2, null),
+      new NavigationHistory(3, null),
     ];
 
     var fixture1 = populatedBranchedListFixture();
     var testNavigator1 = fixture1.navigator;
     var testList1 = fixture1.list;
-    testNavigator1.nextItem();
+    testNavigator1.moveNext();
     expect(() => testNavigator1.playHistory(history1),
         throwsA(new isInstanceOf<ArgumentError>()));
     expect(testNavigator1.currentItem, equals(testList1[1]));
@@ -254,10 +268,67 @@ main() {
     var fixture2 = populatedBranchedListFixture();
     var testNavigator2 = fixture2.navigator;
     var testList2 = fixture2.list;
-    testNavigator2.nextItem();
+    testNavigator2.moveNext();
     expect((() => testNavigator2.playHistory(history2)),
         throwsA(new isInstanceOf<ArgumentError>()));
     expect(testNavigator2.currentItem, equals(testList2[1]));
+  });
+
+  test("Start book navigation", (){
+    var navigator = new Navigator(book);
+    expect(navigator.currentList, equals(startList));
+    expect(navigator.priorList, isNull);
+  });
+
+  test("Navigate to another list",(){
+    var navigator = new Navigator(book);
+    navigator.changeList(list2);
+    expect(navigator.currentList, list2);
+    expect(navigator.priorList, startList);
+  });
+
+  test("Go back after navigating to a new list",(){
+    var navigator = new Navigator(book);
+
+    navigator.moveNext();
+    navigator.changeList(list2);
+
+    expect(navigator.canGoBack, isTrue);
+
+    navigator.goBack();
+
+    expect(navigator.canGoBack, isTrue);
+    expect(navigator.currentList, equals(startList));
+    expect(navigator.priorList, isNull);
+
+    navigator.goBack();
+
+    expect(navigator.canGoBack, isFalse);
+  });
+
+  test("Create navigator with empty book",(){
+    var navigator = new Navigator(new Book(name: "Empty"));
+
+    expect(navigator.canGoBack, isFalse);
+    expect(navigator.canMoveNext, isFalse);
+    expect(navigator.currentList, isNull);
+    expect(navigator.priorList, isNull);
+  });
+
+  test("Create navigator with empty first list", (){
+    var navigator = new Navigator(
+      new Book(
+        name: "Empty first list",
+        normalLists: [
+          new Checklist(name: "Empty"),
+        ],
+      ),
+    );
+
+    expect(navigator.canGoBack, isFalse);
+    expect(navigator.canMoveNext, isFalse);
+    expect(navigator.currentList, isNotNull);
+    expect(navigator.priorList, isNull);
   });
 }
 

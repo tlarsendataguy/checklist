@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/src/diskwriter.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/note.dart';
 import 'package:commandlist/commandlist.dart';

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:checklist/src/diskwriter.dart';
 import 'package:test/test.dart';
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/bookio.dart';

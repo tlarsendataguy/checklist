@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:checklist/src/book.dart';
+import 'package:checklist/src/diskwriter.dart';
 import 'package:checklist/src/serializer.dart';
 import 'package:meta/meta.dart';
 
@@ -71,15 +72,5 @@ class BookIo {
     var file = await writer.getLocalFile("books");
     var contents = json.encode(files);
     await file.writeAsString(contents,flush: true);
-  }
-}
-
-abstract class DiskWriter{
-  Future<File> getLocalFile(String fileName);
-}
-
-class MockDiskWriter extends DiskWriter{
-  Future<File> getLocalFile(String fileName) async {
-    return new File("$fileName.json");
   }
 }
