@@ -69,6 +69,58 @@ main() {
   ]
 }
 """)));
+
+    navigator.moveNext();
+    json = io.serialize();
+
+    expect(json, equals(removeNewLines("""
+{
+  "currentList":"2",
+  "priorList":"1",
+  "currentHistory":[
+    {"index":0,"branch":null}
+  ],
+  "priorHistory":[
+    {"index":0,"branch":null}
+  ]
+}
+""")));
+
+    navigator.goBack();
+    navigator.goBack();
+    json = io.serialize();
+
+    expect(json, equals(removeNewLines("""
+{
+  "currentList":"1",
+  "priorList":null,
+  "currentHistory":[
+    {"index":0,"branch":null}
+  ],
+  "priorHistory":[]
+}
+""")));
+  });
+
+  test("Deserialize JSON to Navigator", (){
+    var json = """
+{
+  "currentList":"2",
+  "priorList":"1",
+  "currentHistory":[
+    {"index":0,"branch":null}
+  ],
+  "priorHistory":[
+    {"index":0,"branch":null}
+  ]
+}
+""";
+
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+    io.deserialize(json);
+    expect(navigator.currentList, equals(book.normalLists[1]));
+    expect(navigator.priorList, equals(book.normalLists[0]));
   });
 }
 

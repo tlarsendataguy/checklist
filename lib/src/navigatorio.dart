@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/diskwriter.dart';
 import 'package:checklist/src/navigator.dart';
 
@@ -19,6 +20,44 @@ class NavigatorIo {
     };
 
     return json.encode(jsonContaner);
+  }
+
+  void deserialize(String serializedData){
+    Map<String,Object> map = json.decode(serializedData);
+    String priorId = map["priorList"];
+    String currentId = map["currentList"];
+    var priorHistory = _extractHistory(map['priorHistory']);
+    var currentHistory = _extractHistory(map['currentHistory']);
+
+    bool foundCurrent = false, foundPrior = false;
+    Checklist currentList;
+    for (var collection in [navigator.book.normalLists, navigator.book.emergencyLists]) {
+      for (var list in collection){
+        if (list.id == priorId) {
+          navigator.currentList = list;
+          navigator.playHistory(priorHistory);
+          foundPrior = true;
+        }
+        if (list.id == currentId) {
+          currentList = list;
+          foundCurrent = true;
+        }
+        if (foundCurrent && foundPrior) break;
+      }
+    }
+
+    navigator.changeList(currentList);
+    navigator.playHistory(currentHistory);
+  }
+
+  List<NavigationHistory> _extractHistory(List<dynamic> jsonHistory) {
+    var history = new List<NavigationHistory>();
+
+    for (Map<String,Object> step in jsonHistory) {
+      history.add(new NavigationHistory(step['index'], step['branch']));
+    }
+
+    return history;
   }
 
   List<Map<String,Object>> _historyToMap(List<NavigationHistory> history) {

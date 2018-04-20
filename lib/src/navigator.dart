@@ -95,11 +95,9 @@ class Navigator {
     var revertCurrentIndex = _currentIndex;
     var revertCurrentHistory = new List.from(_currentHistory);
     var revertCurrentDecisions = new List.from(_currentBranches);
-    var revertPriorHistory = new List.from(_priorHistory);
 
     try {
       _currentIndex = 0;
-      _priorHistory.clear();
       _currentHistory.clear();
       _currentBranches.clear();
 
@@ -109,7 +107,6 @@ class Navigator {
     } catch (ex) {
       _currentIndex = revertCurrentIndex;
       _currentHistory = new ListQueue.from(revertCurrentHistory);
-      _priorHistory = new ListQueue.from(revertPriorHistory);
       _currentBranches = new ListQueue.from(revertCurrentDecisions);
       throw new ArgumentError("The provided history was not valid");
     }

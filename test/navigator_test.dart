@@ -8,13 +8,14 @@ main() {
   var startItem = new Item(toCheck: "Check 1", action: "Value 1");
   var item2 = new Item(toCheck: "Check 2", action: "Value 2");
   var item3 = new Item(toCheck: "Check 3", action: "Value 3");
+  var item4 = new Item(toCheck: "Check 4", action: "Value 4");
   var startList = new Checklist(
     name: "Normal 1",
     source: [startItem, item2],
   );
   var list2 = new Checklist(
     name: "Normal 2",
-    source: [item3],
+    source: [item3, item4],
   );
   var book = new Book(
     name: "Navigation test",
@@ -170,6 +171,21 @@ main() {
 
     item = navigator.moveNext();
     expect(item, isNull);
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("True Child 2"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("True Child 1"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Parent Branch"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Item 1"));
   });
 
   test("Move forward and back through nested branches, false then true", () {
@@ -233,6 +249,21 @@ main() {
 
     item = navigator.moveNext();
     expect(item, isNull);
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Item 2"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("False Child 2"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Child Branch"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Parent Branch"));
+
+    item = navigator.goBack();
+    expect(item.toCheck, equals("Item 1"));
   });
 
   test("Specifying true or false on a non-branch is an error", () {
@@ -287,19 +318,29 @@ main() {
     expect(navigator.priorList, startList);
   });
 
-  test("Go back after navigating to a new list",(){
+  test("Go back after navigating to the second item of a new list",(){
     var navigator = new Navigator(book);
 
     navigator.moveNext();
     navigator.changeList(list2);
+    navigator.moveNext();
 
     expect(navigator.canGoBack, isTrue);
 
     navigator.goBack();
 
     expect(navigator.canGoBack, isTrue);
+    expect(navigator.currentList, equals(list2));
+    expect(navigator.priorList, equals(startList));
+    expect(navigator.readPriorHistory().length, equals(1));
+
+    navigator.goBack();
+
+    expect(navigator.canGoBack, isTrue);
     expect(navigator.currentList, equals(startList));
     expect(navigator.priorList, isNull);
+    expect(navigator.readPriorHistory().length, equals(0));
+    expect(navigator.readCurrentHistory().length, equals(1));
 
     navigator.goBack();
 
