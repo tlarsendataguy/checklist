@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/book.dart';
+import 'package:checklist/src/exceptions.dart';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/note.dart';
 
@@ -202,16 +203,6 @@ class Serialize {
       "priority": note.priority.toString(),
       "text": note.text,
     };
-  }
-}
-
-class MalformedStringException implements Exception {
-  final dynamic message;
-  final dynamic stacktrace;
-  MalformedStringException(this.message, this.stacktrace);
-
-  String toString() {
-    return "Instance of 'MalformedStringException': $message\nStack trace:\n$stacktrace";
   }
 }
 
