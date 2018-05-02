@@ -1,3 +1,4 @@
+import 'package:checklist/src/exceptions.dart';
 import 'package:checklist/src/serializer.dart';
 import 'package:test/test.dart';
 import 'package:checklist/src/book.dart';

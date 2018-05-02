@@ -49,7 +49,6 @@ class _MyAppState extends State<MyApp>{
       case ParseResult.NewBook:
         return router(new NewBook(path));
       case ParseResult.UseBook:
-        var internalPopper = _buildRouter(settings,true);
         return router(new UseBook(path));
       case ParseResult.Book:
         return router(new EditBook(path));
@@ -75,7 +74,7 @@ class _MyAppState extends State<MyApp>{
     }
   }
 
-  RouteBuilder _buildRouter(RouteSettings settings, [bool willHandlePopInternally = false]){
+  RouteBuilder _buildRouter(RouteSettings settings){
     int level;
     String path = settings.name;
 
@@ -89,7 +88,6 @@ class _MyAppState extends State<MyApp>{
         settings: settings,
         level: level,
         builder: (BuildContext context) => builder,
-        willHandlePopInternally: willHandlePopInternally,
       );
     };
   }
