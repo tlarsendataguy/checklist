@@ -48,4 +48,6 @@ class Strings{
   static String createNote = "Create a new note:";
   static String noNoteTextError = "The note cannot be blank";
   static String editNote = "Edit note";
+  static String yes = "Yes";
+  static String no = "No";
 }

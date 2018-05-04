@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/parsepath.dart';
+import 'package:checklist/ui/strings.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -47,7 +48,7 @@ class UseBookState extends State<UseBook> {
   }
 
   Future<bool> willPop() {
-    if (navigator.canGoBack){
+    if (navigator.canGoBack) {
       setState(navigator.goBack);
       return new Future<bool>.value(false);
     }
@@ -56,16 +57,63 @@ class UseBookState extends State<UseBook> {
 
   Widget _body() {
     var current = navigator.currentItem;
-    if (current == null){
+    if (current == null) {
       return Text("End of checklist");
     } else if (current.isBranch) {
-      return Text("Question and answer item");
+      return _questionItem();
     } else {
       return _checkItem();
     }
   }
 
-  Widget _checkItem(){
+  Widget _questionItem() {
+    return Column(
+      children: <Widget>[
+        Expanded(
+          child: Center(
+            child: Text(
+              navigator.currentItem.toCheck,
+              textScaleFactor: 2.5,
+            ),
+          ),
+        ),
+        Row(
+          children: <Widget>[
+            Expanded(
+              flex: 1,
+              child: _yesNoButton(true),
+            ),
+            Expanded(
+              flex: 1,
+              child: _yesNoButton(false),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _yesNoButton(bool branch) {
+    return Container(
+      height: 88.0,
+      padding: EdgeInsets.all(4.0),
+      child: OutlineButton(
+        child: Text(
+          branch ? Strings.yes : Strings.no,
+          textScaleFactor: 1.8,
+        ),
+        onPressed: () => setState(() => navigator.moveNext(branch: branch)),
+        textColor: ThemeColors.primary,
+        shape: StadiumBorder(),
+        disabledBorderColor: ThemeColors.primary,
+        highlightedBorderColor: ThemeColors.primary,
+        borderSide: BorderSide(color: ThemeColors.primary, width: 5.0),
+        color: ThemeColors.primary,
+      ),
+    );
+  }
+
+  Widget _checkItem() {
     return Stack(
       children: <Widget>[
         Column(
@@ -108,8 +156,11 @@ class UseBookState extends State<UseBook> {
             height: 80.0,
             color: ThemeColors.black,
             child: OutlineButton(
-              child: Icon(Icons.check),
-              onPressed: ()=> setState(navigator.moveNext),
+              child: Icon(
+                Icons.check,
+                size: 40.0,
+              ),
+              onPressed: () => setState(navigator.moveNext),
               shape: CircleBorder(),
               textColor: ThemeColors.primary,
               disabledBorderColor: ThemeColors.primary,
