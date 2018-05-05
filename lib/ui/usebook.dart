@@ -24,6 +24,8 @@ class UseBookState extends State<UseBook> {
   bool errorLoading = false;
   Book book;
   nav.Navigator navigator;
+  double opacity = 1.0;
+  final int fadeDelay = 85;
 
   @override
   void initState() {
@@ -49,7 +51,7 @@ class UseBookState extends State<UseBook> {
 
   Future<bool> willPop() {
     if (navigator.canGoBack) {
-      setState(navigator.goBack);
+      fadeTransition(()=>navigator.goBack())();
       return new Future<bool>.value(false);
     }
     return new Future<bool>.value(true);
@@ -102,7 +104,7 @@ class UseBookState extends State<UseBook> {
           branch ? Strings.yes : Strings.no,
           textScaleFactor: 1.8,
         ),
-        onPressed: () => setState(() => navigator.moveNext(branch: branch)),
+        onPressed: setMoveNext(branch),
         textColor: ThemeColors.primary,
         shape: StadiumBorder(),
         disabledBorderColor: ThemeColors.primary,
@@ -160,7 +162,7 @@ class UseBookState extends State<UseBook> {
                 Icons.check,
                 size: 40.0,
               ),
-              onPressed: () => setState(navigator.moveNext),
+              onPressed: setMoveNext(),
               shape: CircleBorder(),
               textColor: ThemeColors.primary,
               disabledBorderColor: ThemeColors.primary,
@@ -174,6 +176,23 @@ class UseBookState extends State<UseBook> {
     );
   }
 
+  Function setMoveNext([bool branch]){
+    return fadeTransition(()=>navigator.moveNext(branch: branch));
+  }
+
+  Function fadeTransition(Function stateChangeAction) {
+    return () async {
+      setState(() {
+        opacity = 0.0;
+      });
+      await Future.delayed(Duration(milliseconds: fadeDelay),stateChangeAction);
+      setState(() {
+        opacity = 1.0;
+      });
+
+    };
+  }
+
   @override
   Widget build(BuildContext context) {
     if (isLoading)
@@ -185,7 +204,11 @@ class UseBookState extends State<UseBook> {
         onWillPop: willPop,
         child: Scaffold(
           appBar: new AppBar(title: new Text(navigator.currentList.name)),
-          body: _body(),
+          body: AnimatedOpacity(
+            duration: Duration(milliseconds: fadeDelay),
+            opacity: opacity,
+            child: _body(),
+          ),
         ),
       );
   }
