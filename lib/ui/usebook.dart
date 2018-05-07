@@ -51,7 +51,7 @@ class UseBookState extends State<UseBook> {
 
   Future<bool> willPop() {
     if (navigator.canGoBack) {
-      fadeTransition(()=>navigator.goBack())();
+      fadeTransition(() => navigator.goBack())();
       return new Future<bool>.value(false);
     }
     return new Future<bool>.value(true);
@@ -60,12 +60,36 @@ class UseBookState extends State<UseBook> {
   Widget _body() {
     var current = navigator.currentItem;
     if (current == null) {
-      return Text("End of checklist");
+      if (_isFinished()) {
+        return Text("Done");
+      } else {
+        return _selectNextList();
+      }
     } else if (current.isBranch) {
       return _questionItem();
     } else {
       return _checkItem();
     }
+  }
+
+  bool _isFinished() {
+    var list = navigator.currentList;
+    if (list == null ||
+        (list.nextPrimary == null && list.nextAlternatives.length == 0))
+      return true;
+    else
+      return false;
+  }
+
+  Widget _selectNextList() {
+    var list = navigator.currentList;
+    Widget primary, alternatives;
+
+    if (list.nextPrimary != null) {
+      primary = _button();
+    }
+
+    return primary;
   }
 
   Widget _questionItem() {
@@ -83,12 +107,18 @@ class UseBookState extends State<UseBook> {
           children: <Widget>[
             Expanded(
               flex: 1,
-              child: _yesNoButton(true),
+              child: Padding(
+                padding: EdgeInsets.all(4.0),
+                child: _yesNoButton(true),
+              ),
             ),
             Expanded(
               flex: 1,
-              child: _yesNoButton(false),
-            )
+              child: Padding(
+                padding: EdgeInsets.all(4.0),
+                child: _yesNoButton(false),
+              ),
+            ),
           ],
         ),
       ],
@@ -96,15 +126,25 @@ class UseBookState extends State<UseBook> {
   }
 
   Widget _yesNoButton(bool branch) {
-    return Container(
+    return _button(
+      child: Text(
+        branch ? Strings.yes : Strings.no,
+        textScaleFactor: 1.8,
+      ),
       height: 88.0,
-      padding: EdgeInsets.all(4.0),
+      onPressed: setMoveNext(branch),
+    );
+  }
+
+  Widget _button(
+      {Widget child, double width, double height, Function onPressed}) {
+    return Container(
+      height: height,
+      width: width,
+      color: ThemeColors.black,
       child: OutlineButton(
-        child: Text(
-          branch ? Strings.yes : Strings.no,
-          textScaleFactor: 1.8,
-        ),
-        onPressed: setMoveNext(branch),
+        child: child,
+        onPressed: onPressed,
         textColor: ThemeColors.primary,
         shape: StadiumBorder(),
         disabledBorderColor: ThemeColors.primary,
@@ -153,31 +193,19 @@ class UseBookState extends State<UseBook> {
           ),
         ),
         Center(
-          child: Container(
+          child: _button(
+            child: Icon(Icons.check, size: 40.0),
             width: 80.0,
             height: 80.0,
-            color: ThemeColors.black,
-            child: OutlineButton(
-              child: Icon(
-                Icons.check,
-                size: 40.0,
-              ),
-              onPressed: setMoveNext(),
-              shape: CircleBorder(),
-              textColor: ThemeColors.primary,
-              disabledBorderColor: ThemeColors.primary,
-              highlightedBorderColor: ThemeColors.primary,
-              borderSide: BorderSide(color: ThemeColors.primary, width: 5.0),
-              color: ThemeColors.primary,
-            ),
+            onPressed: setMoveNext(),
           ),
         ),
       ],
     );
   }
 
-  Function setMoveNext([bool branch]){
-    return fadeTransition(()=>navigator.moveNext(branch: branch));
+  Function setMoveNext([bool branch]) {
+    return fadeTransition(() => navigator.moveNext(branch: branch));
   }
 
   Function fadeTransition(Function stateChangeAction) {
@@ -185,11 +213,11 @@ class UseBookState extends State<UseBook> {
       setState(() {
         opacity = 0.0;
       });
-      await Future.delayed(Duration(milliseconds: fadeDelay),stateChangeAction);
+      await Future.delayed(
+          Duration(milliseconds: fadeDelay), stateChangeAction);
       setState(() {
         opacity = 1.0;
       });
-
     };
   }
 
@@ -199,11 +227,17 @@ class UseBookState extends State<UseBook> {
       return new CupertinoActivityIndicator();
     else if (errorLoading)
       return new Text("Error");
-    else
+    else {
+      String title;
+      if (navigator.currentList == null) {
+        title = navigator.book.name;
+      } else {
+        title = navigator.currentList.name;
+      }
       return new WillPopScope(
         onWillPop: willPop,
         child: Scaffold(
-          appBar: new AppBar(title: new Text(navigator.currentList.name)),
+          appBar: new AppBar(title: new Text(title)),
           body: AnimatedOpacity(
             duration: Duration(milliseconds: fadeDelay),
             opacity: opacity,
@@ -211,5 +245,6 @@ class UseBookState extends State<UseBook> {
           ),
         ),
       );
+    }
   }
 }

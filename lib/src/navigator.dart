@@ -129,10 +129,13 @@ class Navigator {
 
   Item _getCurrentItem() {
     var list = _getCurrentContext();
+    if (list == null)
+      return null;
+
     if (list.length == _currentIndex)
       return null;
-    else
-      return list[_currentIndex];
+
+    return list[_currentIndex];
   }
 }
 

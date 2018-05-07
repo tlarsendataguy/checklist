@@ -354,6 +354,7 @@ main() {
     expect(navigator.canMoveNext, isFalse);
     expect(navigator.currentList, isNull);
     expect(navigator.priorList, isNull);
+    expect(navigator.currentItem, isNull);
   });
 
   test("Create navigator with empty first list", (){
