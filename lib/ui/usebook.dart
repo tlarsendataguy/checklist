@@ -65,7 +65,7 @@ class UseBookState extends State<UseBook> {
     var current = navigator.currentItem;
     if (current == null) {
       if (_isFinished()) {
-        return Text("Done");
+        return _done();
       } else {
         return _selectNextList();
       }
@@ -74,6 +74,58 @@ class UseBookState extends State<UseBook> {
     } else {
       return _checkItem();
     }
+  }
+
+  Widget _done() {
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+          Strings.completed,
+          textScaleFactor: smallScale,
+        ),
+        ),
+            Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _button(
+                          child: Text(
+                            Strings.exit,
+                            textScaleFactor: smallScale,
+                          ),
+                          onPressed: () => Navigator.of(context).pop(),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(8.0),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _button(
+                          child: Text(
+                            Strings.restart,
+                            textScaleFactor: smallScale,
+                          ),
+                          onPressed: fadeTransition(
+                              () => navigator = nav.Navigator(book)),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+      ],
+    );
   }
 
   bool _isFinished() {
@@ -94,7 +146,7 @@ class UseBookState extends State<UseBook> {
         Padding(
           padding: EdgeInsets.only(top: 16.0),
           child: Text(
-            "Next checklist:",
+            Strings.next,
             textScaleFactor: smallScale,
           ),
         ),
@@ -122,7 +174,7 @@ class UseBookState extends State<UseBook> {
         Padding(
           padding: EdgeInsets.only(top: 24.0),
           child: Text(
-            "Alternatives:",
+            Strings.alternatives,
             textScaleFactor: smallScale,
           ),
         ),

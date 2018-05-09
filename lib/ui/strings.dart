@@ -50,4 +50,9 @@ class Strings{
   static String editNote = "Edit note";
   static String yes = "Yes";
   static String no = "No";
+  static String exit = "Exit";
+  static String restart = "Restart";
+  static String completed = "Checklist completed";
+  static String next = "Next checklist:";
+  static String alternatives = "Alternatives:";
 }
