@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:checklist/src/book.dart';
+import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:checklist/ui/templates.dart';
@@ -26,6 +27,9 @@ class UseBookState extends State<UseBook> {
   nav.Navigator navigator;
   double opacity = 1.0;
   final int fadeDelay = 85;
+  final smallScale = 1.8;
+  final largeScale = 2.5;
+  final midScale = 2.0;
 
   @override
   void initState() {
@@ -83,13 +87,71 @@ class UseBookState extends State<UseBook> {
 
   Widget _selectNextList() {
     var list = navigator.currentList;
-    Widget primary, alternatives;
+    var widgets = <Widget>[];
 
     if (list.nextPrimary != null) {
-      primary = _button();
+      widgets.add(
+        Padding(
+          padding: EdgeInsets.only(top: 16.0),
+          child: Text(
+            "Next checklist:",
+            textScaleFactor: smallScale,
+          ),
+        ),
+      );
+      widgets.add(Row(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: _button(
+                child: Text(
+                  list.nextPrimary.name,
+                  textScaleFactor: midScale,
+                ),
+                onPressed: setNextList(list.nextPrimary),
+              ),
+            ),
+          )
+        ],
+      ));
     }
 
-    return primary;
+    if (list.nextAlternatives.length > 0) {
+      widgets.add(
+        Padding(
+          padding: EdgeInsets.only(top: 24.0),
+          child: Text(
+            "Alternatives:",
+            textScaleFactor: smallScale,
+          ),
+        ),
+      );
+      widgets.add(
+        Expanded(
+          child: ListView.builder(
+            itemCount: list.nextAlternatives.length,
+            itemBuilder: (_, index) {
+              var newList = list.nextAlternatives[index];
+              return Padding(
+                padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
+                child: _button(
+                  child: Text(
+                    newList.name,
+                    textScaleFactor: midScale,
+                  ),
+                  onPressed: setNextList(newList),
+                ),
+              );
+            },
+          ),
+        ),
+      );
+    }
+
+    return Column(
+      children: widgets,
+    );
   }
 
   Widget _questionItem() {
@@ -99,7 +161,7 @@ class UseBookState extends State<UseBook> {
           child: Center(
             child: Text(
               navigator.currentItem.toCheck,
-              textScaleFactor: 2.5,
+              textScaleFactor: largeScale,
             ),
           ),
         ),
@@ -129,15 +191,14 @@ class UseBookState extends State<UseBook> {
     return _button(
       child: Text(
         branch ? Strings.yes : Strings.no,
-        textScaleFactor: 1.8,
+        textScaleFactor: smallScale,
       ),
-      height: 88.0,
       onPressed: setMoveNext(branch),
     );
   }
 
   Widget _button(
-      {Widget child, double width, double height, Function onPressed}) {
+      {Widget child, double width, double height = 80.0, Function onPressed}) {
     return Container(
       height: height,
       width: width,
@@ -167,7 +228,7 @@ class UseBookState extends State<UseBook> {
                 child: Center(
                   child: Text(
                     navigator.currentItem.toCheck,
-                    textScaleFactor: 2.5,
+                    textScaleFactor: largeScale,
                   ),
                 ),
               ),
@@ -179,7 +240,7 @@ class UseBookState extends State<UseBook> {
                 child: Center(
                   child: Text(
                     navigator.currentItem.action,
-                    textScaleFactor: 2.5,
+                    textScaleFactor: largeScale,
                   ),
                 ),
               ),
@@ -196,12 +257,15 @@ class UseBookState extends State<UseBook> {
           child: _button(
             child: Icon(Icons.check, size: 40.0),
             width: 80.0,
-            height: 80.0,
             onPressed: setMoveNext(),
           ),
         ),
       ],
     );
+  }
+
+  Function setNextList(Checklist list) {
+    return fadeTransition(() => navigator.changeList(list));
   }
 
   Function setMoveNext([bool branch]) {
