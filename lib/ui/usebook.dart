@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:checklist/src/book.dart';
 import 'package:checklist/src/checklist.dart';
+import 'package:checklist/src/mobilediskwriter.dart';
+import 'package:checklist/src/navigatorio.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:checklist/ui/templates.dart';
@@ -25,6 +27,7 @@ class UseBookState extends State<UseBook> {
   bool errorLoading = false;
   Book book;
   nav.Navigator navigator;
+  NavigatorIo io;
   double opacity = 1.0;
   final int fadeDelay = 85;
   final smallScale = 1.8;
@@ -35,11 +38,14 @@ class UseBookState extends State<UseBook> {
   void initState() {
     super.initState();
 
-    ParsePath.parse(widget.path).then<ParsedItems>((items) {
+    ParsePath.parse(widget.path).then<ParsedItems>((items) async {
       if (mounted) {
+        if (items.result == ParseResult.UseBook) book = items.book;
+        navigator = new nav.Navigator(book);
+        io = new NavigatorIo(navigator, MobileDiskWriter());
+        await io.retrieve();
+
         setState(() {
-          if (items.result == ParseResult.UseBook) book = items.book;
-          navigator = new nav.Navigator(book);
           isLoading = false;
         });
       }
@@ -83,47 +89,50 @@ class UseBookState extends State<UseBook> {
         Padding(
           padding: EdgeInsets.all(8.0),
           child: Text(
-          Strings.completed,
-          textScaleFactor: smallScale,
+            Strings.completed,
+            textScaleFactor: smallScale,
+          ),
         ),
-        ),
-            Column(
-              children: [
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _button(
-                          child: Text(
-                            Strings.exit,
-                            textScaleFactor: smallScale,
-                          ),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
+        Column(
+          children: [
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _button(
+                      child: Text(
+                        Strings.exit,
+                        textScaleFactor: smallScale,
                       ),
-                    ],
+                      onPressed: () async {
+                        io.delete();
+                        Navigator.of(context).pop();
+                      },
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.all(8.0),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _button(
-                          child: Text(
-                            Strings.restart,
-                            textScaleFactor: smallScale,
-                          ),
-                          onPressed: fadeTransition(
-                              () => navigator = nav.Navigator(book)),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
+            Padding(
+              padding: EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _button(
+                      child: Text(
+                        Strings.restart,
+                        textScaleFactor: smallScale,
+                      ),
+                      onPressed:
+                          fadeTransition(() => navigator = nav.Navigator(book)),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ],
     );
   }
@@ -145,9 +154,11 @@ class UseBookState extends State<UseBook> {
       widgets.add(
         Padding(
           padding: EdgeInsets.only(top: 16.0),
-          child: Text(
-            Strings.next,
-            textScaleFactor: smallScale,
+          child: Center(
+            child: Text(
+              Strings.next,
+              textScaleFactor: smallScale,
+            ),
           ),
         ),
       );
@@ -155,7 +166,7 @@ class UseBookState extends State<UseBook> {
         children: [
           Expanded(
             child: Padding(
-              padding: EdgeInsets.all(8.0),
+              padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 16.0),
               child: _button(
                 child: Text(
                   list.nextPrimary.name,
@@ -172,70 +183,65 @@ class UseBookState extends State<UseBook> {
     if (list.nextAlternatives.length > 0) {
       widgets.add(
         Padding(
-          padding: EdgeInsets.only(top: 24.0),
-          child: Text(
-            Strings.alternatives,
-            textScaleFactor: smallScale,
+          padding: EdgeInsets.only(top: 16.0, bottom: 8.0),
+          child: Center(
+            child: Text(
+              Strings.alternatives,
+              textScaleFactor: smallScale,
+            ),
           ),
         ),
       );
-      widgets.add(
-        Expanded(
-          child: ListView.builder(
-            itemCount: list.nextAlternatives.length,
-            itemBuilder: (_, index) {
-              var newList = list.nextAlternatives[index];
-              return Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 0.0),
-                child: _button(
-                  child: Text(
-                    newList.name,
-                    textScaleFactor: midScale,
-                  ),
-                  onPressed: setNextList(newList),
-                ),
-              );
-            },
+      for (var altList in list.nextAlternatives) {
+        widgets.add(
+          Padding(
+            padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+            child: _button(
+              child: Text(
+                altList.name,
+                textScaleFactor: midScale,
+              ),
+              onPressed: setNextList(altList),
+            ),
           ),
-        ),
-      );
+        );
+      }
     }
 
     return Column(
-      children: widgets,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        ListView(
+          shrinkWrap: true,
+          physics: ScrollPhysics(),
+          children: widgets,
+        ),
+      ],
     );
   }
 
   Widget _questionItem() {
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: Center(
-            child: Text(
-              navigator.currentItem.toCheck,
-              textScaleFactor: largeScale,
-            ),
-          ),
-        ),
-        Row(
+    return _itemWidget(
+      navigator.currentItem.toCheck,
+      "",
+      child: Center(
+        child: Row(
           children: <Widget>[
             Expanded(
-              flex: 1,
               child: Padding(
-                padding: EdgeInsets.all(4.0),
+                padding: EdgeInsets.fromLTRB(16.0, 0.0, 8.0, 0.0),
                 child: _yesNoButton(true),
               ),
             ),
             Expanded(
-              flex: 1,
               child: Padding(
-                padding: EdgeInsets.all(4.0),
+                padding: EdgeInsets.fromLTRB(8.0, 0.0, 16.0, 0.0),
                 child: _yesNoButton(false),
               ),
             ),
           ],
         ),
-      ],
+      ),
     );
   }
 
@@ -269,6 +275,20 @@ class UseBookState extends State<UseBook> {
   }
 
   Widget _checkItem() {
+    return _itemWidget(
+      navigator.currentItem.toCheck,
+      navigator.currentItem.action,
+      child: Center(
+        child: _button(
+          child: Icon(Icons.check, size: 40.0),
+          width: 80.0,
+          onPressed: setMoveNext(),
+        ),
+      ),
+    );
+  }
+
+  Widget _itemWidget(String topText, String bottomText, {Widget child}) {
     return Stack(
       children: <Widget>[
         Column(
@@ -279,7 +299,7 @@ class UseBookState extends State<UseBook> {
                 padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 48.0),
                 child: Center(
                   child: Text(
-                    navigator.currentItem.toCheck,
+                    topText,
                     textScaleFactor: largeScale,
                   ),
                 ),
@@ -291,7 +311,7 @@ class UseBookState extends State<UseBook> {
                 padding: EdgeInsets.fromLTRB(8.0, 48.0, 8.0, 8.0),
                 child: Center(
                   child: Text(
-                    navigator.currentItem.action,
+                    bottomText,
                     textScaleFactor: largeScale,
                   ),
                 ),
@@ -305,23 +325,21 @@ class UseBookState extends State<UseBook> {
             height: 3.0,
           ),
         ),
-        Center(
-          child: _button(
-            child: Icon(Icons.check, size: 40.0),
-            width: 80.0,
-            onPressed: setMoveNext(),
-          ),
-        ),
+        child,
       ],
     );
   }
 
   Function setNextList(Checklist list) {
-    return fadeTransition(() => navigator.changeList(list));
+    return fadeTransition(() {
+      navigator.changeList(list);
+    });
   }
 
   Function setMoveNext([bool branch]) {
-    return fadeTransition(() => navigator.moveNext(branch: branch));
+    return fadeTransition(() {
+      navigator.moveNext(branch: branch);
+    });
   }
 
   Function fadeTransition(Function stateChangeAction) {
@@ -331,6 +349,7 @@ class UseBookState extends State<UseBook> {
       });
       await Future.delayed(
           Duration(milliseconds: fadeDelay), stateChangeAction);
+      await io.persist();
       setState(() {
         opacity = 1.0;
       });

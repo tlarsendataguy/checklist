@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:checklist/src/book.dart';
+import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/diskwriter.dart';
 import 'package:checklist/src/exceptions.dart';
@@ -9,6 +12,7 @@ import 'package:test/test.dart';
 
 main() {
   var book = new Book(
+    id: "12345",
     name: "Navigator IO Test",
     normalLists: [
       new Checklist(
@@ -36,6 +40,7 @@ main() {
     var json = io.serialize();
     expect(json, equals(removeNewLines("""
 {
+  "book":"12345",
   "currentList":"1",
   "priorList":null,
   "currentHistory":[],
@@ -48,6 +53,7 @@ main() {
 
     expect(json, equals(removeNewLines("""
 {
+  "book":"12345",
   "currentList":"1",
   "priorList":null,
   "currentHistory":[
@@ -62,6 +68,7 @@ main() {
 
     expect(json, equals(removeNewLines("""
 {
+  "book":"12345",
   "currentList":"2",
   "priorList":"1",
   "currentHistory":[],
@@ -76,6 +83,7 @@ main() {
 
     expect(json, equals(removeNewLines("""
 {
+  "book":"12345",
   "currentList":"2",
   "priorList":"1",
   "currentHistory":[
@@ -93,6 +101,7 @@ main() {
 
     expect(json, equals(removeNewLines("""
 {
+  "book":"12345",
   "currentList":"1",
   "priorList":null,
   "currentHistory":[
@@ -103,9 +112,10 @@ main() {
 """)));
   });
 
-  test("Deserialize JSON with only current values",(){
+  test("Deserialize JSON with only current values", () {
     var json = """
 {
+  "book":"12345",
   "currentList":"1",
   "priorList":null,
   "currentHistory":[
@@ -127,6 +137,7 @@ main() {
   test("Deserialize JSON with current and prior values", () {
     var json = """
 {
+  "book":"12345",
   "currentList":"2",
   "priorList":"1",
   "currentHistory":[
@@ -147,7 +158,8 @@ main() {
     expect(navigator.readPriorHistory().length, equals(1));
   });
 
-  var invalidJson = '{"currentList":"2",priorList,"1","currentHistory":[],"priorHistory":[]}';
+  var invalidJson =
+      '{"book":"12345","currentList":"2",priorList,"1","currentHistory":[],"priorHistory":[]}';
 
   test("Deserialize invalid JSON", () {
     var navigator = new Navigator(book);
@@ -161,7 +173,8 @@ main() {
     var navigator = new Navigator(book);
     var io = new NavigatorIo(navigator, MockDiskWriter());
 
-    io.deserialize('{"currentList":"2","priorList":"1","currentHistory":[],"priorHistory":[{"index":0,"branch":null},{"index":0,"branch":null}]}');
+    io.deserialize(
+        '{"book":"12345","currentList":"2","priorList":"1","currentHistory":[],"priorHistory":[{"index":0,"branch":null},{"index":0,"branch":null}]}');
 
     var currentList = book.normalLists[1];
     var priorList = book.normalLists[0];
@@ -170,14 +183,81 @@ main() {
     expect(navigator.priorList, equals(priorList));
     expect(navigator.readPriorHistory().length, equals(2));
 
-    expect(()=> io.deserialize(invalidJson),
+    expect(() => io.deserialize(invalidJson),
         throwsA(new isInstanceOf<MalformedStringException>()));
 
     expect(navigator.currentList, equals(currentList));
     expect(navigator.currentItem, equals(currentList[0]));
     expect(navigator.priorList, equals(priorList));
     expect(navigator.readPriorHistory().length, equals(2));
+  });
 
+  test("Serialize and deserialize a file", () async {
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+
+    var file = new File("Navigator.json");
+
+    if (await file.exists()) {
+      await file.delete(recursive: true);
+    }
+
+    expect(await file.exists(), isFalse);
+
+    navigator.moveNext();
+    await io.persist();
+    expect(await file.exists(), isTrue);
+
+    var newNavigator = new Navigator(book);
+    var newIo = new NavigatorIo(newNavigator, MockDiskWriter());
+    var success = await newIo.retrieve();
+    expect(success, isTrue);
+    expect(newNavigator.currentList.name, equals(navigator.currentList.name));
+    expect(
+      newNavigator.currentList.indexOf(newNavigator.currentItem),
+      equals(navigator.currentList.indexOf(navigator.currentItem)),
+    );
+
+    await file.delete(recursive: true);
+  });
+
+  test("Deserialize a file for a different book",() async {
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+
+    var file = new File("Navigator.json");
+
+    await io.persist();
+
+    var newNavigator = new Navigator(new Book(id: "67890",name: "Blah"));
+    var newIo = new NavigatorIo(newNavigator, MockDiskWriter());
+    var success = await newIo.retrieve();
+    expect(success, isFalse);
+
+    await file.delete(recursive: true);
+  });
+
+  test("Deserialize a file that does not exist",() async {
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+
+    var file = new File("Navigator.json");
+    if (await file.exists()) await file.delete(recursive: true);
+
+    var newNavigator = new Navigator(book);
+    var newIo = new NavigatorIo(newNavigator, MockDiskWriter());
+    var success = await newIo.retrieve();
+    expect(success, isFalse);
+  });
+
+  test("Delete the file",() async {
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+
+    var file = new File("Navigator.json");
+
+    await io.delete();
+    expect(await file.exists(), isFalse);
   });
 }
 
