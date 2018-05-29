@@ -24,6 +24,10 @@ class Item {
   CommandList<Item> get falseBranch => _falseBranch;
   CommandList<Note> get notes => _notes;
 
+  List<Note> getSortedNotes(){
+    return _notes.toList()..sort();
+  }
+
   Command setAction(String newAction) {
     return new Command(new ChangeAction(this, newAction))..execute();
   }

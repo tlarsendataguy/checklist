@@ -4,6 +4,7 @@ import 'package:checklist/src/book.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/mobilediskwriter.dart';
 import 'package:checklist/src/navigatorio.dart';
+import 'package:checklist/src/note.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:checklist/ui/templates.dart';
@@ -33,6 +34,8 @@ class UseBookState extends State<UseBook> {
   final smallScale = 1.8;
   final largeScale = 2.5;
   final midScale = 2.0;
+  static const double _noteButtonWidth = 50.0;
+  List<Note> _notes;
 
   @override
   void initState() {
@@ -224,22 +227,25 @@ class UseBookState extends State<UseBook> {
     return _itemWidget(
       navigator.currentItem.toCheck,
       "",
-      child: Center(
-        child: Row(
-          children: <Widget>[
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(16.0, 0.0, 8.0, 0.0),
-                child: _yesNoButton(true),
+      centerRow: Center(
+        child: Padding(
+          padding: EdgeInsets.only(left: _hasNotes() ? _noteButtonWidth : 0.0),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(16.0, 0.0, 8.0, 0.0),
+                  child: _yesNoButton(true),
+                ),
               ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.fromLTRB(8.0, 0.0, 16.0, 0.0),
-                child: _yesNoButton(false),
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8.0, 0.0, 16.0, 0.0),
+                  child: _yesNoButton(false),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -274,11 +280,16 @@ class UseBookState extends State<UseBook> {
     );
   }
 
+  bool _hasNotes() {
+    var currentItem = navigator.currentItem;
+    return currentItem != null && currentItem.notes.length > 0;
+  }
+
   Widget _checkItem() {
     return _itemWidget(
       navigator.currentItem.toCheck,
       navigator.currentItem.action,
-      child: Center(
+      centerRow: Center(
         child: _button(
           child: Icon(Icons.check, size: 40.0),
           width: 80.0,
@@ -288,7 +299,7 @@ class UseBookState extends State<UseBook> {
     );
   }
 
-  Widget _itemWidget(String topText, String bottomText, {Widget child}) {
+  Widget _itemWidget(String topText, String bottomText, {Widget centerRow}) {
     return Stack(
       children: <Widget>[
         Column(
@@ -325,7 +336,57 @@ class UseBookState extends State<UseBook> {
             height: 3.0,
           ),
         ),
-        child,
+        Row(
+          children: _hasNotes()
+              ? [
+                  Center(
+                    child: Container(
+                      width: _noteButtonWidth,
+                      height: 60.0,
+                      color: ThemeColors.black,
+                      child: OutlineButton(
+                        padding: EdgeInsets.all(0.0),
+                        child: Icon(Icons.list),
+                        onPressed: () {
+                          _notes = navigator.currentItem.getSortedNotes();
+                          showDialog(
+                              context: context,
+                            barrierDismissible: true,
+                            builder: (context){
+                                return ThemeDialog(
+                                  child: ListView.builder(
+                                    itemCount: _notes.length,
+                                    itemBuilder: (context, index){
+                                      var note = _notes[index];
+                                      return Column(
+                                        children: [
+                                          Text(Strings.priorityToString(note.priority)),
+                                          Text(note.text),
+                                        ],
+                                      );
+                                    },
+                                  ),
+                                );
+                            }
+                          );
+                        },
+                        textColor: ThemeColors.primary,
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.horizontal(
+                                left: Radius.zero,
+                                right: Radius.circular(50.0))),
+                        disabledBorderColor: ThemeColors.primary,
+                        highlightedBorderColor: ThemeColors.primary,
+                        borderSide:
+                            BorderSide(color: ThemeColors.primary, width: 2.5),
+                        color: ThemeColors.primary,
+                      ),
+                    ),
+                  ),
+                ]
+              : [],
+        ),
+        centerRow,
       ],
     );
   }
