@@ -211,15 +211,16 @@ class UseBookState extends State<UseBook> {
       }
     }
 
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        ListView(
-          shrinkWrap: true,
-          physics: ScrollPhysics(),
-          children: widgets,
-        ),
-      ],
+    return Center(
+      child: ListView(
+        shrinkWrap: true,
+        physics: ScrollPhysics(),
+        children: [
+          Column(
+            children: widgets,
+          ),
+        ],
+      ),
     );
   }
 
@@ -336,58 +337,93 @@ class UseBookState extends State<UseBook> {
             height: 3.0,
           ),
         ),
-        Row(
-          children: _hasNotes()
-              ? [
-                  Center(
-                    child: Container(
-                      width: _noteButtonWidth,
-                      height: 60.0,
-                      color: ThemeColors.black,
-                      child: OutlineButton(
-                        padding: EdgeInsets.all(0.0),
-                        child: Icon(Icons.list),
-                        onPressed: () {
-                          _notes = navigator.currentItem.getSortedNotes();
-                          showDialog(
-                              context: context,
-                            barrierDismissible: true,
-                            builder: (context){
-                                return ThemeDialog(
-                                  child: ListView.builder(
-                                    itemCount: _notes.length,
-                                    itemBuilder: (context, index){
-                                      var note = _notes[index];
-                                      return Column(
-                                        children: [
-                                          Text(Strings.priorityToString(note.priority)),
-                                          Text(note.text),
-                                        ],
-                                      );
-                                    },
-                                  ),
-                                );
-                            }
-                          );
-                        },
-                        textColor: ThemeColors.primary,
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.horizontal(
-                                left: Radius.zero,
-                                right: Radius.circular(50.0))),
-                        disabledBorderColor: ThemeColors.primary,
-                        highlightedBorderColor: ThemeColors.primary,
-                        borderSide:
-                            BorderSide(color: ThemeColors.primary, width: 2.5),
-                        color: ThemeColors.primary,
-                      ),
-                    ),
-                  ),
-                ]
-              : [],
-        ),
+        _noteButton(),
         centerRow,
       ],
+    );
+  }
+
+  Widget _noteButton() {
+    if (_hasNotes()) {
+      return Row(
+        children: [
+          Center(
+            child: Container(
+              width: _noteButtonWidth,
+              height: 60.0,
+              color: ThemeColors.black,
+              child: OutlineButton(
+                padding: EdgeInsets.all(0.0),
+                child: Icon(Icons.list),
+                onPressed: _getNotes,
+                textColor: ThemeColors.primary,
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.horizontal(
+                        left: Radius.zero, right: Radius.circular(50.0))),
+                disabledBorderColor: ThemeColors.primary,
+                highlightedBorderColor: ThemeColors.primary,
+                borderSide: BorderSide(color: ThemeColors.primary, width: 2.5),
+                color: ThemeColors.primary,
+              ),
+            ),
+          )
+        ],
+      );
+    }
+
+    return Row(children: <Widget>[]);
+  }
+
+  Future _getNotes() async {
+    _notes = navigator.currentItem.getSortedNotes();
+    await showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: _noteDialogBuilder,
+    );
+  }
+
+  Widget _noteDialogBuilder(BuildContext context) {
+    return Dialog(
+      child: OutlineButton(
+        borderSide: BorderSide(color: ThemeColors.primary),
+        textColor: ThemeColors.primary,
+        onPressed: () => Navigator.of(context).pop(null),
+        child: Column(
+          children: <Widget>[
+            Expanded(
+              child: ListView.builder(
+                itemCount: _notes.length,
+                itemBuilder: (context, index) {
+                  var note = _notes[index];
+                  return Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Column(
+                      children: [
+                        Text(
+                          Strings.priorityToString(note.priority),
+                          textScaleFactor: midScale,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.0),
+                          child: Text(
+                            note.text,
+                            textScaleFactor: smallScale,
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.only(top: 8.0),
+              child: Text(Strings.tapToClose),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

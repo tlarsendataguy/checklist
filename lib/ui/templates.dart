@@ -221,7 +221,7 @@ Widget overflowText(String text,[TextStyle style]) {
 }
 
 class ThemeDialog extends StatelessWidget {
-  ThemeDialog({@required this.child});
+  ThemeDialog({@required this.child,});
 
   final Widget child;
 

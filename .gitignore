@@ -10,3 +10,7 @@ pubspec.lock
 .flutter-plugins
 
 *.bin
+
+*.dill
+
+*.lock
