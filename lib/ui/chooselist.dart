@@ -18,7 +18,7 @@ Future<Selection> chooseList(BuildContext context, Book book,
     {bool haveNoSelection = true}) async {
   return await showDialog<Selection>(
     context: context,
-    child: ThemeDialog(
+    builder: (context) => ThemeDialog(
       child: DefaultTabController(
         length: 2,
         child: Scaffold(

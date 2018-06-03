@@ -10,7 +10,7 @@ class Navigator {
     if (book.normalLists.length > 0) currentList = book.normalLists[0];
   }
 
-  Book book;
+  final Book book;
   Checklist currentList;
   Checklist priorList;
 

@@ -221,9 +221,10 @@ Widget overflowText(String text,[TextStyle style]) {
 }
 
 class ThemeDialog extends StatelessWidget {
-  ThemeDialog({@required this.child,});
+  ThemeDialog({@required this.child,this.cancelButton});
 
   final Widget child;
+  final Widget cancelButton;
 
   build(BuildContext context) {
     return Dialog(
@@ -238,9 +239,13 @@ class ThemeDialog extends StatelessWidget {
            Row(
              children: <Widget>[
                Expanded(
-                 child: themeRaisedButton(
+                 child: cancelButton != null ? cancelButton :
+
+                 themeRaisedButton(
                      onPressed: () => Navigator.of(context).pop(null),
-                     child: Text(Strings.cancel),
+                     child: Text(
+                       Strings.cancel,
+                     ),
                  ),
                ),
              ],

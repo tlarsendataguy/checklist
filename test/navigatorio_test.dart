@@ -1,7 +1,6 @@
 import 'dart:io';
 
 import 'package:checklist/src/book.dart';
-import 'package:checklist/src/bookio.dart';
 import 'package:checklist/src/checklist.dart';
 import 'package:checklist/src/diskwriter.dart';
 import 'package:checklist/src/exceptions.dart';
@@ -238,15 +237,12 @@ main() {
   });
 
   test("Deserialize a file that does not exist",() async {
-    var navigator = new Navigator(book);
-    var io = new NavigatorIo(navigator, MockDiskWriter());
-
     var file = new File("Navigator.json");
     if (await file.exists()) await file.delete(recursive: true);
 
-    var newNavigator = new Navigator(book);
-    var newIo = new NavigatorIo(newNavigator, MockDiskWriter());
-    var success = await newIo.retrieve();
+    var navigator = new Navigator(book);
+    var io = new NavigatorIo(navigator, MockDiskWriter());
+    var success = await io.retrieve();
     expect(success, isFalse);
   });
 

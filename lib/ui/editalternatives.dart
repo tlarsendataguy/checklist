@@ -71,7 +71,7 @@ class _EditAlternativesState extends EditorPageState {
       bool result = await showDialog<bool>(
         barrierDismissible: false,
         context: context,
-        child: new AlertDialog(
+        builder: (context) => AlertDialog(
           title: new Text(Strings.deleteTitle),
           content: new Text(Strings.deleteContent),
           actions: <Widget>[

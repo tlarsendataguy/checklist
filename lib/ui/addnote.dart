@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 Future<Note> addNote(BuildContext context, HashSet<Note> existingNotes) async {
   return await showDialog<Note>(
     context: context,
-    child: AddNote(existingNotes: existingNotes),
+    builder: (context) => AddNote(existingNotes: existingNotes),
   );
 }
 

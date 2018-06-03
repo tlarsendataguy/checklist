@@ -35,16 +35,16 @@ class ListViewPopupMenuButtonState extends State<ListViewPopupMenuButton> {
             var result = await showDialog<bool>(
               barrierDismissible: false,
               context: context,
-              child: new AlertDialog(
-                title: new Text(Strings.deleteTitle),
-                content: new Text(Strings.deleteContent),
+              builder: (context) => AlertDialog(
+                title: Text(Strings.deleteTitle),
+                content: Text(Strings.deleteContent),
                 actions: <Widget>[
                   themeFlatButton(
-                    child: new Text(Strings.cancel),
+                    child: Text(Strings.cancel),
                     onPressed: () => Navigator.of(context).pop(false),
                   ),
                   themeRaisedButtonReversed(
-                    child: new Text(Strings.deleteTitle),
+                    child: Text(Strings.deleteTitle),
                     onPressed: () => Navigator.of(context).pop(true),
                   ),
                 ],

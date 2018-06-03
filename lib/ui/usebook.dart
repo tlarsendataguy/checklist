@@ -8,6 +8,7 @@ import 'package:checklist/src/note.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:checklist/ui/templates.dart';
+import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/navigator.dart' as nav;
@@ -62,11 +63,12 @@ class UseBookState extends State<UseBook> {
     });
   }
 
-  Future<bool> willPop() {
+  Future<bool> willPop() async {
     if (navigator.canGoBack) {
       fadeTransition(() => navigator.goBack())();
       return new Future<bool>.value(false);
     }
+    await io.delete();
     return new Future<bool>.value(true);
   }
 
@@ -108,10 +110,7 @@ class UseBookState extends State<UseBook> {
                         Strings.exit,
                         textScaleFactor: smallScale,
                       ),
-                      onPressed: () async {
-                        io.delete();
-                        Navigator.of(context).pop();
-                      },
+                      onPressed: _exitUseBook,
                     ),
                   ),
                 ],
@@ -138,6 +137,11 @@ class UseBookState extends State<UseBook> {
         ),
       ],
     );
+  }
+
+  _exitUseBook() async {
+    await io.delete();
+    Navigator.of(context).pop();
   }
 
   bool _isFinished() {
@@ -469,7 +473,76 @@ class UseBookState extends State<UseBook> {
       return new WillPopScope(
         onWillPop: willPop,
         child: Scaffold(
-          appBar: new AppBar(title: new Text(title)),
+          appBar: new AppBar(
+            title: new Text(title),
+            actions: [
+              themeFlatButton(
+                  child: Row(children: [
+                    Icon(Icons.error_outline),
+                    Text("/"),
+                    Icon(Icons.menu),
+                  ]),
+                  onPressed: () async {
+                    var newList = await showDialog<Checklist>(
+                      context: context,
+                      builder: (context) => ThemeDialog(
+                            cancelButton: Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: _button(
+                                height: 50.0,
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: Text(Strings.cancel),
+                              ),
+                            ),
+                            child: DefaultTabController(
+                              length: 2,
+                              child: Scaffold(
+                                appBar: PreferredSize(
+                                  preferredSize: Size.fromHeight(80.0),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: TabBar(
+                                          tabs: <Widget>[
+                                            Tab(text: Strings.emergencyLists),
+                                            Tab(text: Strings.normalLists),
+                                          ],
+                                        ),
+                                      ),
+                                      InkWell(
+                                        child: Container(
+                                          width: 50.0,
+                                          height: 50.0,
+                                          child: Icon(Icons.exit_to_app),
+                                        ),
+                                        onTap: () {
+                                          Navigator.of(context).pop();
+                                          _exitUseBook();
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                body: Padding(
+                                  padding: EdgeInsets.all(8.0),
+                                  child: TabBarView(
+                                    children: <Widget>[
+                                      _createListChooser(book.emergencyLists),
+                                      _createListChooser(book.normalLists),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                    );
+
+                    if (newList != null) {
+                      setState(() => navigator.changeList(newList));
+                    }
+                  })
+            ],
+          ),
           body: AnimatedOpacity(
             duration: Duration(milliseconds: fadeDelay),
             opacity: opacity,
@@ -478,5 +551,29 @@ class UseBookState extends State<UseBook> {
         ),
       );
     }
+  }
+
+  ListView _createListChooser(CommandList<Checklist> list) {
+    return ListView.builder(
+      itemCount: list.length,
+      itemBuilder: _createListChooserItemBuilder(list),
+    );
+  }
+
+  Widget Function(BuildContext, int) _createListChooserItemBuilder(
+      CommandList<Checklist> list) {
+    return (context, index) {
+      return Padding(
+        padding: EdgeInsets.only(top: 8.0),
+        child: _button(
+          height: 70.0,
+          child: Text(
+            list[index].name,
+            textScaleFactor: smallScale,
+          ),
+          onPressed: () => Navigator.of(context).pop<Checklist>(list[index]),
+        ),
+      );
+    };
   }
 }
