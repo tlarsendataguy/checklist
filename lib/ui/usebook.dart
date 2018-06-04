@@ -474,7 +474,16 @@ class UseBookState extends State<UseBook> {
         onWillPop: willPop,
         child: Scaffold(
           appBar: new AppBar(
+            backgroundColor: ThemeColors.primary950,
             title: new Text(title),
+            automaticallyImplyLeading: false,
+            leading: navigator.canGoBack
+                ? IconButton(
+                    icon: BackButtonIcon(),
+                    color: ThemeColors.primary,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  )
+                : null,
             actions: [
               themeFlatButton(
                   child: Row(children: [

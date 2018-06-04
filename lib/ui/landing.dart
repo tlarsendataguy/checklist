@@ -16,7 +16,6 @@ class Landing extends NavigationPage {
 }
 
 class _LandingState extends NavigationPageState {
-
   var books = new List<Widget>();
   BookIo io;
 
@@ -32,11 +31,11 @@ class _LandingState extends NavigationPageState {
                 height: 48.0,
                 child: new Row(
                   children: <Widget>[
-                    Expanded(child:ListItem1TextRow(io.files[id])),
+                    Expanded(child: ListItem1TextRow(io.files[id])),
                     IconButton(
-                        icon: Icon(Icons.edit),
-                        onPressed: navigateTo("/$id"),
-                      ),
+                      icon: Icon(Icons.edit),
+                      onPressed: navigateTo("/$id"),
+                    ),
                     IconButton(
                       icon: Icon(Icons.arrow_forward),
                       onPressed: navigateTo("/$id/use"),
@@ -51,15 +50,15 @@ class _LandingState extends NavigationPageState {
   }
 
   Widget build(BuildContext context) {
-    return new Scaffold(
-      appBar: appBar,
-      body: new Padding(
-          padding: const EdgeInsets.only(top: listTBPad),
-          child: _buildListview(context)),
-      floatingActionButton: new FloatingActionButton(
-        onPressed: navigateTo("/newBook"),
-        child: new Icon(Icons.add),
-      ),
+    return Scaffold(
+        appBar: appBar,
+        floatingActionButton: FloatingActionButton(
+          onPressed: navigateTo("/newBook"),
+          child: new Icon(Icons.add),
+        ),
+        body: Padding(
+            padding: const EdgeInsets.only(top: listTBPad),
+            child: _buildListview(context)),
     );
   }
 

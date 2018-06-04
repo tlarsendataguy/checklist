@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
+import 'templates.dart';
 
 abstract class NavigationPage extends StatefulWidget {
   NavigationPage({
@@ -23,6 +24,7 @@ abstract class NavigationPageState extends State<NavigationPage> {
         : new IconButton(
             icon: BackButtonIcon(),
             onPressed: _goBack,
+            color: ThemeColors.primary,
           );
 
     _createAppBar();
@@ -33,6 +35,7 @@ abstract class NavigationPageState extends State<NavigationPage> {
 
   void _createAppBar(){
     appBar = new AppBar(
+      backgroundColor: ThemeColors.primary950,
       title: new Text(widget.title),
       leading: leading,
     );
