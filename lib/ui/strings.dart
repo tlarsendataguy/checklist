@@ -55,5 +55,5 @@ class Strings{
   static String completed = "Checklist completed";
   static String next = "Next checklist:";
   static String alternatives = "Alternatives:";
-  static String tapToClose = "Tap to close";
+  static String tapToClose = "Tap anywhere to close";
 }

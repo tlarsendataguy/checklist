@@ -23,31 +23,46 @@ abstract class NavigationPageState extends State<NavigationPage> {
 
     _createLeading();
     _createAppBar();
+    _createActions();
   }
 
   AppBar appBar;
   Widget leading;
+  List<Widget> actions = [];
 
   void _createAppBar() {
     appBar = new AppBar(
       backgroundColor: ThemeColors.primary950,
       title: new Text(widget.title),
       leading: leading,
+      actions: actions,
     );
   }
 
   void _createLeading() {
-    leading = (widget.path == '/')
-        ? new IconButton(
-            icon: Icon(Icons.format_paint),
-            color: ThemeColors.isRed ? primaryGreen : primaryRed,
-            onPressed: _changeTheme,
-          )
+    leading = isLanding()
+        ? null
         : new IconButton(
             icon: BackButtonIcon(),
             onPressed: _goBack,
             color: ThemeColors.primary,
           );
+  }
+
+  void _createActions() {
+    actions.clear();
+
+    if (isLanding()) {
+      actions.add(IconButton(
+        icon: Icon(Icons.format_paint),
+        color: ThemeColors.isRed ? primaryGreen : primaryRed,
+        onPressed: _changeTheme,
+      ));
+    }
+  }
+
+  bool isLanding() {
+    return widget.path == '/';
   }
 
   Function navigateTo(String path) {
@@ -59,6 +74,7 @@ abstract class NavigationPageState extends State<NavigationPage> {
   void _changeTheme() {
     widget.themeChangeCallback();
     _createLeading();
+    _createActions();
     setState(_createAppBar);
   }
 
