@@ -6,10 +6,11 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
 
 class Landing extends NavigationPage {
-  Landing(String path)
+  Landing(String path,Function themeChangeCallback)
       : super(
           title: Strings.appTitle,
           path: path,
+          themeChangeCallback: themeChangeCallback,
         );
 
   _LandingState createState() => new _LandingState();

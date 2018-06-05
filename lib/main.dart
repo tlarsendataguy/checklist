@@ -45,7 +45,7 @@ class _MyAppState extends State<MyApp>{
 
     switch (result){
       case ParseResult.Home:
-        return router(new Landing(path));
+        return router(new Landing(path,changeTheme));
       case ParseResult.NewBook:
         return router(new NewBook(path));
       case ParseResult.UseBook:
@@ -90,5 +90,9 @@ class _MyAppState extends State<MyApp>{
         builder: (BuildContext context) => builder,
       );
     };
+  }
+
+  void changeTheme(){
+    setState(ThemeColors.toggleTheme);
   }
 }

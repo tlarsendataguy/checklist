@@ -6,10 +6,12 @@ abstract class NavigationPage extends StatefulWidget {
   NavigationPage({
     @required this.title,
     @required this.path,
+    this.themeChangeCallback,
   });
 
   final String path;
   final String title;
+  final Function themeChangeCallback;
 }
 
 abstract class NavigationPageState extends State<NavigationPage> {
@@ -19,26 +21,33 @@ abstract class NavigationPageState extends State<NavigationPage> {
   initState() {
     super.initState();
 
-    leading = (widget.path == '/')
-        ? null
-        : new IconButton(
-            icon: BackButtonIcon(),
-            onPressed: _goBack,
-            color: ThemeColors.primary,
-          );
-
+    _createLeading();
     _createAppBar();
   }
 
   AppBar appBar;
   Widget leading;
 
-  void _createAppBar(){
+  void _createAppBar() {
     appBar = new AppBar(
       backgroundColor: ThemeColors.primary950,
       title: new Text(widget.title),
       leading: leading,
     );
+  }
+
+  void _createLeading() {
+    leading = (widget.path == '/')
+        ? new IconButton(
+            icon: Icon(Icons.format_paint),
+            color: ThemeColors.isRed ? primaryGreen : primaryRed,
+            onPressed: _changeTheme,
+          )
+        : new IconButton(
+            icon: BackButtonIcon(),
+            onPressed: _goBack,
+            color: ThemeColors.primary,
+          );
   }
 
   Function navigateTo(String path) {
@@ -47,7 +56,13 @@ abstract class NavigationPageState extends State<NavigationPage> {
     };
   }
 
-  void _goBack(){
+  void _changeTheme() {
+    widget.themeChangeCallback();
+    _createLeading();
+    setState(_createAppBar);
+  }
+
+  void _goBack() {
     Navigator.of(context).pop();
   }
 }

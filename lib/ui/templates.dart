@@ -169,6 +169,10 @@ class ThemeColors {
     isRed = false;
     theme = getTheme();
   }
+
+  static void toggleTheme() {
+    if (isRed) setGreen(); else setRed();
+  }
 }
 
 RaisedButton themeRaisedButton({Widget child, void onPressed()}) {
