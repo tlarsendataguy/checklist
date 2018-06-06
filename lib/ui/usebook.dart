@@ -12,6 +12,7 @@ import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/navigator.dart' as nav;
+import 'package:flutter/services.dart';
 
 class UseBook extends StatefulWidget {
   UseBook(this.path);
@@ -42,6 +43,8 @@ class UseBookState extends State<UseBook> {
   void initState() {
     super.initState();
 
+    hideChrome();
+
     ParsePath.parse(widget.path).then<ParsedItems>((items) async {
       if (mounted) {
         if (items.result == ParseResult.UseBook) book = items.book;
@@ -69,6 +72,7 @@ class UseBookState extends State<UseBook> {
       return new Future<bool>.value(false);
     }
     await io.delete();
+    showChrome();
     return new Future<bool>.value(true);
   }
 
@@ -142,6 +146,15 @@ class UseBookState extends State<UseBook> {
   _exitUseBook() async {
     await io.delete();
     Navigator.of(context).pop();
+    showChrome();
+  }
+
+  void hideChrome() {
+    SystemChrome.setEnabledSystemUIOverlays([]);
+  }
+
+  void showChrome() {
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top,SystemUiOverlay.bottom]);
   }
 
   bool _isFinished() {
