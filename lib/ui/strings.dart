@@ -56,4 +56,6 @@ class Strings{
   static String next = "Next checklist:";
   static String alternatives = "Alternatives:";
   static String tapToClose = "Tap anywhere to close";
+  static String confirmDelete = "Confirm deletion";
+  static String doWantToDelete = "Are you sure you want to delete this object?";
 }

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:checklist/ui/strings.dart';
 import 'package:flutter/cupertino.dart';
 
 import 'package:checklist/src/book.dart';
@@ -144,9 +145,13 @@ abstract class EditorPageState extends NavigationPageState {
     };
   }
 
-  Widget buildEditorPage(Widget buildBody()) {
+  Widget buildEditorPage(Widget buildBody(),{List<Widget> actions}) {
+    if (actions == null) actions = <Widget>[];
+
     return new Scaffold(
-      appBar: appBar,
+      appBar: appBar(
+        actions: actions,
+      ),
       body: Row(
         children: <Widget>[
           Expanded(
@@ -179,5 +184,30 @@ abstract class EditorPageState extends NavigationPageState {
     if (!await io.persistBook(book)) {
       setState(() => command.undo());
     }
+  }
+
+  Function confirmDeletion(Function deleteCommand) {
+    return () async {
+      bool doDelete = await showDialog<bool>(
+        context: context,
+        builder: (context) =>
+            AlertDialog(
+              title: Text(Strings.confirmDelete),
+              content: Text(Strings.doWantToDelete),
+              actions: [
+                themeRaisedButtonReversed(
+                  child: Text(Strings.cancel),
+                  onPressed: () => Navigator.of(context).pop(false),
+                ),
+                themeRaisedButton(
+                  child: Text(Strings.deleteTitle),
+                  onPressed: () => Navigator.of(context).pop(true),
+                )
+              ],
+            ),
+      );
+
+      if (doDelete == true) await deleteCommand();
+    };
   }
 }

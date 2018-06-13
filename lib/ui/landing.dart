@@ -6,7 +6,7 @@ import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
 
 class Landing extends NavigationPage {
-  Landing(String path,Function themeChangeCallback)
+  Landing(String path, Function themeChangeCallback)
       : super(
           title: Strings.appTitle,
           path: path,
@@ -52,14 +52,22 @@ class _LandingState extends NavigationPageState {
 
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: appBar,
-        floatingActionButton: FloatingActionButton(
-          onPressed: navigateTo("/newBook"),
-          child: new Icon(Icons.add),
-        ),
-        body: Padding(
-            padding: const EdgeInsets.only(top: listTBPad),
-            child: _buildListview(context)),
+      appBar: appBar(
+        actions: [
+          IconButton(
+            icon: Icon(Icons.format_paint),
+            color: ThemeColors.isRed ? primaryGreen : primaryRed,
+            onPressed: ()=> super.setState(widget.themeChangeCallback),
+          ),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: navigateTo("/newBook"),
+        child: new Icon(Icons.add),
+      ),
+      body: Padding(
+          padding: const EdgeInsets.only(top: listTBPad),
+          child: _buildListview(context)),
     );
   }
 

@@ -2,7 +2,6 @@ import 'package:checklist/src/checklist.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/templates.dart';
 import 'package:draggablelistview/draggablelistview.dart';
-import 'package:checklist/ui/listviewpopupmenubutton.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:flutter/cupertino.dart';
@@ -131,16 +130,8 @@ class _EditBookBranchState extends EditorPageState {
   Widget _checklistToWidget(Checklist list) {
     var editPath = widget.path + "/" + list.id;
 
-    return new ListViewPopupMenuButton(
-      editAction: navigateTo(editPath),
-      deleteAction: () async {
-        var command = _lists.remove(list);
-        var success = await io.persistBook(book);
-        if (!success)
-          command.undo();
-        else
-          setState(() {});
-      },
+    return themeFlatButton(
+      onPressed: navigateTo(editPath),
       child: ListItem1TextRow(list.name),
     );
   }

@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:checklist/src/item.dart';
 import 'package:checklist/src/parsepath.dart';
 import 'package:checklist/ui/editorpage.dart';
-import 'package:checklist/ui/listviewpopupmenubutton.dart';
 import 'package:checklist/ui/strings.dart';
 import 'package:commandlist/commandlist.dart';
 import 'package:draggablelistview/draggablelistview.dart';
@@ -114,27 +113,17 @@ class _EditItemsState extends EditorPageState {
   }
 
   Widget _buildRow(Item item) {
-    return new ListViewPopupMenuButton(
-      editAction: _editItem(item),
-      deleteAction: _deleteItem(item),
-      child: ListItem2TextRows(
-        line1: item.toCheck,
-        line2: item.action,
-      )
-    );
+    return themeFlatButton(
+        onPressed: _editItem(item),
+        child: ListItem2TextRows(
+          line1: item.toCheck,
+          line2: item.action,
+        ));
   }
 
   Function _editItem(Item item) {
     int index = _items.indexOf(item);
     return navigateTo("${widget.path}/$index");
-  }
-
-  Function _deleteItem(Item item) {
-    return () {
-      var command = _items.remove(item);
-      setState(() {});
-      persistBookOrUndo(command);
-    };
   }
 
   Widget _buildBody() {

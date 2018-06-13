@@ -66,6 +66,57 @@ class UseBookState extends State<UseBook> {
     });
   }
 
+  //region Build
+  @override
+  Widget build(BuildContext context) {
+    if (isLoading)
+      return new CupertinoActivityIndicator();
+    else if (errorLoading)
+      return new Text("Error");
+    else {
+      String title;
+      if (navigator.currentList == null) {
+        title = navigator.book.name;
+      } else {
+        title = navigator.currentList.name;
+      }
+      return new WillPopScope(
+        onWillPop: willPop,
+        child: Scaffold(
+          appBar: new AppBar(
+            backgroundColor: ThemeColors.primary950,
+            title: new Text(title),
+            automaticallyImplyLeading: false,
+            leading: navigator.canGoBack
+                ? IconButton(
+                    icon: BackButtonIcon(),
+                    color: ThemeColors.primary,
+                    onPressed: () => Navigator.of(context).maybePop(),
+                  )
+                : null,
+            actions: [
+              themeFlatButton(
+                child: Row(
+                  children: [
+                    Icon(Icons.error_outline),
+                    Text("/"),
+                    Icon(Icons.menu),
+                  ],
+                ),
+                onPressed: _showMenuDialog,
+              ),
+            ],
+          ),
+          body: AnimatedOpacity(
+            duration: Duration(milliseconds: fadeDelay),
+            opacity: opacity,
+            child: _buildBody(),
+          ),
+        ),
+      );
+    }
+  }
+
   Future<bool> willPop() async {
     if (navigator.canGoBack) {
       fadeTransition(() => navigator.goBack())();
@@ -76,7 +127,7 @@ class UseBookState extends State<UseBook> {
     return new Future<bool>.value(true);
   }
 
-  Widget _body() {
+  Widget _buildBody() {
     var current = navigator.currentItem;
     if (current == null) {
       if (_isFinished()) {
@@ -91,6 +142,108 @@ class UseBookState extends State<UseBook> {
     }
   }
 
+  bool _isFinished() {
+    var list = navigator.currentList;
+    if (list == null ||
+        (list.nextPrimary == null && list.nextAlternatives.length == 0))
+      return true;
+    else
+      return false;
+  }
+  //endregion
+
+  //region Menu Dialog
+  Future _showMenuDialog() async {
+    var newList = await showDialog<Checklist>(
+      context: context,
+      builder: _buildMenuDialog,
+    );
+
+    if (newList != null) {
+      setState(() => navigator.changeList(newList));
+    }
+  }
+
+  Widget _buildMenuDialog(BuildContext context) {
+    return ThemeDialog(
+      cancelButton: Padding(
+        padding: EdgeInsets.all(8.0),
+        child: _UsageButton(
+          height: 50.0,
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(Strings.cancel),
+        ),
+      ),
+      child: DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: PreferredSize(
+            preferredSize: Size.fromHeight(80.0),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TabBar(
+                    tabs: <Widget>[
+                      Tab(text: Strings.emergencyLists),
+                      Tab(text: Strings.normalLists),
+                    ],
+                  ),
+                ),
+                InkWell(
+                  child: Container(
+                    width: 50.0,
+                    height: 50.0,
+                    child: Icon(Icons.exit_to_app),
+                  ),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    _exitUseBook();
+                  },
+                ),
+              ],
+            ),
+          ),
+          body: Padding(
+            padding: EdgeInsets.all(8.0),
+            child: TabBarView(
+              children: <Widget>[
+                _createListChooser(book.emergencyLists),
+                _createListChooser(book.normalLists),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  ListView _createListChooser(CommandList<Checklist> list) {
+    return ListView.builder(
+      itemCount: list.length,
+      itemBuilder: _createListChooserItemBuilder(list),
+    );
+  }
+
+  Widget Function(BuildContext, int) _createListChooserItemBuilder(
+      CommandList<Checklist> list) {
+    return (context, index) {
+      return Padding(
+        padding: EdgeInsets.only(top: 8.0,bottom: 8.0),
+        child: _UsageButton(
+          height: 80.0,
+          child: Text(
+            list[index].name,
+            textAlign: TextAlign.center,
+            textScaleFactor: smallScale,
+          ),
+          onPressed: () => Navigator.of(context).pop<Checklist>(list[index]),
+        ),
+      );
+    };
+  }
+  //endregion
+
+  //region Done Page
   Widget _done() {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -109,7 +262,7 @@ class UseBookState extends State<UseBook> {
               child: Row(
                 children: [
                   Expanded(
-                    child: _button(
+                    child: _UsageButton(
                       child: Text(
                         Strings.exit,
                         textScaleFactor: smallScale,
@@ -125,7 +278,7 @@ class UseBookState extends State<UseBook> {
               child: Row(
                 children: [
                   Expanded(
-                    child: _button(
+                    child: _UsageButton(
                       child: Text(
                         Strings.restart,
                         textScaleFactor: smallScale,
@@ -142,30 +295,9 @@ class UseBookState extends State<UseBook> {
       ],
     );
   }
+  //endregion
 
-  _exitUseBook() async {
-    await io.delete();
-    Navigator.of(context).pop();
-    showChrome();
-  }
-
-  void hideChrome() {
-    SystemChrome.setEnabledSystemUIOverlays([]);
-  }
-
-  void showChrome() {
-    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.top,SystemUiOverlay.bottom]);
-  }
-
-  bool _isFinished() {
-    var list = navigator.currentList;
-    if (list == null ||
-        (list.nextPrimary == null && list.nextAlternatives.length == 0))
-      return true;
-    else
-      return false;
-  }
-
+  //region Next List Page
   Widget _selectNextList() {
     var list = navigator.currentList;
     var widgets = <Widget>[];
@@ -187,7 +319,7 @@ class UseBookState extends State<UseBook> {
           Expanded(
             child: Padding(
               padding: EdgeInsets.fromLTRB(8.0, 8.0, 8.0, 16.0),
-              child: _button(
+              child: _UsageButton(
                 child: Text(
                   list.nextPrimary.name,
                   textScaleFactor: midScale,
@@ -214,15 +346,21 @@ class UseBookState extends State<UseBook> {
       );
       for (var altList in list.nextAlternatives) {
         widgets.add(
-          Padding(
-            padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
-            child: _button(
-              child: Text(
-                altList.name,
-                textScaleFactor: midScale,
+          Row(
+            children: [
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(8.0, 0.0, 8.0, 8.0),
+                  child: _UsageButton(
+                    child: Text(
+                      altList.name,
+                      textScaleFactor: midScale,
+                    ),
+                    onPressed: setNextList(altList),
+                  ),
+                ),
               ),
-              onPressed: setNextList(altList),
-            ),
+            ],
           ),
         );
       }
@@ -240,7 +378,9 @@ class UseBookState extends State<UseBook> {
       ),
     );
   }
+  //endregion
 
+  //region Question Item Page
   Widget _questionItem() {
     return _itemWidget(
       navigator.currentItem.toCheck,
@@ -270,7 +410,7 @@ class UseBookState extends State<UseBook> {
   }
 
   Widget _yesNoButton(bool branch) {
-    return _button(
+    return _UsageButton(
       child: Text(
         branch ? Strings.yes : Strings.no,
         textScaleFactor: smallScale,
@@ -278,37 +418,15 @@ class UseBookState extends State<UseBook> {
       onPressed: setMoveNext(branch),
     );
   }
+  //endregion
 
-  Widget _button(
-      {Widget child, double width, double height = 80.0, Function onPressed}) {
-    return Container(
-      height: height,
-      width: width,
-      color: ThemeColors.black,
-      child: OutlineButton(
-        child: child,
-        onPressed: onPressed,
-        textColor: ThemeColors.primary,
-        shape: StadiumBorder(),
-        disabledBorderColor: ThemeColors.primary,
-        highlightedBorderColor: ThemeColors.primary,
-        borderSide: BorderSide(color: ThemeColors.primary, width: 5.0),
-        color: ThemeColors.primary,
-      ),
-    );
-  }
-
-  bool _hasNotes() {
-    var currentItem = navigator.currentItem;
-    return currentItem != null && currentItem.notes.length > 0;
-  }
-
+  //region Normal Item Page
   Widget _checkItem() {
     return _itemWidget(
       navigator.currentItem.toCheck,
       navigator.currentItem.action,
       centerRow: Center(
-        child: _button(
+        child: _UsageButton(
           child: Icon(Icons.check, size: 40.0),
           width: 80.0,
           onPressed: setMoveNext(),
@@ -359,7 +477,9 @@ class UseBookState extends State<UseBook> {
       ],
     );
   }
+  //endregion
 
+  //region Notes button and dialog
   Widget _noteButton() {
     if (_hasNotes()) {
       return Row(
@@ -443,7 +563,9 @@ class UseBookState extends State<UseBook> {
       ),
     );
   }
+  //endregion
 
+  //region Navigation fade transitions
   Function setNextList(Checklist list) {
     return fadeTransition(() {
       navigator.changeList(list);
@@ -469,133 +591,54 @@ class UseBookState extends State<UseBook> {
       });
     };
   }
+  //endregion
 
-  @override
-  Widget build(BuildContext context) {
-    if (isLoading)
-      return new CupertinoActivityIndicator();
-    else if (errorLoading)
-      return new Text("Error");
-    else {
-      String title;
-      if (navigator.currentList == null) {
-        title = navigator.book.name;
-      } else {
-        title = navigator.currentList.name;
-      }
-      return new WillPopScope(
-        onWillPop: willPop,
-        child: Scaffold(
-          appBar: new AppBar(
-            backgroundColor: ThemeColors.primary950,
-            title: new Text(title),
-            automaticallyImplyLeading: false,
-            leading: navigator.canGoBack
-                ? IconButton(
-                    icon: BackButtonIcon(),
-                    color: ThemeColors.primary,
-                    onPressed: () => Navigator.of(context).maybePop(),
-                  )
-                : null,
-            actions: [
-              themeFlatButton(
-                  child: Row(children: [
-                    Icon(Icons.error_outline),
-                    Text("/"),
-                    Icon(Icons.menu),
-                  ]),
-                  onPressed: () async {
-                    var newList = await showDialog<Checklist>(
-                      context: context,
-                      builder: (context) => ThemeDialog(
-                            cancelButton: Padding(
-                              padding: EdgeInsets.all(8.0),
-                              child: _button(
-                                height: 50.0,
-                                onPressed: () => Navigator.of(context).pop(),
-                                child: Text(Strings.cancel),
-                              ),
-                            ),
-                            child: DefaultTabController(
-                              length: 2,
-                              child: Scaffold(
-                                appBar: PreferredSize(
-                                  preferredSize: Size.fromHeight(80.0),
-                                  child: Row(
-                                    children: [
-                                      Expanded(
-                                        child: TabBar(
-                                          tabs: <Widget>[
-                                            Tab(text: Strings.emergencyLists),
-                                            Tab(text: Strings.normalLists),
-                                          ],
-                                        ),
-                                      ),
-                                      InkWell(
-                                        child: Container(
-                                          width: 50.0,
-                                          height: 50.0,
-                                          child: Icon(Icons.exit_to_app),
-                                        ),
-                                        onTap: () {
-                                          Navigator.of(context).pop();
-                                          _exitUseBook();
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                body: Padding(
-                                  padding: EdgeInsets.all(8.0),
-                                  child: TabBarView(
-                                    children: <Widget>[
-                                      _createListChooser(book.emergencyLists),
-                                      _createListChooser(book.normalLists),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                    );
-
-                    if (newList != null) {
-                      setState(() => navigator.changeList(newList));
-                    }
-                  })
-            ],
-          ),
-          body: AnimatedOpacity(
-            duration: Duration(milliseconds: fadeDelay),
-            opacity: opacity,
-            child: _body(),
-          ),
-        ),
-      );
-    }
+  //region Chrome Settings
+  void hideChrome() {
+    SystemChrome.setEnabledSystemUIOverlays([]);
   }
 
-  ListView _createListChooser(CommandList<Checklist> list) {
-    return ListView.builder(
-      itemCount: list.length,
-      itemBuilder: _createListChooserItemBuilder(list),
+  void showChrome() {
+    SystemChrome.setEnabledSystemUIOverlays(
+        [SystemUiOverlay.top, SystemUiOverlay.bottom]);
+  }
+  //endregion
+
+  _exitUseBook() async {
+    await io.delete();
+    Navigator.of(context).pop();
+    showChrome();
+  }
+
+  bool _hasNotes() {
+    var currentItem = navigator.currentItem;
+    return currentItem != null && currentItem.notes.length > 0;
+  }
+}
+
+class _UsageButton extends StatelessWidget {
+  _UsageButton({this.child, this.width, this.height = 80.0, this.onPressed});
+
+  final Widget child;
+  final double width;
+  final double height;
+  final Function onPressed;
+
+  build(BuildContext context) {
+    return Container(
+      height: height,
+      width: width,
+      color: ThemeColors.black,
+      child: OutlineButton(
+        child: child,
+        onPressed: onPressed,
+        textColor: ThemeColors.primary,
+        shape: StadiumBorder(),
+        disabledBorderColor: ThemeColors.primary,
+        highlightedBorderColor: ThemeColors.primary,
+        borderSide: BorderSide(color: ThemeColors.primary, width: 5.0),
+        color: ThemeColors.primary,
+      ),
     );
-  }
-
-  Widget Function(BuildContext, int) _createListChooserItemBuilder(
-      CommandList<Checklist> list) {
-    return (context, index) {
-      return Padding(
-        padding: EdgeInsets.only(top: 8.0),
-        child: _button(
-          height: 70.0,
-          child: Text(
-            list[index].name,
-            textScaleFactor: smallScale,
-          ),
-          onPressed: () => Navigator.of(context).pop<Checklist>(list[index]),
-        ),
-      );
-    };
   }
 }

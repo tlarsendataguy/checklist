@@ -32,8 +32,23 @@ class _EditListState extends EditorPageState {
     _generateDropDown();
   }
 
+  Future deleteList() async {
+    var command = parseResult.listColl.remove(_list);
+    await persistBookOrUndo(command);
+    Navigator.of(context).pop();
+  }
+
   Widget build(BuildContext context) {
-    return buildEditorPage(_buildBody);
+    return buildEditorPage(
+        _buildBody,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete),
+          color: ThemeColors.primary,
+          onPressed: confirmDeletion(deleteList),
+        ),
+      ],
+    );
   }
 
   Widget _buildBody() {

@@ -27,7 +27,7 @@ class _NewBookState extends NavigationPageState {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar,
+      appBar: appBar(),
       body: Padding(
         padding: defaultLR,
         child: ListView(

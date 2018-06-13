@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:checklist/src/note.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/strings.dart';
@@ -5,19 +7,17 @@ import 'package:checklist/ui/templates.dart';
 import 'package:flutter/material.dart';
 
 class EditNote extends EditorPage {
-  EditNote(String path) :
-      super(path:path,title: Strings.editNote);
+  EditNote(String path) : super(path: path, title: Strings.editNote);
 
   createState() => new EditNoteState();
 }
 
 class EditNoteState extends EditorPageState {
-
   Note note;
   TextEditingController controller;
   var decoration = new InputDecoration();
 
-  afterParseInit(){
+  afterParseInit() {
     note = parseResult.note;
     controller = new TextEditingController(text: note.text);
   }
@@ -26,15 +26,15 @@ class EditNoteState extends EditorPageState {
   InputDecoration errorDecoration() =>
       new InputDecoration(errorText: Strings.noNoteTextError);
 
-  void updatePriority(Priority newPriority){
+  void updatePriority(Priority newPriority) {
     var command = note.changePriority(newPriority);
-    setState((){});
+    setState(() {});
     persistBookOrUndo(command);
   }
 
-  void updateText(String newText){
+  void updateText(String newText) {
     var command = note.changeText(newText);
-    setState((){});
+    setState(() {});
     persistBookOrUndo(command);
   }
 
@@ -46,8 +46,8 @@ class EditNoteState extends EditorPageState {
           editorElementPadding(
             child: DropdownButton<Priority>(
               value: note.priority,
-                items: getPriorities(),
-                onChanged: updatePriority,
+              items: getPriorities(),
+              onChanged: updatePriority,
             ),
           ),
           editorElementPadding(
@@ -65,7 +65,22 @@ class EditNoteState extends EditorPageState {
     );
   }
 
+  Future deleteNote() async {
+    var command = parseResult.item.notes.remove(note);
+    await persistBookOrUndo(command);
+    Navigator.of(context).pop();
+  }
+
   Widget build(BuildContext context) {
-    return buildEditorPage(_buildBody);
+    return buildEditorPage(
+      _buildBody,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete),
+          color: ThemeColors.primary,
+          onPressed: confirmDeletion(deleteNote),
+        ),
+      ],
+    );
   }
 }

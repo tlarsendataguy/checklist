@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:checklist/src/item.dart';
 import 'package:checklist/ui/editorpage.dart';
 import 'package:checklist/ui/strings.dart';
@@ -113,7 +115,22 @@ class _EditItemState extends EditorPageState {
     _showBranches = _item.action.isEmpty;
   }
 
+  Future deleteItem() async {
+    var command = parseResult.itemColl.remove(_item);
+    await persistBookOrUndo(command);
+    Navigator.of(context).pop();
+  }
+
   Widget build(BuildContext context) {
-    return buildEditorPage(_buildBody);
+    return buildEditorPage(
+      _buildBody,
+      actions: [
+        IconButton(
+          icon: Icon(Icons.delete),
+          color: ThemeColors.primary,
+          onPressed: confirmDeletion(deleteItem),
+        ),
+      ],
+    );
   }
 }

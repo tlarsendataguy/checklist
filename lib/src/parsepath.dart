@@ -157,40 +157,50 @@ class ParsePath {
     var elements = path.split('/');
     var book = await _getIo(_writer).readBook(elements[1]);
 
+    CommandList<Checklist> listColl;
+    if (result.index >= ParseResult.NormalLists.index)
+      listColl = _parseListColl(book,path);
+
     Checklist list;
     if (result.index >= ParseResult.List.index)
-      list = _parseList(book, path);
+      list = _parseList(listColl, path);
 
-    Item item;
+    _ParsedItem item;
     if (result.index >= ParseResult.Item.index)
       item = _parseItem(list, path, 5);
 
     Note note;
     if (result.index >= ParseResult.Note.index)
-      note = _parseNote(item, path);
+      note = _parseNote(item.item, path);
 
     return new ParsedItems(
       book: book,
+      listColl: listColl,
       list: list,
-      item: item,
+      itemColl: item?.parentCollection,
+      item: item?.item,
       note: note,
       result: result,
     );
   }
 
-  static Checklist _parseList(Book book, String path) {
-    Iterable<Checklist> collection;
+  static CommandList<Checklist> _parseListColl(Book book, String path) {
     List<String> elements = path.split('/');
     String listType = elements[2];
-    String listId = elements[3];
 
     if (listType == 'normal') {
-      collection = book.normalLists;
+      return book.normalLists;
     } else {
-      collection = book.emergencyLists;
+      return book.emergencyLists;
     }
+  }
 
-    for (var list in collection) {
+  static Checklist _parseList(Iterable<Checklist> listColl, String path) {
+    List<String> elements = path.split('/');
+    String listId = elements[3];
+
+
+    for (var list in listColl) {
       if (list.id == listId) return list;
     }
 
@@ -198,7 +208,7 @@ class ParsePath {
         "The Book object does not contain the specified checklist ID");
   }
 
-  static Item _parseItem(
+  static _ParsedItem _parseItem(
       CommandList<Item> items, String path, int current) {
     List<String> elements = path.split('/');
     int index = int.parse(elements[current]);
@@ -212,10 +222,10 @@ class ParsePath {
           case 'false':
             return _parseItem(item.falseBranch, path, current + 2);
           default:
-            return item;
+            return new _ParsedItem(items,item);
         }
       }
-      return item;
+      return new _ParsedItem(items,item);
     } catch (ex) {
       throw new ArgumentError("The path does not lead to a valid item");
     }
@@ -265,11 +275,19 @@ class ParsePath {
 }
 
 class ParsedItems {
-  ParsedItems({this.book, this.list, this.item, this.note, this.result});
+  ParsedItems({this.book, this.listColl, this.list, this.itemColl, this.item, this.note, this.result});
 
   final Book book;
+  final CommandList<Checklist> listColl;
   final Checklist list;
+  final CommandList<Item> itemColl;
   final Item item;
   final Note note;
   final ParseResult result;
+}
+
+class _ParsedItem {
+  _ParsedItem(this.parentCollection,this.item);
+  final CommandList<Item> parentCollection;
+  final Item item;
 }

@@ -125,6 +125,7 @@ main() {
     Checklist list = result.list;
     expect(list.name, equals("My checklist"));
     expect(list.id, equals(lid));
+    expect(result.listColl,equals(result.book.normalLists));
     expect(result.book, isNotNull);
     expect(result.item, isNull);
     expect(result.note, isNull);
@@ -153,17 +154,20 @@ main() {
     Item item = result.item;
     expect(item.toCheck, equals("What to check"));
     expect(item.action, equals("Looks ok"));
+    expect(result.itemColl,equals(result.list));
     expect(result.book, isNotNull);
     expect(result.list, isNotNull);
     expect(result.note, isNull);
   });
 
   test("Parse nested items", () async {
-    Item item = (await ParsePath.parse("$listPath/items/0/true/0")).item;
-    expect(item.toCheck, equals("True!"));
+    ParsedItems result = await ParsePath.parse("$listPath/items/0/true/0");
+    expect(result.item.toCheck, equals("True!"));
+    expect(result.itemColl,equals(result.list[0].trueBranch));
 
-    item = (await ParsePath.parse("$listPath/items/0/false/0")).item;
-    expect(item.toCheck, equals("False!"));
+    result = await ParsePath.parse("$listPath/items/0/false/0");
+    expect(result.item.toCheck, equals("False!"));
+    expect(result.itemColl,equals(result.list[0].falseBranch));
   });
 
   test("Parse item that is not in the book", () async {
@@ -174,8 +178,10 @@ main() {
   });
 
   test("Parse double nested items", () async {
-    Item item = (await ParsePath.parse("$listPath/items/0/true/0/true/0")).item;
+    var result = await ParsePath.parse("$listPath/items/0/true/0/true/0");
+    Item item = result.item;
     expect(item.toCheck, equals("Nested true!"));
+    expect(result.itemColl,equals(result.list[0].trueBranch[0].trueBranch));
   });
 
   test("Parse path to normal lists of book", () async {

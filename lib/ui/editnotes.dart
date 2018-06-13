@@ -62,9 +62,8 @@ class EditNotesState extends EditorPageState {
   }
 
   Widget _noteBuilder(Note note) {
-    return ListViewPopupMenuButton(
-      editAction: _editNote(note),
-      deleteAction: _deleteNote(note),
+    return themeFlatButton(
+      onPressed: _editNote(note),
       child: ListItem2TextRows(
         line1: note.text,
         line2: Strings.priorityToString(note.priority),
@@ -75,14 +74,6 @@ class EditNotesState extends EditorPageState {
   Function _editNote(Note note) {
     var index = _notes.indexOf(note);
     return navigateTo("${widget.path}/$index");
-  }
-
-  Function _deleteNote(Note note){
-    return () {
-      var command = _notes.remove(note);
-      setState((){});
-      persistBookOrUndo(command);
-    };
   }
 
   Future _addNote() async {
