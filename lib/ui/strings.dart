@@ -58,4 +58,5 @@ class Strings{
   static String tapToClose = "Tap anywhere to close";
   static String confirmDelete = "Confirm deletion";
   static String doWantToDelete = "Are you sure you want to delete this object?";
+  static String loginGoogle = "Sign in with Google";
 }

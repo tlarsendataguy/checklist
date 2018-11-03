@@ -1,26 +1,26 @@
-import 'package:checklist/ui/editnote.dart';
 import 'package:checklist/ui/pathroute.dart';
-import 'package:checklist/ui/usebook.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:checklist/ui/templates.dart';
+import 'package:checklist/ui/strings.dart';
 
 import 'package:checklist/src/mobilediskwriter.dart';
 import 'package:checklist/src/parsepath.dart';
-import 'package:checklist/ui/editalternatives.dart';
-import 'package:checklist/ui/editbook.dart';
-import 'package:checklist/ui/editbookbranch.dart';
-import 'package:checklist/ui/edititems.dart';
-import 'package:checklist/ui/strings.dart';
-import 'package:checklist/ui/landing.dart';
-import 'package:checklist/ui/newbook.dart';
-import 'package:checklist/ui/editlist.dart';
-import 'package:checklist/ui/templates.dart';
-import 'package:checklist/ui/edititem.dart';
-import 'package:checklist/ui/editnotes.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:checklist/ui/pagefactory.dart';
 
 typedef MaterialPageRoute RouteBuilder(Widget builder);
 
 void main() {
   ParsePath.setWriter(new MobileDiskWriter());
+  var signin = new GoogleSignIn();
+  signin.signInSilently().then((account) async {
+    if (account != null){
+      var auth = await account.authentication;
+      FirebaseAuth.instance.signInWithGoogle(idToken: auth.idToken, accessToken: auth.accessToken);
+    }
+  });
   runApp(new MyApp());
 }
 
@@ -28,7 +28,7 @@ class MyApp extends StatefulWidget {
   _MyAppState createState() => new _MyAppState();
 }
 
-class _MyAppState extends State<MyApp>{
+class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
@@ -43,38 +43,38 @@ class _MyAppState extends State<MyApp>{
     var result = ParsePath.validate(path);
     var router = _buildRouter(settings);
 
-    switch (result){
+    switch (result) {
       case ParseResult.Home:
-        return router(new Landing(path,changeTheme));
+        return router(LandingPage(path, changeTheme));
       case ParseResult.NewBook:
-        return router(new NewBook(path));
+        return router(NewBookPage(path));
       case ParseResult.UseBook:
-        return router(new UseBook(path));
+        return router(UseBookPage(path));
       case ParseResult.Book:
-        return router(new EditBook(path));
+        return router(EditBookPage(path));
       case ParseResult.NormalLists:
       case ParseResult.EmergencyLists:
-        return router(new EditBookBranch(path));
+        return router(EditBookBranchPage(path));
       case ParseResult.List:
-        return router(new EditList(path));
+        return router(EditListPage(path));
       case ParseResult.Alternatives:
-        return router(new EditAlternatives(path));
+        return router(EditAlternativesPage(path));
       case ParseResult.Items:
       case ParseResult.TrueBranch:
       case ParseResult.FalseBranch:
-        return router(new EditItems(path));
+        return router(EditItemsPage(path));
       case ParseResult.Item:
-        return router(new EditItem(path));
+        return router(EditItemPage(path));
       case ParseResult.Notes:
-        return router(new EditNotes(path));
+        return router(EditNotesPage(path));
       case ParseResult.Note:
-        return router(new EditNote(path));
+        return router(EditNotePage(path));
       default:
         return null;
     }
   }
 
-  RouteBuilder _buildRouter(RouteSettings settings){
+  RouteBuilder _buildRouter(RouteSettings settings) {
     int level;
     String path = settings.name;
 
@@ -83,16 +83,27 @@ class _MyAppState extends State<MyApp>{
     else
       level = path.split('/').length - 1;
 
-    return (Widget builder){
-      return new PathRoute(
+    return (Widget builder) {
+      return PathRoute(
         settings: settings,
         level: level,
-        builder: (BuildContext context) => builder,
+        builder: (context) => StreamBuilder<FirebaseUser>(
+              stream: FirebaseAuth.instance.onAuthStateChanged,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return CupertinoActivityIndicator();
+                } else if (snapshot.hasData) {
+                  return builder;
+                } else {
+                  return LoginPage();
+                }
+              },
+            ),
       );
     };
   }
 
-  void changeTheme(){
+  void changeTheme() {
     setState(ThemeColors.toggleTheme);
   }
 }
