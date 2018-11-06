@@ -1,6 +1,8 @@
 import 'package:checklist/src/mobilediskwriter.dart';
 import 'package:checklist/ui/navigationpage.dart';
 import 'package:checklist/ui/strings.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:checklist/src/bookio.dart';
 import 'package:checklist/ui/templates.dart';
@@ -59,6 +61,12 @@ class _LandingState extends NavigationPageState {
             color: ThemeColors.isRed ? primaryGreen : primaryRed,
             onPressed: ()=> super.setState(widget.themeChangeCallback),
           ),
+          IconButton(
+            icon: Icon(Icons.account_circle),
+            color: ThemeColors.primary,
+            //onPressed: FirebaseAuth.instance.signOut,
+            onPressed: doSomething,
+          )
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -82,5 +90,17 @@ class _LandingState extends NavigationPageState {
         itemCount: books.length,
       );
     }
+  }
+
+  Future doSomething() async {
+    var user = await FirebaseAuth.instance.currentUser();
+
+    Firestore.instance.collection("users").document(user.uid).setData({
+      "email": user.email,
+      "displayName": user.displayName,
+    },
+      merge: true,
+    );
+
   }
 }

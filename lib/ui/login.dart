@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'templates.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class Login extends StatelessWidget{
   Widget build(BuildContext context) {
@@ -30,5 +31,13 @@ class Login extends StatelessWidget{
     var googleUser = await signin.signIn();
     var googleAuth = await googleUser.authentication;
     await FirebaseAuth.instance.signInWithGoogle(idToken: googleAuth.idToken, accessToken: googleAuth.accessToken);
+    var user = await FirebaseAuth.instance.currentUser();
+
+    Firestore.instance.collection("users").document(user.uid).setData({
+        "email": user.email,
+        "displayName": user.displayName,
+      },
+      merge: true,
+    );
   }
 }
